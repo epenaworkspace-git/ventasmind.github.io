@@ -1,0 +1,3128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VentaMinds PRO</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --fondo: #0D1117;
+    --card: #161B27;
+    --card2: #1C2333;
+    --menta: #00F5C4;
+    --menta2: #00C49A;
+    --azul: #4F8EF7;
+    --violeta: #A855F7;
+    --naranja: #F97316;
+    --rojo: #EF4444;
+    --texto: #E2E8F0;
+    --textodim: #8892A4;
+    --borde: #2A3345;
+  }
+  html[data-theme="light"] {
+    --fondo: #F4F6FB;
+    --card: #FFFFFF;
+    --card2: #F0F2F8;
+    --menta: #00B894;
+    --menta2: #009975;
+    --azul: #2563EB;
+    --violeta: #8B2FD8;
+    --naranja: #EA580C;
+    --rojo: #DC2626;
+    --texto: #1A2233;
+    --textodim: #5B6478;
+    --borde: #DDE3EF;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--fondo);
+    color: var(--texto);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    transition: background 0.25s, color 0.25s;
+  }
+  .theme-toggle {
+    width: 34px; height: 34px;
+    border-radius: 10px;
+    background: var(--card2);
+    border: 1px solid var(--borde);
+    color: var(--texto);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.2s;
+  }
+  .theme-toggle:hover { border-color: var(--menta); transform: translateY(-1px); }
+
+  /* === ANIMACIONES === */
+  @keyframes pulseGlow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(0,245,196,0.4); }
+    50% { box-shadow: 0 0 0 12px rgba(0,245,196,0); }
+  }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes shimmer {
+    0% { background-position: -200% center; }
+    100% { background-position: 200% center; }
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  @keyframes countUp {
+    from { opacity: 0; transform: scale(0.8); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  @keyframes alertPulse {
+    0%, 100% { background-color: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.4); }
+    50% { background-color: rgba(239,68,68,0.22); border-color: rgba(239,68,68,0.8); }
+  }
+  @keyframes thermFill {
+    from { width: 0%; }
+  }
+  @keyframes barIn {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+  }
+  @keyframes typewriter {
+    from { width: 0; }
+    to { width: 100%; }
+  }
+  @keyframes blink {
+    50% { border-color: transparent; }
+  }
+
+  .slide-up { animation: slideUp 0.45s cubic-bezier(.22,.68,0,1.2) both; }
+  .fade-in { animation: fadeIn 0.4s ease both; }
+  .pulse-glow { animation: pulseGlow 2s infinite; }
+  .alert-pulse { animation: alertPulse 1.5s infinite; }
+  .shimmer-text {
+    background: linear-gradient(90deg, var(--menta), var(--azul), var(--violeta), var(--menta));
+    background-size: 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmer 3s linear infinite;
+  }
+  .spin { animation: spin 1s linear infinite; }
+
+  /* === LAYOUT === */
+  .app-wrap {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 0 16px 90px;
+  }
+
+  /* === HEADER === */
+  .top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 0 14px;
+    border-bottom: 1px solid var(--borde);
+    margin-bottom: 20px;
+  }
+  .logo {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 1.2rem;
+    letter-spacing: -0.5px;
+  }
+  .badge-pro {
+    background: linear-gradient(135deg, var(--menta), var(--azul));
+    color: #000;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 2px 7px;
+    border-radius: 20px;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+
+  /* === STEPPER === */
+  .stepper {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 22px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+  }
+  .stepper::-webkit-scrollbar { display: none; }
+  .step-dot {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700;
+    border: 2px solid var(--borde);
+    background: var(--card);
+    color: var(--textodim);
+    transition: all 0.3s;
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+  .step-dot.active {
+    border-color: var(--menta);
+    color: #000;
+    background: var(--menta);
+    box-shadow: 0 0 16px rgba(0,245,196,0.5);
+  }
+  .step-dot.done {
+    border-color: var(--menta2);
+    color: var(--menta2);
+    background: rgba(0,245,196,0.12);
+  }
+  .step-line {
+    flex: 1;
+    height: 2px;
+    background: var(--borde);
+    transition: background 0.3s;
+    min-width: 16px;
+  }
+  .step-line.done { background: var(--menta2); }
+
+  /* === CARDS === */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--borde);
+    border-radius: 16px;
+    padding: 18px;
+    margin-bottom: 14px;
+  }
+  .card-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-title span { font-size: 18px; }
+
+  /* === INPUTS === */
+  .field-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--textodim);
+    margin-bottom: 6px;
+    display: block;
+  }
+  .inp {
+    width: 100%;
+    background: var(--card2);
+    border: 1px solid var(--borde);
+    border-radius: 10px;
+    padding: 10px 13px;
+    color: var(--texto);
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .inp:focus {
+    border-color: var(--menta);
+    box-shadow: 0 0 0 3px rgba(0,245,196,0.12);
+  }
+  .inp option { background: var(--card2); }
+  .inp::placeholder { color: var(--textodim); }
+  .field { margin-bottom: 14px; }
+
+  /* === SLIDER INTERÉS === */
+  .slider-wrap { position: relative; }
+  input[type=range] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 6px;
+    background: var(--borde);
+    border-radius: 4px;
+    outline: none;
+    cursor: pointer;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--menta);
+    box-shadow: 0 0 8px rgba(0,245,196,0.6);
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+  .slider-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: var(--textodim);
+    margin-top: 4px;
+  }
+
+  /* === BOTONES === */
+  .btn-primary {
+    background: var(--menta);
+    color: #000;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 12px 24px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Inter', sans-serif;
+  }
+  .btn-primary:hover {
+    background: var(--menta2);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(0,245,196,0.3);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--textodim);
+    font-weight: 600;
+    font-size: 14px;
+    padding: 12px 20px;
+    border-radius: 12px;
+    border: 1px solid var(--borde);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Inter', sans-serif;
+  }
+  .btn-ghost:hover { border-color: var(--menta); color: var(--menta); }
+
+  /* === TERMÓMETRO ANIMADO === */
+  .therm-container {
+    position: relative;
+    width: 100%;
+    height: 28px;
+    background: var(--card2);
+    border-radius: 14px;
+    border: 1px solid var(--borde);
+    overflow: hidden;
+  }
+  .therm-fill {
+    height: 100%;
+    border-radius: 14px;
+    transition: width 1.2s cubic-bezier(.22,.68,0,1.2);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 10px;
+    font-size: 11px;
+    font-weight: 800;
+    color: #000;
+    transform-origin: left;
+  }
+  .therm-glow {
+    position: absolute;
+    right: 0; top: 0; bottom: 0;
+    width: 30px;
+    background: rgba(255,255,255,0.3);
+    filter: blur(6px);
+  }
+
+  /* === GAUGE DE PROBABILIDAD === */
+  .gauge-wrap {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  #gaugeCanvas { display: block; }
+  .gauge-value {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 2.4rem;
+    font-weight: 800;
+    line-height: 1;
+    margin-top: -10px;
+  }
+  .gauge-label {
+    font-size: 11px;
+    color: var(--textodim);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-top: 2px;
+  }
+
+  /* === ALERTAS === */
+  .alert-box {
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-size: 13px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .alert-cold {
+    background: rgba(239,68,68,0.1);
+    border: 1px solid rgba(239,68,68,0.35);
+    color: #fca5a5;
+  }
+  .alert-cold.pulsing { animation: alertPulse 1.5s infinite; }
+  .alert-warn {
+    background: rgba(249,115,22,0.1);
+    border: 1px solid rgba(249,115,22,0.35);
+    color: #fdba74;
+  }
+  .alert-ok {
+    background: rgba(0,245,196,0.08);
+    border: 1px solid rgba(0,245,196,0.25);
+    color: var(--menta);
+  }
+  .alert-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+
+  /* === MÉTRICAS GRID === */
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .metric-box {
+    background: var(--card2);
+    border: 1px solid var(--borde);
+    border-radius: 12px;
+    padding: 13px;
+    transition: border-color 0.3s;
+  }
+  .metric-box:hover { border-color: rgba(0,245,196,0.3); }
+  .metric-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--textodim);
+    margin-bottom: 5px;
+  }
+  .metric-value {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1;
+    animation: countUp 0.4s ease both;
+  }
+  .metric-sub {
+    font-size: 10px;
+    color: var(--textodim);
+    margin-top: 3px;
+  }
+
+  /* === TABS === */
+  .tabs-bar {
+    display: flex;
+    border-bottom: 1px solid var(--borde);
+    margin-bottom: 16px;
+    gap: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .tabs-bar::-webkit-scrollbar { display: none; }
+  .tab-btn {
+    background: transparent;
+    border: none;
+    color: var(--textodim);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 9px 14px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+    font-family: 'Inter', sans-serif;
+  }
+  .tab-btn.active { color: var(--menta); border-bottom-color: var(--menta); }
+
+  /* === FACTORES BAR === */
+  .factor-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .factor-name {
+    font-size: 12px;
+    color: var(--textodim);
+    width: 90px;
+    flex-shrink: 0;
+  }
+  .factor-bar-wrap {
+    flex: 1;
+    height: 8px;
+    background: var(--card2);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .factor-bar {
+    height: 100%;
+    border-radius: 4px;
+    transform-origin: left;
+    animation: barIn 0.8s cubic-bezier(.22,.68,0,1.2) both;
+  }
+  .factor-pct {
+    font-size: 12px;
+    font-weight: 700;
+    width: 36px;
+    text-align: right;
+    color: var(--texto);
+  }
+
+  /* === CHAT === */
+  .chat-wrap {
+    height: 260px;
+    overflow-y: auto;
+    background: var(--fondo);
+    border-radius: 12px;
+    border: 1px solid var(--borde);
+    padding: 12px;
+    margin-bottom: 10px;
+    scroll-behavior: smooth;
+  }
+  .chat-wrap::-webkit-scrollbar { width: 3px; }
+  .chat-wrap::-webkit-scrollbar-thumb { background: var(--borde); border-radius: 2px; }
+  .msg-user {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 10px;
+  }
+  .msg-user-bubble {
+    background: var(--menta);
+    color: #000;
+    font-size: 13px;
+    padding: 9px 13px;
+    border-radius: 14px 14px 3px 14px;
+    max-width: 82%;
+    font-weight: 500;
+  }
+  .msg-ai {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .ai-avatar {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--menta), var(--azul));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 800; color: #000;
+    flex-shrink: 0;
+  }
+  .msg-ai-bubble {
+    background: var(--card2);
+    font-size: 13px;
+    padding: 10px 13px;
+    border-radius: 3px 14px 14px 14px;
+    max-width: 84%;
+    border: 1px solid var(--borde);
+    line-height: 1.55;
+  }
+  .chat-input-row {
+    display: flex;
+    gap: 8px;
+  }
+  .chat-input {
+    flex: 1;
+    background: var(--card2);
+    border: 1px solid var(--borde);
+    border-radius: 10px;
+    padding: 10px 13px;
+    color: var(--texto);
+    font-size: 13px;
+    font-family: 'Inter', sans-serif;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .chat-input:focus { border-color: var(--menta); }
+  .chat-send {
+    background: var(--menta);
+    color: #000;
+    border: none;
+    border-radius: 10px;
+    width: 44px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .chat-send:hover { background: var(--menta2); }
+
+  /* === CHAT FLOTANTE GLOBAL === */
+  .fab-chat {
+    position: fixed;
+    bottom: 80px;
+    right: 16px;
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--menta), var(--azul));
+    border: none;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    box-shadow: 0 4px 20px rgba(0,245,196,0.45);
+    z-index: 1000;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .fab-chat:hover { transform: scale(1.08); box-shadow: 0 6px 28px rgba(0,245,196,0.6); }
+  .fab-chat .fab-badge {
+    position: absolute;
+    top: -2px; right: -2px;
+    width: 16px; height: 16px;
+    background: var(--rojo);
+    border-radius: 50%;
+    font-size: 9px;
+    font-weight: 800;
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    border: 2px solid var(--fondo);
+  }
+  .chat-panel {
+    position: fixed;
+    bottom: 148px;
+    right: 12px;
+    width: calc(100vw - 24px);
+    max-width: 460px;
+    background: var(--card);
+    border: 1px solid var(--borde);
+    border-radius: 18px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+    z-index: 999;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transform: translateY(20px) scale(0.95);
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.25s cubic-bezier(.22,.68,0,1.2);
+  }
+  .chat-panel.open {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+    pointer-events: all;
+  }
+  .chat-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 13px 16px;
+    background: var(--card2);
+    border-bottom: 1px solid var(--borde);
+  }
+  .chat-panel-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+  }
+  .chat-panel-avatar {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--menta), var(--azul));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 800; color: #000;
+  }
+  .chat-panel-close {
+    background: transparent;
+    border: none;
+    color: var(--textodim);
+    font-size: 18px;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 6px;
+    transition: all 0.2s;
+    line-height: 1;
+  }
+  .chat-panel-close:hover { background: var(--borde); color: var(--texto); }
+  .chat-panel-messages {
+    height: 300px;
+    overflow-y: auto;
+    padding: 14px;
+    scroll-behavior: smooth;
+    background: var(--fondo);
+  }
+  .chat-panel-messages::-webkit-scrollbar { width: 3px; }
+  .chat-panel-messages::-webkit-scrollbar-thumb { background: var(--borde); border-radius: 2px; }
+  .chat-panel-input-row {
+    display: flex;
+    gap: 8px;
+    padding: 12px;
+    border-top: 1px solid var(--borde);
+    background: var(--card2);
+  }
+  .typing-dots span {
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--menta);
+    margin: 0 2px;
+    animation: bounce 1.2s infinite;
+  }
+  .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce {
+    0%, 80%, 100% { transform: translateY(0); opacity: 0.5; }
+    40% { transform: translateY(-6px); opacity: 1; }
+  }
+
+  /* === ANÁLISIS SENTIMIENTO === */
+  .sentiment-bar-wrap {
+    display: flex;
+    height: 10px;
+    border-radius: 5px;
+    overflow: hidden;
+    margin: 8px 0;
+  }
+  .sentiment-neg { background: var(--rojo); transition: flex 0.8s; }
+  .sentiment-neu { background: var(--naranja); transition: flex 0.8s; }
+  .sentiment-pos { background: var(--menta); transition: flex 0.8s; }
+  .sentiment-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: var(--textodim);
+  }
+
+  /* === NAV BOTTOM === */
+  .nav-bottom {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: rgba(13,17,23,0.95);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid var(--borde);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px 16px;
+    max-width: 480px;
+    margin: 0 auto;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  /* === TIMELINE === */
+  .timeline-item {
+    display: flex;
+    gap: 12px;
+    padding-bottom: 16px;
+    position: relative;
+  }
+  .timeline-item:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    left: 15px; top: 32px;
+    width: 2px;
+    background: var(--borde);
+    bottom: 0;
+  }
+  .tl-dot {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+  }
+  .tl-content { flex: 1; }
+  .tl-title { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+  .tl-sub { font-size: 11px; color: var(--textodim); }
+
+  /* === LOADER === */
+  .loader-ring {
+    width: 18px; height: 18px;
+    border: 2px solid rgba(0,245,196,0.2);
+    border-top-color: var(--menta);
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  /* === SCORE RING === */
+  .hidden { display: none !important; }
+  .section { animation: slideUp 0.35s ease both; }
+
+  /* Posventa */
+  .checklist-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px;
+    background: var(--card2);
+    border-radius: 10px;
+    margin-bottom: 8px;
+    border: 1px solid var(--borde);
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .checklist-item:hover { border-color: rgba(0,245,196,0.3); }
+  .checklist-item.done-item { border-color: rgba(0,245,196,0.4); background: rgba(0,245,196,0.06); }
+  .chk-box {
+    width: 20px; height: 20px;
+    border-radius: 6px;
+    border: 2px solid var(--borde);
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    transition: all 0.2s;
+    margin-top: 1px;
+  }
+  .done-item .chk-box { background: var(--menta); border-color: var(--menta); color: #000; }
+  .chk-text-main { font-size: 13px; font-weight: 500; }
+  .chk-text-sub { font-size: 11px; color: var(--textodim); margin-top: 2px; }
+
+  /* === INFORME EJECUTIVO === */
+  .report-section {
+    background: var(--card);
+    border: 1px solid var(--borde);
+    border-radius: 14px;
+    margin-bottom: 14px;
+    overflow: hidden;
+  }
+  .report-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--borde);
+    background: var(--card2);
+  }
+  .report-section-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .report-section-body {
+    padding: 16px;
+    font-size: 13px;
+    color: var(--textodim);
+    line-height: 1.7;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .btn-copy {
+    background: transparent;
+    border: 1px solid var(--borde);
+    color: var(--textodim);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .btn-copy:hover { border-color: var(--menta); color: var(--menta); }
+  .btn-copy.copied { border-color: var(--menta); color: var(--menta); background: rgba(0,245,196,0.1); }
+  .report-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .btn-report-action {
+    background: var(--card2);
+    border: 1px solid var(--borde);
+    color: var(--texto);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 13px 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.2s;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+  }
+  .btn-report-action:hover { border-color: var(--menta); color: var(--menta); }
+  .btn-report-action .btn-icon { font-size: 20px; }
+  .btn-generate-report {
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(135deg, var(--menta), var(--azul));
+    color: #000;
+    font-weight: 800;
+    font-size: 14px;
+    border: none;
+    border-radius: 14px;
+    cursor: pointer;
+    font-family: 'Space Grotesk', sans-serif;
+    letter-spacing: 0.02em;
+    margin-bottom: 16px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .btn-generate-report:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(0,245,196,0.3); }
+  .report-meta-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .report-meta-box {
+    background: var(--card2);
+    border: 1px solid var(--borde);
+    border-radius: 10px;
+    padding: 10px 12px;
+  }
+  .report-meta-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--textodim); margin-bottom: 3px; }
+  .report-meta-value { font-size: 14px; font-weight: 700; font-family: 'Space Grotesk', sans-serif; color: var(--texto); }
+  .report-generating {
+    text-align: center;
+    padding: 30px 20px;
+    color: var(--textodim);
+    font-size: 13px;
+    display: none;
+  }
+  .report-generating .loader-ring { width: 28px; height: 28px; border-width: 3px; display: block; margin: 0 auto 12px; }
+  .report-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--textodim);
+  }
+  .report-empty-icon { font-size: 3rem; margin-bottom: 12px; }
+  .pdf-progress {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--menta), var(--azul));
+    transform-origin: left;
+    z-index: 9999;
+    display: none;
+    animation: pdfBar 2.5s ease-in-out infinite;
+  }
+  @keyframes pdfBar {
+    0% { transform: scaleX(0); }
+    50% { transform: scaleX(0.7); }
+    100% { transform: scaleX(1); }
+  }
+  .toast-notif {
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--card2);
+    border: 1px solid var(--menta);
+    color: var(--menta);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 10px 20px;
+    border-radius: 30px;
+    opacity: 0;
+    transition: all 0.3s;
+    pointer-events: none;
+    z-index: 9998;
+    white-space: nowrap;
+  }
+  .toast-notif.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="app-wrap">
+
+  <!-- HEADER -->
+  <div class="top-bar">
+    <div>
+      <span class="logo shimmer-text">VentaMinds</span>
+      <span class="badge-pro">PRO</span>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;">
+      <div id="alertIndicator" class="hidden" style="width:10px;height:10px;border-radius:50%;background:var(--rojo);animation:pulseGlow 1.5s infinite;box-shadow:0 0 8px var(--rojo)"></div>
+      <button id="themeToggle" class="theme-toggle" onclick="toggleTheme()" title="Cambiar tema">🌙</button>
+      <button onclick="resetApp()" style="background:var(--card2);border:1px solid var(--borde);color:var(--textodim);border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;font-family:Inter,sans-serif;">Nueva</button>
+    </div>
+  </div>
+
+  <!-- STEPPER -->
+  <div class="stepper" id="stepper">
+    <div class="step-dot active" id="dot-1" onclick="goTo(1)">1</div>
+    <div class="step-line" id="line-1"></div>
+    <div class="step-dot" id="dot-2" onclick="goTo(2)">2</div>
+    <div class="step-line" id="line-2"></div>
+    <div class="step-dot" id="dot-3" onclick="goTo(3)">3</div>
+    <div class="step-line" id="line-3"></div>
+    <div class="step-dot" id="dot-4" onclick="goTo(4)">4</div>
+    <div class="step-line" id="line-4"></div>
+    <div class="step-dot" id="dot-5" onclick="goTo(5)">5</div>
+    <div class="step-line" id="line-5"></div>
+    <div class="step-dot" id="dot-6" onclick="goTo(6)">📊</div>
+    <div class="step-line" id="line-6"></div>
+    <div class="step-dot" id="dot-7" onclick="goTo(7)">📄</div>
+  </div>
+
+  <!-- =================== ETAPA 1: DATOS =================== -->
+  <div id="sec-1" class="section">
+    <div class="card">
+      <div class="card-title"><span>👤</span> Datos del Cliente</div>
+
+      <div class="field">
+        <label class="field-label">Nombre completo</label>
+        <input type="text" id="nombre" class="inp" placeholder="Ej: Carlos Mendoza">
+      </div>
+      <div class="field">
+        <label class="field-label">Tipo de operación</label>
+        <select id="tipoOp" class="inp" onchange="actualizarCardPrueba()">
+          <option value="">Seleccionar…</option>
+          <option value="auto">🚗 Vehículo / Automotriz</option>
+          <option value="inmueble">🏠 Bien Raíz / Inmueble</option>
+          <option value="servicio">⚙️ Servicio Especializado</option>
+          <option value="otro">📦 Otro producto</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="field-label">Producto o servicio de interés</label>
+        <input type="text" id="producto" class="inp" placeholder="Ej: SUV 2025, Depto 3 rec., CRM empresarial…">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="field">
+          <label class="field-label">Fecha primer contacto</label>
+          <input type="date" id="fechaContacto" class="inp">
+        </div>
+        <div class="field">
+          <label class="field-label">Última interacción</label>
+          <input type="date" id="fechaUltima" class="inp">
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">Valor estimado (opcional)</label>
+        <input type="number" id="valorOp" class="inp" placeholder="$ 0.00">
+      </div>
+    </div>
+  </div>
+
+  <!-- =================== ETAPA 2: SEGUIMIENTO =================== -->
+  <div id="sec-2" class="section hidden">
+    <div class="card">
+      <div class="card-title"><span>📡</span> Registro de Contactos</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px;">
+        <div>
+          <label class="field-label">📞 Llamadas</label>
+          <input type="number" min="0" value="0" id="llamadas" class="inp" style="text-align:center;" onfocus="if(this.value==='0')this.value=''" onblur="if(this.value==='')this.value='0'">
+        </div>
+        <div>
+          <label class="field-label">💬 WhatsApp</label>
+          <input type="number" min="0" value="0" id="whatsapp" class="inp" style="text-align:center;" onfocus="if(this.value==='0')this.value=''" onblur="if(this.value==='')this.value='0'">
+        </div>
+        <div>
+          <label class="field-label">✉️ Correos</label>
+          <input type="number" min="0" value="0" id="correos" class="inp" style="text-align:center;" onfocus="if(this.value==='0')this.value=''" onblur="if(this.value==='')this.value='0'">
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">¿El cliente responde?</label>
+        <select id="respuestaVelocidad" class="inp">
+          <option value="5">Sí, responde rápido (horas)</option>
+          <option value="3">Responde pero tarda (días)</option>
+          <option value="1">Responde esporádicamente</option>
+          <option value="0">No responde / ignoró</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="field-label">¿El cliente hace preguntas?</label>
+        <select id="preguntasCliente" class="inp">
+          <option value="5">Sí, muchas preguntas específicas</option>
+          <option value="3">Pocas preguntas generales</option>
+          <option value="1">Solo responde, no pregunta</option>
+          <option value="0">No hay interacción</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="field-label">Últimos comentarios del cliente <span style="color:var(--menta);font-size:10px;">← IA analiza esto</span></label>
+        <textarea id="comentarios" rows="3" class="inp" style="resize:none;" placeholder="Ej: 'Lo veo caro', 'Me gustó mucho, voy a pensarlo', 'Mi esposa también quiere verlo'…"></textarea>
+      </div>
+      <div class="field">
+        <label class="field-label">¿Ha traído a alguien más? (acompañante)</label>
+        <select id="acompanante" class="inp">
+          <option value="3">Sí, trajo familia / pareja / socio</option>
+          <option value="1">No, solo</option>
+          <option value="0">No ha visitado en persona</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- CARD PRUEBA DE MANEJO — solo visible en modo automotriz -->
+    <div id="cardPruebaManejo" class="card hidden">
+      <div class="card-title"><span>🚗</span> Prueba de Manejo</div>
+
+      <div class="field">
+        <label class="field-label">¿Realizó prueba de manejo?</label>
+        <select id="hizoPrueba" class="inp" onchange="togglePruebaDetalle(this.value)">
+          <option value="0">No ha realizado prueba</option>
+          <option value="1">Se ofreció pero no quiso</option>
+          <option value="2">Quedó pendiente / programada</option>
+          <option value="3">Sí, la realizó</option>
+        </select>
+      </div>
+
+      <div id="pruebaDetalle" class="hidden">
+        <div class="field">
+          <label class="field-label">¿Con quién fue la prueba?</label>
+          <select id="pruebaCon" class="inp">
+            <option value="solo">Solo/a</option>
+            <option value="pareja">Con pareja / cónyuge</option>
+            <option value="familia">Con familia (hijos, padres…)</option>
+            <option value="socio">Con socio / amigo de confianza</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label class="field-label">¿Cómo reaccionó durante la prueba?</label>
+          <select id="reaccionPrueba" class="inp">
+            <option value="5">Muy entusiasmado/a, expresó que le encantó</option>
+            <option value="4">Positivo/a, sonrió y preguntó más detalles</option>
+            <option value="3">Neutral, no mostró mucha emoción</option>
+            <option value="2">Poco convencido/a, hizo comparaciones</option>
+            <option value="1">Decepcionado/a o mencionó algo negativo</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label class="field-label">¿Cómo lo notaste tú como vendedor?</label>
+          <select id="notaVendedor" class="inp">
+            <option value="5">Lo vi muy conectado con el vehículo, claramente lo imaginó suyo</option>
+            <option value="4">Mostró interés real, hizo preguntas técnicas o de uso</option>
+            <option value="3">Estuvo tranquilo, sin mucha reacción visible</option>
+            <option value="2">Pareció dudar o comparar mentalmente con otro vehículo</option>
+            <option value="1">No pareció convencido, no hizo preguntas después</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Comentarios del cliente durante / después de la prueba <span style="color:var(--menta);font-size:10px;">← IA analiza esto</span></label>
+          <textarea id="comentariosPrueba" rows="3" class="inp" style="resize:none;" placeholder="Ej: 'Se maneja muy suave', 'Me gusta el sonido del motor', 'Sí, cuando lo tengamos lo llevamos al taller de mi cuñado'…"></textarea>
+        </div>
+
+        <div class="field">
+          <label class="field-label">¿Pidió hacer otra prueba o regresó a preguntar?</label>
+          <select id="segundaPrueba" class="inp">
+            <option value="0">No, fue una sola vez</option>
+            <option value="2">Preguntó si podría volver a manejarlo</option>
+            <option value="4">Sí, ya realizó una segunda prueba</option>
+          </select>
+        </div>
+
+        <!-- Badge de señal de compra -->
+        <div style="background:rgba(0,245,196,0.07);border:1px solid rgba(0,245,196,0.25);border-radius:10px;padding:10px 12px;font-size:12px;color:var(--textodim);display:flex;gap:8px;align-items:flex-start;">
+          <span style="font-size:16px;flex-shrink:0;">💡</span>
+          <span>La prueba de manejo es uno de los <strong style="color:var(--texto);">indicadores más fuertes de compra</strong> en ventas automotrices. Un cliente que maneja y pregunta por detalles de entrega tiene alta probabilidad de cierre.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =================== ETAPA 3: CONDICIONES =================== -->
+  <div id="sec-3" class="section hidden">
+    <div class="card">
+      <div class="card-title"><span>💰</span> Condiciones de la Operación</div>
+      <div class="field">
+        <label class="field-label">Modalidad de pago</label>
+        <select id="modalidadPago" class="inp" onchange="toggleCredito(this.value)">
+          <option value="0">No definido</option>
+          <option value="contado">De contado</option>
+          <option value="credito">A crédito / financiamiento</option>
+        </select>
+      </div>
+      <div id="bloqueCredito" class="hidden">
+        <div class="field">
+          <label class="field-label">Estado del crédito</label>
+          <select id="estadoCredito" class="inp">
+            <option value="0">No solicitado</option>
+            <option value="30">Iniciando proceso</option>
+            <option value="60">En revisión</option>
+            <option value="90">Pre-aprobado</option>
+            <option value="100">✅ Aprobado</option>
+            <option value="-50">❌ Rechazado</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="field-label">Documentación entregada</label>
+          <select id="documentos" class="inp">
+            <option value="0">Ninguna</option>
+            <option value="50">Parcial</option>
+            <option value="100">Completa</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">Cotización enviada</label>
+        <select id="cotizacion" class="inp">
+          <option value="0">No enviada</option>
+          <option value="30">Enviada, sin respuesta</option>
+          <option value="60">Revisada, pide cambios</option>
+          <option value="85">Revisada y aceptada en principio</option>
+          <option value="100">Firmada / aceptada formalmente</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="field-label">¿Hay competencia en juego?</label>
+        <select id="competencia" class="inp">
+          <option value="0">Sí, está viendo otras opciones</option>
+          <option value="2">Posiblemente</option>
+          <option value="5">No menciona competencia</option>
+          <option value="8">Viene referido, ya confía en nosotros</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="field-label">Objeción principal</label>
+        <select id="objecion" class="inp">
+          <option value="1">Precio / presupuesto</option>
+          <option value="2">Tiempo / "lo pienso"</option>
+          <option value="3">Necesita aprobación de tercero</option>
+          <option value="4">Duda del producto</option>
+          <option value="5">Sin objeciones claras</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- =================== ETAPA 4: SEÑALES COMPRA =================== -->
+  <div id="sec-4" class="section hidden">
+    <div class="card">
+      <div class="card-title"><span>🎯</span> Señales de Compra</div>
+      <p style="font-size:12px;color:var(--textodim);margin-bottom:14px;">Marca todas las señales que hayas observado en el cliente:</p>
+      <div id="senialesWrap" style="display:flex;flex-direction:column;gap:8px;"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span>📋</span> Estado de la Operación</div>
+      <div class="field">
+        <label class="field-label">¿En qué punto estamos?</label>
+        <select id="estadoOp" class="inp">
+          <option value="1">Prospecto nuevo / primer contacto</option>
+          <option value="2">Interesado, explorando opciones</option>
+          <option value="3">Negociando condiciones</option>
+          <option value="4">Falta solo anticipo / firma</option>
+          <option value="5">✅ Operación cerrada</option>
+          <option value="0">❌ Se perdió / canceló</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="field-label">Nivel de urgencia del cliente</label>
+        <div class="slider-wrap">
+          <input type="range" id="urgencia" min="1" max="5" value="3" oninput="updateSliderLabel('urgencia','urgenciaLbl',['Sin urgencia','Baja urgencia','Urgencia media','Alta urgencia','Necesita ahora'])">
+          <div style="text-align:center;font-size:13px;font-weight:600;color:var(--menta);margin-top:6px;" id="urgenciaLbl">Urgencia media</div>
+          <div class="slider-labels"><span>Sin urgencia</span><span>Necesita ahora</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =================== ETAPA 5: NOTAS =================== -->
+  <div id="sec-5" class="section hidden">
+    <div class="card">
+      <div class="card-title"><span>📝</span> Notas y Seguimiento</div>
+      <div class="field">
+        <label class="field-label">Próximo contacto programado</label>
+        <input type="datetime-local" id="proximoContacto" class="inp">
+      </div>
+      <div class="field">
+        <label class="field-label">Canal preferido del cliente</label>
+        <select id="canalPreferido" class="inp">
+          <option value="whatsapp">WhatsApp</option>
+          <option value="llamada">Llamada telefónica</option>
+          <option value="email">Correo electrónico</option>
+          <option value="presencial">Visita presencial</option>
+          <option value="videollamada">Videollamada</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="field-label">Notas personales del cliente</label>
+        <textarea id="notasPersonales" rows="3" class="inp" style="resize:none;" placeholder="Ej: Tiene hijos, le gusta el golf, viaja seguido, su cumpleaños es en marzo…"></textarea>
+      </div>
+      <div class="field">
+        <label class="field-label">Compromisos pendientes (vendedor)</label>
+        <textarea id="compromisos" rows="2" class="inp" style="resize:none;" placeholder="Ej: Enviar catálogo el lunes, agendar prueba de manejo…"></textarea>
+      </div>
+    </div>
+
+    <!-- Timeline de acciones -->
+    <div class="card">
+      <div class="card-title"><span>🕒</span> Historial de la Operación</div>
+      <div id="timelineWrap">
+        <div style="font-size:12px;color:var(--textodim);">Agrega eventos al timeline para llevar el historial completo.</div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:12px;">
+        <input type="text" id="tlInput" class="inp" placeholder="¿Qué ocurrió?" style="font-size:13px;">
+        <button onclick="addTimeline()" class="btn-primary" style="padding:10px 14px;white-space:nowrap;font-size:13px;">+ Agregar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =================== ETAPA 6: ANÁLISIS PRO =================== -->
+  <div id="sec-6" class="section hidden">
+
+    <!-- ALERTA ENFRIAMIENTO -->
+    <div id="alertaEnfriamiento" class="hidden"></div>
+
+    <!-- GAUGE PROBABILIDAD -->
+    <div class="card" style="text-align:center;">
+      <div class="card-title" style="justify-content:center;"><span>🎯</span> Probabilidad de Cierre</div>
+      <div class="gauge-wrap">
+        <canvas id="gaugeCanvas" width="220" height="130"></canvas>
+        <div class="gauge-value" id="gaugeVal" style="color:var(--menta);">0%</div>
+        <div class="gauge-label">Score de cierre</div>
+      </div>
+    </div>
+
+    <!-- TEMPERATURA + MÉTRICAS -->
+    <div class="card">
+      <div class="card-title"><span>🌡️</span> Temperatura del Cliente</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <span id="tempLabel" style="font-size:1.2rem;font-weight:700;">—</span>
+        <span id="diasLabel" style="font-size:12px;color:var(--textodim);"></span>
+      </div>
+      <div class="therm-container">
+        <div id="thermFill" class="therm-fill" style="width:0%;"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--textodim);margin-top:4px;">
+        <span>❄️ Frío</span><span>🌤️ Tibio</span><span>🔥 Caliente</span><span>💥 Muy Caliente</span>
+      </div>
+    </div>
+
+    <!-- MÉTRICAS 4 CUADROS -->
+    <div class="metrics-grid">
+      <div class="metric-box">
+        <div class="metric-label">Días sin cerrar</div>
+        <div class="metric-value" id="mDias" style="color:var(--azul);">0</div>
+        <div class="metric-sub" id="mDiasUlt"></div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-label">Contactos totales</div>
+        <div class="metric-value" id="mContactos" style="color:var(--violeta);">0</div>
+        <div class="metric-sub">llamadas + msgs</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-label">Señales compra</div>
+        <div class="metric-value" id="mSeniales" style="color:var(--menta);">0/7</div>
+        <div class="metric-sub">detectadas</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-label">Urgencia</div>
+        <div class="metric-value" id="mUrgencia" style="color:var(--naranja);">—</div>
+        <div class="metric-sub">del cliente</div>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs-bar">
+      <button class="tab-btn active" onclick="switchTab('factores',this)">Factores</button>
+      <button class="tab-btn" onclick="switchTab('graficos',this)">Gráficos</button>
+      <button class="tab-btn" onclick="switchTab('sentimiento',this)">Sentimiento</button>
+      <button class="tab-btn" onclick="switchTab('posventa',this)">Posventa</button>
+      <button class="tab-btn" onclick="switchTab('chat',this)">Chat IA</button>
+    </div>
+
+    <!-- TAB: FACTORES -->
+    <div id="tab-factores" class="tab-content">
+      <div id="factoresWrap"></div>
+    </div>
+
+    <!-- TAB: GRÁFICOS -->
+    <div id="tab-graficos" class="tab-content hidden">
+      <div class="card" style="padding:14px;">
+        <div style="font-size:12px;color:var(--textodim);margin-bottom:10px;font-weight:600;">RADAR DE FACTORES</div>
+        <canvas id="radarChart" height="220"></canvas>
+      </div>
+      <div class="card" style="padding:14px;">
+        <div style="font-size:12px;color:var(--textodim);margin-bottom:10px;font-weight:600;">DESGLOSE DE PUNTUACIÓN</div>
+        <canvas id="barChart" height="200"></canvas>
+      </div>
+    </div>
+
+    <!-- TAB: SENTIMIENTO -->
+    <div id="tab-sentimiento" class="tab-content hidden">
+      <div class="card">
+        <div class="card-title"><span>🧠</span> Análisis de Sentimiento IA</div>
+        <div id="sentimientoResult">
+          <div style="font-size:13px;color:var(--textodim);">Ingresa comentarios del cliente en la etapa 2 para analizar el sentimiento.</div>
+        </div>
+      </div>
+      <div class="card" id="recomendacionesCard">
+        <div class="card-title"><span>💡</span> Recomendaciones</div>
+        <div id="recomendacionesWrap" style="font-size:13px;color:var(--textodim);">Completa la información para recibir recomendaciones personalizadas.</div>
+      </div>
+    </div>
+
+    <!-- TAB: POSVENTA -->
+    <div id="tab-posventa" class="tab-content hidden">
+      <div class="card">
+        <div class="card-title"><span>🔄</span> Lista de Posventa</div>
+        <div id="posventaList"></div>
+      </div>
+      <div class="card" style="background:rgba(0,245,196,0.06);border-color:rgba(0,245,196,0.25);">
+        <div class="card-title" style="color:var(--menta);"><span>🌟</span> Estrategia de Referidos</div>
+        <p style="font-size:13px;color:var(--textodim);line-height:1.6;">El momento ideal para pedir referidos es entre los <strong style="color:var(--texto);">7 y 15 días</strong> después de la entrega, cuando el cliente ya disfruta el producto y está satisfecho.</p>
+        <div style="background:var(--card2);border-radius:10px;padding:12px;margin-top:10px;font-size:12px;color:var(--textodim);font-style:italic;line-height:1.6;">
+          "Me da mucho gusto que estés contento/a con tu compra. Si conoces a alguien que esté buscando algo similar, te agradecería mucho que me recomiendes — es la mejor forma en que puedo crecer. ¿Conoces a alguien?"
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: CHAT IA -->
+    <div id="tab-chat" class="tab-content hidden">
+      <div class="chat-wrap" id="chatWrap">
+        <div class="msg-ai">
+          <div class="ai-avatar">VM</div>
+          <div class="msg-ai-bubble">¡Hola! Soy tu asesor de ventas IA. Tengo acceso a todos los datos de esta operación. Puedes preguntarme cómo manejar objeciones, qué decirle al cliente, cuándo llamar, o cualquier táctica de cierre. ¿En qué te ayudo?</div>
+        </div>
+      </div>
+      <div class="chat-input-row">
+        <input type="text" id="chatInput" class="chat-input" placeholder="Ej: ¿Cómo manejo la objeción de precio?" onkeydown="if(event.key==='Enter')sendChat()">
+        <button class="chat-send" onclick="sendChat()">➤</button>
+      </div>
+      <p style="font-size:10px;color:var(--textodim);margin-top:6px;text-align:center;">La IA usa todos los datos de esta operación para responderte.</p>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- =================== ETAPA 7: INFORME EJECUTIVO =================== -->
+<div id="sec-7" class="section hidden" style="max-width:480px;margin:0 auto;padding:0 16px 100px;">
+
+  <div style="padding:18px 0 14px;border-bottom:1px solid var(--borde);margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;">
+    <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;">📄 Informe Ejecutivo</div>
+    <div style="font-size:11px;color:var(--textodim);">IA + Métricas + PDF</div>
+  </div>
+
+  <!-- META DATOS RÁPIDOS -->
+  <div class="report-meta-grid" id="reportMetaGrid"></div>
+
+  <!-- BOTÓN GENERAR -->
+  <button class="btn-generate-report" onclick="generarInformeCompleto()">
+    <span>✨</span> Generar Informe con IA
+  </button>
+
+  <!-- LOADING STATE -->
+  <div class="report-generating" id="reportGenerating">
+    <div class="loader-ring spin"></div>
+    <div style="font-weight:600;color:var(--texto);margin-bottom:4px;">Analizando operación…</div>
+    <div style="font-size:12px;">La IA está preparando tu informe detallado</div>
+  </div>
+
+  <!-- EMPTY STATE -->
+  <div class="report-empty" id="reportEmpty">
+    <div class="report-empty-icon">📋</div>
+    <div style="font-weight:600;color:var(--texto);margin-bottom:6px;">Sin informe generado</div>
+    <div style="font-size:12px;">Presiona el botón de arriba para que la IA genere un informe ejecutivo completo con todos los datos de esta operación.</div>
+  </div>
+
+  <!-- CONTENIDO DEL INFORME -->
+  <div id="reportContent" class="hidden">
+
+    <!-- ACCIONES: Descargar PDF + Copiar todo -->
+    <div class="report-actions">
+      <button class="btn-report-action" onclick="descargarPDF()">
+        <span class="btn-icon">📥</span>
+        <span>Descargar PDF</span>
+        <span style="font-size:10px;color:var(--textodim);font-weight:400;">Con métricas y gráficos</span>
+      </button>
+      <button class="btn-report-action" onclick="copiarTodoElInforme()">
+        <span class="btn-icon">📋</span>
+        <span>Copiar todo</span>
+        <span style="font-size:10px;color:var(--textodim);font-weight:400;">Texto completo</span>
+      </button>
+    </div>
+
+    <!-- SECCIÓN: RESUMEN EJECUTIVO (corto) -->
+    <div class="report-section">
+      <div class="report-section-header">
+        <div class="report-section-title"><span>⚡</span> Resumen Ejecutivo</div>
+        <button class="btn-copy" onclick="copiarSeccion('resumenText', this)">📋 Copiar</button>
+      </div>
+      <div class="report-section-body" id="resumenText"></div>
+    </div>
+
+    <!-- SECCIÓN: MÉTRICAS CLAVE -->
+    <div class="report-section">
+      <div class="report-section-header">
+        <div class="report-section-title"><span>📊</span> Métricas Clave</div>
+        <button class="btn-copy" onclick="copiarSeccion('metricasText', this)">📋 Copiar</button>
+      </div>
+      <div class="report-section-body" id="metricasText"></div>
+    </div>
+
+    <!-- SECCIÓN: ANÁLISIS DETALLADO IA -->
+    <div class="report-section">
+      <div class="report-section-header">
+        <div class="report-section-title"><span>🧠</span> Análisis Detallado IA</div>
+        <button class="btn-copy" onclick="copiarSeccion('analisisDetalladoText', this)">📋 Copiar</button>
+      </div>
+      <div class="report-section-body" id="analisisDetalladoText"></div>
+    </div>
+
+    <!-- SECCIÓN: DIAGNÓSTICO POR FACTOR -->
+    <div class="report-section">
+      <div class="report-section-header">
+        <div class="report-section-title"><span>🎯</span> Diagnóstico por Factor</div>
+        <button class="btn-copy" onclick="copiarSeccion('diagnosticoText', this)">📋 Copiar</button>
+      </div>
+      <div class="report-section-body" id="diagnosticoText"></div>
+    </div>
+
+    <!-- SECCIÓN: PLAN DE ACCIÓN -->
+    <div class="report-section">
+      <div class="report-section-header">
+        <div class="report-section-title"><span>🚀</span> Plan de Acción Inmediata</div>
+        <button class="btn-copy" onclick="copiarSeccion('planAccionText', this)">📋 Copiar</button>
+      </div>
+      <div class="report-section-body" id="planAccionText"></div>
+    </div>
+
+    <!-- SECCIÓN: ESTRATEGIA DE CIERRE -->
+    <div class="report-section">
+      <div class="report-section-header">
+        <div class="report-section-title"><span>🤝</span> Estrategia de Cierre</div>
+        <button class="btn-copy" onclick="copiarSeccion('estrategiaText', this)">📋 Copiar</button>
+      </div>
+      <div class="report-section-body" id="estrategiaText"></div>
+    </div>
+
+    <!-- BOTÓN REGENERAR -->
+    <button onclick="generarInformeCompleto()" style="width:100%;padding:12px;background:transparent;border:1px solid var(--borde);color:var(--textodim);border-radius:12px;cursor:pointer;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;margin-top:4px;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--menta)';this.style.color='var(--menta)'" onmouseout="this.style.borderColor='var(--borde)';this.style.color='var(--textodim)'">
+      🔄 Regenerar Informe
+    </button>
+
+  </div>
+</div>
+
+<!-- CHAT FLOTANTE GLOBAL -->
+<button class="fab-chat" onclick="toggleChatPanel()" id="fabChat" title="Asesor IA">
+  🤖
+</button>
+
+<div class="chat-panel" id="chatPanel">
+  <div class="chat-panel-header">
+    <div class="chat-panel-title">
+      <div class="chat-panel-avatar">VM</div>
+      <div>
+        <div>Asesor VentaMinds IA</div>
+        <div style="font-size:10px;color:var(--menta);font-weight:400;">● En línea — usa los datos de esta operación</div>
+      </div>
+    </div>
+    <button class="chat-panel-close" onclick="toggleChatPanel()">✕</button>
+  </div>
+  <div class="chat-panel-messages" id="chatPanelMessages">
+    <div class="msg-ai">
+      <div class="ai-avatar">VM</div>
+      <div class="msg-ai-bubble">¡Hola! Soy tu asesor de ventas IA. Tengo acceso a todos los datos de esta operación en tiempo real.<br><br>Puedo ayudarte con:<br>• Cómo manejar objeciones<br>• Qué decirle al cliente ahora<br>• Cuándo y cómo llamar<br>• Tácticas de cierre específicas<br><br>¿En qué te ayudo?</div>
+    </div>
+  </div>
+  <div class="chat-panel-input-row">
+    <input type="text" id="chatPanelInput" class="chat-input" placeholder="Pregunta lo que necesites…" onkeydown="if(event.key==='Enter')sendChatPanel()">
+    <button class="chat-send" onclick="sendChatPanel()">➤</button>
+  </div>
+</div>
+
+<!-- PDF Progress bar -->
+<div class="pdf-progress" id="pdfProgress"></div>
+<!-- Toast -->
+<div class="toast-notif" id="toastNotif"></div>
+
+<!-- MODAL RECALCULAR -->
+<div id="modalRecalcular" style="
+  display:none; position:fixed; inset:0; z-index:1000;
+  background:rgba(0,0,0,0.75); backdrop-filter:blur(4px);
+  align-items:flex-start; justify-content:center; padding:20px;
+  overflow-y:auto;
+">
+  <div style="
+    background:#161B27; border:1px solid #2A3345; border-radius:20px;
+    padding:24px; width:100%; max-width:440px; margin:auto;
+    animation: slideUp 0.3s cubic-bezier(.22,.68,0,1.2) both;
+  ">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+      <div style="font-family:'Space Grotesk',sans-serif; font-size:16px; font-weight:700;">
+        ✏️ Actualizar y recalcular
+      </div>
+      <button onclick="cerrarModalRecalcular()" style="
+        background:transparent; border:none; color:#8892A4;
+        font-size:20px; cursor:pointer; line-height:1;
+      ">✕</button>
+    </div>
+    <p style="font-size:12px; color:#8892A4; margin-bottom:18px; line-height:1.5;">
+      Ajusta lo que cambió y agrega contexto extra. El score y el informe se regenerarán completos.
+    </p>
+
+    <!-- Estado operación -->
+    <div class="field">
+      <label class="field-label">Estado actual de la operación</label>
+      <select id="r_estadoOp" class="inp"></select>
+    </div>
+
+    <!-- Urgencia -->
+    <div class="field">
+      <label class="field-label">Urgencia del cliente</label>
+      <select id="r_urgencia" class="inp">
+        <option value="1">1 — Sin urgencia</option>
+        <option value="2">2 — Baja</option>
+        <option value="3" selected>3 — Media</option>
+        <option value="4">4 — Alta</option>
+        <option value="5">5 — Ahora mismo</option>
+      </select>
+    </div>
+
+    <!-- Señales de compra nuevas -->
+    <div class="field">
+      <label class="field-label">¿Mostró nuevas señales de compra?</label>
+      <select id="r_seniales" class="inp">
+        <option value="0">No, sin cambios</option>
+        <option value="1">Sí, 1 señal nueva</option>
+        <option value="2">Sí, 2 señales nuevas</option>
+        <option value="3">Sí, 3 o más señales nuevas</option>
+      </select>
+    </div>
+
+    <!-- Objeción -->
+    <div class="field">
+      <label class="field-label">Objeción principal (si cambió)</label>
+      <select id="r_objecion" class="inp">
+        <option value="">— Sin cambio —</option>
+        <option value="5">Sin objeciones ahora</option>
+        <option value="1">Precio / presupuesto</option>
+        <option value="2">Tiempo / lo piensa</option>
+        <option value="3">Necesita aprobación</option>
+        <option value="4">Duda del producto</option>
+      </select>
+    </div>
+
+    <!-- Notas adicionales -->
+    <div class="field">
+      <label class="field-label">Contexto adicional para el informe</label>
+      <textarea id="notasRecalculo" class="inp" rows="4"
+        placeholder="Ej: El cliente llamó por iniciativa propia, mencionó que ya habló con su pareja y ambos están de acuerdo..."
+        style="resize:none; line-height:1.5; font-size:13px;"></textarea>
+    </div>
+
+    <div style="display:flex; gap:10px; margin-top:4px;">
+      <button onclick="cerrarModalRecalcular()" class="btn-ghost" style="flex:1; padding:12px;">
+        Cancelar
+      </button>
+      <button onclick="confirmarRecalculo()" class="btn-primary" style="flex:2; padding:12px;">
+        ↻ Recalcular análisis
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- NAV FIJA ABAJO -->
+<div class="nav-bottom">
+  <button id="btnAnt" class="btn-ghost hidden" onclick="navigate(-1)">← Anterior</button>
+  <div style="font-size:12px;color:var(--textodim);" id="navLabel">Paso 1 de 6</div>
+  <button id="btnSig" class="btn-primary" onclick="navigate(1)">Siguiente →</button>
+</div>
+
+<!-- CHART.JS -->
+<script>
+// ===================== TEMA CLARO/OSCURO =====================
+let temaActual = 'dark';
+function aplicarTema(t) {
+  temaActual = t;
+  document.documentElement.setAttribute('data-theme', t === 'light' ? 'light' : '');
+  const btn = document.getElementById('themeToggle');
+  if (btn) btn.textContent = t === 'light' ? '☀️' : '🌙';
+}
+function toggleTheme() {
+  aplicarTema(temaActual === 'light' ? 'dark' : 'light');
+}
+(function initTheme() {
+  const prefiereClaro = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+  aplicarTema(prefiereClaro ? 'light' : 'dark');
+})();
+
+// ===================== STATE =====================
+let etapa = 1;
+const totalEtapas = 7;
+let radarChart = null;
+let barChart = null;
+let timeline = [];
+let senialesSeleccionadas = new Set();
+let posventaChecked = new Set();
+
+const SENIALES = [
+  { id:'s1', texto:'Pregunta por precios, descuentos o formas de pago', peso:10 },
+  { id:'s2', texto:'Pregunta por plazos de entrega o disponibilidad', peso:10 },
+  { id:'s3', texto:'Habla en futuro: "cuando lo tenga", "cuando me lo entregues"', peso:12 },
+  { id:'s4', texto:'Trajo a alguien más a conocer el producto', peso:8 },
+  { id:'s5', texto:'Pidió ver o probar el producto de nuevo', peso:8 },
+  { id:'s6', texto:'Negoció algún detalle o condición', peso:10 },
+  { id:'s7', texto:'Preguntó por garantías / servicio posventa', peso:7 },
+];
+
+const POSVENTA_ITEMS = [
+  { id:'p1', txt:'Llamar 24-48h después de la entrega para confirmar satisfacción', sub:'Generar confianza y resolver dudas iniciales' },
+  { id:'p2', txt:'Enviar mensaje de WhatsApp de bienvenida con tips de uso', sub:'Agrega valor y mantiene comunicación activa' },
+  { id:'p3', txt:'Seguimiento a los 7 días: verificar experiencia', sub:'Detectar si hay algún pendiente o insatisfacción' },
+  { id:'p4', txt:'Solicitar reseña o testimonio (7-15 días)', sub:'Ideal cuando el cliente ya experimenta el beneficio' },
+  { id:'p5', txt:'Pedir referidos (entre día 10-15)', sub:'Momento de mayor satisfacción emocional' },
+  { id:'p6', txt:'Contacto de seguimiento a los 30 días', sub:'Detectar oportunidades de upsell o cross-sell' },
+];
+
+// ===================== INIT =====================
+window.onload = () => {
+  const hoy = new Date().toISOString().split('T')[0];
+  document.getElementById('fechaContacto').value = hoy;
+  document.getElementById('fechaUltima').value = hoy;
+  renderSeniales();
+  renderPosventa();
+  renderTimeline();
+  updateNav();
+};
+
+function renderSeniales() {
+  const w = document.getElementById('senialesWrap');
+  w.innerHTML = SENIALES.map(s => `
+    <div onclick="toggleSenial('${s.id}',this)" id="box-${s.id}" class="checklist-item ${senialesSeleccionadas.has(s.id)?'done-item':''}">
+      <div class="chk-box">${senialesSeleccionadas.has(s.id)?'✓':''}</div>
+      <div><div class="chk-text-main">${s.texto}</div><div class="chk-text-sub">+${s.peso} pts de señal</div></div>
+    </div>
+  `).join('');
+}
+
+function toggleSenial(id, el) {
+  if (senialesSeleccionadas.has(id)) { senialesSeleccionadas.delete(id); el.classList.remove('done-item'); }
+  else { senialesSeleccionadas.add(id); el.classList.add('done-item'); }
+  const chk = el.querySelector('.chk-box');
+  chk.textContent = senialesSeleccionadas.has(id) ? '✓' : '';
+}
+
+function renderPosventa() {
+  const w = document.getElementById('posventaList');
+  if (!w) return;
+  w.innerHTML = POSVENTA_ITEMS.map(p => `
+    <div onclick="togglePosventa('${p.id}',this)" id="pv-${p.id}" class="checklist-item ${posventaChecked.has(p.id)?'done-item':''}">
+      <div class="chk-box">${posventaChecked.has(p.id)?'✓':''}</div>
+      <div><div class="chk-text-main">${p.txt}</div><div class="chk-text-sub">${p.sub}</div></div>
+    </div>
+  `).join('');
+}
+
+function togglePosventa(id, el) {
+  if (posventaChecked.has(id)) { posventaChecked.delete(id); el.classList.remove('done-item'); }
+  else { posventaChecked.add(id); el.classList.add('done-item'); }
+  const chk = el.querySelector('.chk-box');
+  chk.textContent = posventaChecked.has(id) ? '✓' : '';
+}
+
+function renderTimeline() {
+  const w = document.getElementById('timelineWrap');
+  if (!w) return;
+  if (timeline.length === 0) {
+    w.innerHTML = '<div style="font-size:12px;color:var(--textodim);">Sin eventos aún. Agrega acciones para llevar el historial.</div>';
+    return;
+  }
+  const iconos = ['📞','💬','🤝','📝','🎯','✅','📋'];
+  const colores = ['#4F8EF7','#00F5C4','#A855F7','#F97316','#00C49A','#10B981','#8892A4'];
+  w.innerHTML = timeline.map((ev, i) => `
+    <div class="timeline-item">
+      <div class="tl-dot" style="background:${colores[i%colores.length]}22;color:${colores[i%colores.length]};">${iconos[i%iconos.length]}</div>
+      <div class="tl-content">
+        <div class="tl-title">${ev.texto}</div>
+        <div class="tl-sub">${ev.fecha}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function addTimeline() {
+  const inp = document.getElementById('tlInput');
+  const txt = inp.value.trim();
+  if (!txt) return;
+  const ahora = new Date();
+  timeline.push({ texto: txt, fecha: ahora.toLocaleString('es-MX',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}) });
+  inp.value = '';
+  renderTimeline();
+}
+
+function updateSliderLabel(id, lblId, labels) {
+  const v = parseInt(document.getElementById(id).value) - 1;
+  document.getElementById(lblId).textContent = labels[v];
+}
+
+function toggleCredito(v) {
+  document.getElementById('bloqueCredito').classList.toggle('hidden', v !== 'credito');
+}
+
+function togglePruebaDetalle(v) {
+  document.getElementById('pruebaDetalle').classList.toggle('hidden', v !== '3');
+}
+
+function actualizarCardPrueba() {
+  const tipoOp = document.getElementById('tipoOp').value;
+  const card = document.getElementById('cardPruebaManejo');
+  if (tipoOp === 'auto') {
+    card.classList.remove('hidden');
+    card.style.animation = 'slideUp 0.35s ease both';
+  } else {
+    card.classList.add('hidden');
+  }
+}
+
+// ===================== NAVEGACIÓN =====================
+function navigate(dir) {
+  const next = etapa + dir;
+  if (next < 1 || next > totalEtapas) return;
+  goTo(next);
+}
+
+function goTo(n) {
+  if (n === 6) calcularYMostrar();
+  if (n === 7) prepararInforme();
+  document.getElementById(`sec-${etapa}`).classList.add('hidden');
+  etapa = n;
+  const sec = document.getElementById(`sec-${etapa}`);
+  sec.classList.remove('hidden');
+  sec.classList.add('slide-up');
+  setTimeout(() => sec.classList.remove('slide-up'), 500);
+  updateStepper();
+  updateNav();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateStepper() {
+  for (let i = 1; i <= 7; i++) {
+    const d = document.getElementById(`dot-${i}`);
+    const l = document.getElementById(`line-${i}`);
+    if (d) d.className = 'step-dot' + (i === etapa ? ' active' : i < etapa ? ' done' : '');
+    if (l) l.className = 'step-line' + (i < etapa ? ' done' : '');
+  }
+}
+
+function updateNav() {
+  document.getElementById('btnAnt').classList.toggle('hidden', etapa === 1);
+  document.getElementById('navLabel').textContent = `Paso ${etapa} de ${totalEtapas}`;
+  const sig = document.getElementById('btnSig');
+  if (etapa === 6) { sig.textContent = 'Ver Informe →'; sig.onclick = () => navigate(1); }
+  else if (etapa === 7) { sig.textContent = '✏️ Recalcular'; sig.onclick = abrirModalRecalcular; }
+  else if (etapa === 5) { sig.textContent = 'Ver Análisis →'; sig.onclick = () => navigate(1); }
+  else { sig.textContent = 'Siguiente →'; sig.onclick = () => navigate(1); }
+}
+
+function resetApp() {
+  if (!confirm('¿Iniciar una nueva operación? Se borrarán los datos actuales.')) return;
+  timeline = []; senialesSeleccionadas.clear(); posventaChecked.clear();
+  document.querySelectorAll('input,select,textarea').forEach(el => {
+    if (el.type === 'number') el.value = el.min || 0;
+    else if (el.type === 'range') el.value = 3;
+    else if (el.tagName === 'SELECT') el.selectedIndex = 0;
+    else el.value = '';
+  });
+  document.getElementById('cardPruebaManejo').classList.add('hidden');
+  document.getElementById('pruebaDetalle').classList.add('hidden');
+  goTo(1);
+}
+
+// ===================== MODAL RECALCULAR =====================
+function abrirModalRecalcular() {
+  const modal = document.getElementById('modalRecalcular');
+
+  // Sincronizar estado operación con el valor actual
+  const estadoOp = document.getElementById('estadoOp');
+  const rEstado = document.getElementById('r_estadoOp');
+  rEstado.innerHTML = estadoOp.innerHTML;
+  rEstado.value = estadoOp.value;
+
+  // Sincronizar urgencia
+  document.getElementById('r_urgencia').value = document.getElementById('urgencia').value;
+
+  // Resetear señales y objeción
+  document.getElementById('r_seniales').value = '0';
+  document.getElementById('r_objecion').value = '';
+  document.getElementById('notasRecalculo').value = '';
+
+  modal.style.display = 'flex';
+  setTimeout(() => document.getElementById('notasRecalculo').focus(), 150);
+}
+
+function cerrarModalRecalcular() {
+  document.getElementById('modalRecalcular').style.display = 'none';
+}
+
+async function confirmarRecalculo() {
+  // Aplicar estado de operación actualizado
+  const nuevoEstado = document.getElementById('r_estadoOp').value;
+  document.getElementById('estadoOp').value = nuevoEstado;
+
+  // Aplicar urgencia actualizada
+  const nuevaUrgencia = document.getElementById('r_urgencia').value;
+  document.getElementById('urgencia').value = nuevaUrgencia;
+
+  // Aplicar señales de compra nuevas
+  const senialesNuevas = parseInt(document.getElementById('r_seniales').value) || 0;
+  if (senialesNuevas > 0) {
+    // Activar señales adicionales que no estén ya activas
+    const btns = document.querySelectorAll('.senial-btn:not(.active)');
+    for (let i = 0; i < Math.min(senialesNuevas, btns.length); i++) {
+      btns[i].click();
+    }
+  }
+
+  // Aplicar objeción si cambió
+  const nuevaObjecion = document.getElementById('r_objecion').value;
+  if (nuevaObjecion) {
+    document.getElementById('objecion').value = nuevaObjecion;
+  }
+
+  // Agregar notas adicionales a comentarios
+  const notasExtra = document.getElementById('notasRecalculo').value.trim();
+  if (notasExtra) {
+    const comentariosEl = document.getElementById('comentarios');
+    const yaHay = comentariosEl.value.trim();
+    comentariosEl.value = yaHay
+      ? yaHay + '\n\n[Actualización]: ' + notasExtra
+      : '[Actualización]: ' + notasExtra;
+  }
+
+  cerrarModalRecalcular();
+
+  // Recalcular score y regenerar informe IA completo
+  calcularYMostrar();
+  await generarInformeCompleto();
+  mostrarToast('↻ Análisis recalculado con nueva información');
+}
+
+// Cerrar modal al hacer clic fuera
+document.getElementById('modalRecalcular').addEventListener('click', function(e) {
+  if (e.target === this) cerrarModalRecalcular();
+});
+
+// ===================== CÁLCULO =====================
+function calcularYMostrar() {
+  const datos = recopilarDatos();
+  const scores = calcularScores(datos);
+  const prob = scores.total;
+
+  // Gauge
+  animarGauge(prob);
+
+  // Temperatura
+  actualizarTemperatura(prob, datos.diasSinCerrar, datos.diasSinContacto);
+
+  // Métricas
+  document.getElementById('mDias').textContent = datos.diasSinCerrar;
+  document.getElementById('mDiasUlt').textContent = datos.diasSinContacto > 0 ? `Últ. contacto: ${datos.diasSinContacto}d` : 'Hoy';
+  document.getElementById('mContactos').textContent = datos.contactosTotales;
+  document.getElementById('mSeniales').textContent = `${senialesSeleccionadas.size}/7`;
+  const urgLabels = ['','Sin urgencia','Baja','Media','Alta','Ahora'];
+  document.getElementById('mUrgencia').textContent = urgLabels[datos.urgencia] || 'Media';
+
+  // Factores
+  renderFactores(scores);
+
+  // Alertas
+  mostrarAlerta(prob, datos.diasSinCerrar, datos.diasSinContacto, datos.comentarios);
+
+  // Gráficos
+  renderGraficos(scores, datos);
+
+  // Sentimiento
+  analizarSentimientoIA(datos.comentarios, datos, prob);
+
+  // Recomendaciones
+  generarRecomendaciones(datos, scores, prob);
+
+  // Alert indicator
+  const hay = prob < 30 || datos.diasSinContacto > 7;
+  document.getElementById('alertIndicator').classList.toggle('hidden', !hay);
+}
+
+function recopilarDatos() {
+  const hoy = new Date();
+  const fContacto = new Date(document.getElementById('fechaContacto').value || hoy);
+  const fUltima = new Date(document.getElementById('fechaUltima').value || hoy);
+  const diasSinCerrar = Math.max(0, Math.round((hoy - fContacto) / 86400000));
+  const diasSinContacto = Math.max(0, Math.round((hoy - fUltima) / 86400000));
+
+  return {
+    nombre: document.getElementById('nombre').value || 'el cliente',
+    tipoOp: document.getElementById('tipoOp').value,
+    producto: document.getElementById('producto').value,
+    diasSinCerrar,
+    diasSinContacto,
+    llamadas: parseInt(document.getElementById('llamadas').value) || 0,
+    whatsapp: parseInt(document.getElementById('whatsapp').value) || 0,
+    correos: parseInt(document.getElementById('correos').value) || 0,
+    contactosTotales: (parseInt(document.getElementById('llamadas').value)||0) + (parseInt(document.getElementById('whatsapp').value)||0) + (parseInt(document.getElementById('correos').value)||0),
+    respuestaVelocidad: parseInt(document.getElementById('respuestaVelocidad').value) || 3,
+    preguntasCliente: parseInt(document.getElementById('preguntasCliente').value) || 3,
+    comentarios: document.getElementById('comentarios').value || '',
+    acompanante: parseInt(document.getElementById('acompanante').value) || 0,
+    modalidadPago: document.getElementById('modalidadPago').value,
+    estadoCredito: parseFloat(document.getElementById('estadoCredito')?.value) || 0,
+    documentos: parseInt(document.getElementById('documentos')?.value) || 0,
+    cotizacion: parseInt(document.getElementById('cotizacion').value) || 0,
+    competencia: parseInt(document.getElementById('competencia').value) || 0,
+    objecion: parseInt(document.getElementById('objecion').value) || 1,
+    estadoOp: parseInt(document.getElementById('estadoOp').value) || 1,
+    urgencia: parseInt(document.getElementById('urgencia').value) || 3,
+    senialesCount: senialesSeleccionadas.size,
+    canal: document.getElementById('canalPreferido').value,
+    fechaContacto: document.getElementById('fechaContacto').value,
+    fechaUltima: document.getElementById('fechaUltima').value,
+    valorOp: document.getElementById('valorOp').value,
+    canalPreferido: document.getElementById('canalPreferido').value,
+    proximoContacto: document.getElementById('proximoContacto').value,
+    notasPersonales: document.getElementById('notasPersonales').value,
+    compromisos: document.getElementById('compromisos').value,
+    // Prueba de manejo (solo automotriz)
+    hizoPrueba: parseInt(document.getElementById('hizoPrueba')?.value) || 0,
+    pruebaCon: document.getElementById('pruebaCon')?.value || '',
+    reaccionPrueba: parseInt(document.getElementById('reaccionPrueba')?.value) || 0,
+    notaVendedor: parseInt(document.getElementById('notaVendedor')?.value) || 0,
+    comentariosPrueba: document.getElementById('comentariosPrueba')?.value || '',
+    segundaPrueba: parseInt(document.getElementById('segundaPrueba')?.value) || 0,
+  };
+}
+
+function calcularScores(d) {
+  // Factor 1: Interés / respuesta (0-25)
+  const fInteres = ((d.respuestaVelocidad / 5) * 0.6 + (d.preguntasCliente / 5) * 0.4) * 25;
+
+  // Factor 2: Contacto y seguimiento (0-20)
+  const contactoNorm = Math.min((d.llamadas * 2 + d.whatsapp * 1.5 + d.correos) / 15, 1);
+  const fContacto = contactoNorm * 20;
+
+  // Factor 3: Condiciones definidas (0-20)
+  let fCondiciones = 0;
+  if (d.modalidadPago === 'contado') fCondiciones += 10;
+  else if (d.modalidadPago === 'credito') fCondiciones += 5 + (d.estadoCredito / 100) * 5;
+  fCondiciones += (d.cotizacion / 100) * 10;
+
+  // Factor 4: Señales de compra (0-15)
+  const fSeniales = (d.senialesCount / 7) * 15;
+
+  // Factor 5: Estado operación (0-15)
+  const estadoMap = { 0: 0, 1: 3, 2: 7, 3: 11, 4: 14, 5: 15 };
+  const fEstado = estadoMap[d.estadoOp] || 0;
+
+  // Factor 6: Competencia y urgencia (0-10)
+  const fExterno = (d.competencia / 8) * 5 + ((d.urgencia - 1) / 4) * 5;
+
+  // Penalizaciones tiempo
+  let penTiempo = 0;
+  if (d.diasSinCerrar > 60) penTiempo = 15;
+  else if (d.diasSinCerrar > 30) penTiempo = 8;
+  else if (d.diasSinCerrar > 14) penTiempo = 3;
+
+  let penSilencio = 0;
+  if (d.diasSinContacto > 14) penSilencio = 12;
+  else if (d.diasSinContacto > 7) penSilencio = 6;
+  else if (d.diasSinContacto > 3) penSilencio = 2;
+
+  // Acompañante = señal fuerte
+  const bonusAcompanante = d.acompanante === 3 ? 5 : 0;
+
+  // Bonus prueba de manejo (solo automotriz)
+  let bonusPrueba = 0;
+  if (d.tipoOp === 'auto' && d.hizoPrueba === 3) {
+    bonusPrueba += 4; // hizo la prueba
+    bonusPrueba += ((d.reaccionPrueba - 1) / 4) * 5; // reacción 0-5pts
+    bonusPrueba += ((d.notaVendedor - 1) / 4) * 4; // percepción vendedor 0-4pts
+    bonusPrueba += d.segundaPrueba; // 0, 2 o 4 pts extra
+  }
+  bonusPrueba = Math.min(bonusPrueba, 12); // cap 12 pts
+
+  const bonus = bonusAcompanante + bonusPrueba;
+  const subtotal = fInteres + fContacto + fCondiciones + fSeniales + fEstado + fExterno + bonus;
+  const total = Math.max(0, Math.min(100, subtotal - penTiempo - penSilencio));
+
+  return {
+    interes: Math.round(fInteres),
+    contacto: Math.round(fContacto),
+    condiciones: Math.round(fCondiciones),
+    seniales: Math.round(fSeniales),
+    estado: Math.round(fEstado),
+    externo: Math.round(fExterno),
+    penTiempo: Math.round(penTiempo),
+    penSilencio: Math.round(penSilencio),
+    total: Math.round(total),
+  };
+}
+
+// ===================== GAUGE =====================
+function animarGauge(prob) {
+  const canvas = document.getElementById('gaugeCanvas');
+  const ctx = canvas.getContext('2d');
+  const cx = 110, cy = 115, r = 90;
+  const startAngle = Math.PI, endAngle = 2 * Math.PI;
+  let current = 0;
+  const target = prob;
+  const color = prob < 30 ? '#EF4444' : prob < 55 ? '#F97316' : prob < 80 ? '#F59E0B' : '#00F5C4';
+
+  function draw(val) {
+    ctx.clearRect(0, 0, 220, 130);
+    // Track
+    ctx.beginPath(); ctx.arc(cx, cy, r, startAngle, endAngle);
+    ctx.strokeStyle = '#2A3345'; ctx.lineWidth = 16; ctx.lineCap = 'round'; ctx.stroke();
+    // Fill
+    const fillEnd = startAngle + (val / 100) * Math.PI;
+    ctx.beginPath(); ctx.arc(cx, cy, r, startAngle, fillEnd);
+    ctx.strokeStyle = color; ctx.lineWidth = 16; ctx.lineCap = 'round'; ctx.stroke();
+    // Glow
+    ctx.shadowColor = color; ctx.shadowBlur = 18;
+    ctx.beginPath(); ctx.arc(cx, cy, r, Math.max(startAngle, fillEnd - 0.05), fillEnd);
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = 5; ctx.stroke();
+    ctx.shadowBlur = 0;
+  }
+
+  const step = () => {
+    if (current < target) { current = Math.min(current + 2, target); draw(current); document.getElementById('gaugeVal').textContent = current + '%'; document.getElementById('gaugeVal').style.color = color; requestAnimationFrame(step); }
+    else draw(target);
+  };
+  step();
+}
+
+// ===================== TEMPERATURA =====================
+function actualizarTemperatura(prob, dias, diasSilencio) {
+  let label, color, emoji, pct;
+  if (diasSilencio > 14 || prob < 20) { label = 'Frío ❄️'; color = '#60A5FA'; emoji = '❄️'; pct = Math.max(5, prob * 0.8); }
+  else if (prob < 40) { label = 'Enfriando 🌧️'; color = '#818CF8'; emoji = '🌧️'; pct = prob; }
+  else if (prob < 60) { label = 'Tibio 🌤️'; color = '#F59E0B'; emoji = '🌤️'; pct = prob; }
+  else if (prob < 80) { label = 'Caliente 🔥'; color = '#F97316'; emoji = '🔥'; pct = prob; }
+  else { label = '¡Muy Caliente! 💥'; color = '#00F5C4'; emoji = '💥'; pct = prob; }
+
+  document.getElementById('tempLabel').textContent = label;
+  document.getElementById('tempLabel').style.color = color;
+  document.getElementById('diasLabel').textContent = `${dias} días en operación`;
+
+  const fill = document.getElementById('thermFill');
+  fill.style.background = `linear-gradient(90deg, ${color}88, ${color})`;
+  setTimeout(() => { fill.style.width = pct + '%'; }, 100);
+}
+
+// ===================== ALERTAS =====================
+function mostrarAlerta(prob, dias, diasSilencio, comentarios) {
+  const box = document.getElementById('alertaEnfriamiento');
+  let html = '';
+
+  if (diasSilencio > 14) {
+    html += `<div class="alert-box alert-cold pulsing"><div class="alert-icon">🚨</div><div><strong>Cliente en riesgo de enfriamiento.</strong><br>Han pasado ${diasSilencio} días sin interacción. Contáctalo HOY con un mensaje de valor, no una simple llamada de seguimiento.</div></div>`;
+  } else if (diasSilencio > 7) {
+    html += `<div class="alert-box alert-warn"><div class="alert-icon">⚠️</div><div><strong>Silencio prolongado (${diasSilencio} días).</strong><br>Recalienta el interés enviando algo nuevo: una oferta, una noticia relevante, o una foto del producto.</div></div>`;
+  }
+
+  if (dias > 45 && prob < 50) {
+    html += `<div class="alert-box alert-warn"><div class="alert-icon">⏳</div><div><strong>Operación prolongada (${dias} días).</strong><br>Las operaciones de más de 45 días tienen menor probabilidad de cierre. Considera crear urgencia o hacer un descuento de tiempo limitado.</div></div>`;
+  }
+
+  if (prob >= 75) {
+    html += `<div class="alert-box alert-ok"><div class="alert-icon">🎯</div><div><strong>¡Momento de cierre!</strong> El cliente está muy caliente. No lo pienses más — propón el cierre directamente en el próximo contacto.</div></div>`;
+  }
+
+  // Detectar palabras frías en comentarios
+  const frias = ['caro','costoso','no sé','lo pienso','tal vez','quizás','después','más tarde','otro','comparando','no tengo','no puedo'];
+  const calientes = ['me gusta','perfecto','cuando','listo','sí','bueno','me convence','seguro','decidido','dónde firmo'];
+  const texto = comentarios.toLowerCase();
+  const hasFria = frias.some(p => texto.includes(p));
+  const hasCaliente = calientes.some(p => texto.includes(p));
+
+  if (hasFria && !hasCaliente) {
+    html += `<div class="alert-box alert-warn"><div class="alert-icon">🧊</div><div><strong>Palabras de enfriamiento detectadas.</strong><br>El cliente usa lenguaje dubitativo. Enfócate en resolver la objeción principal antes de seguir avanzando.</div></div>`;
+  }
+  if (hasCaliente) {
+    html += `<div class="alert-box alert-ok"><div class="alert-icon">🔥</div><div><strong>Señales calientes en los comentarios.</strong><br>El cliente usa lenguaje positivo. ¡Aprovecha el momentum y propón el siguiente paso ahora!</div></div>`;
+  }
+
+  box.innerHTML = html || '';
+  box.classList.toggle('hidden', !html);
+}
+
+// ===================== FACTORES BAR =====================
+function renderFactores(scores) {
+  const factores = [
+    { name: 'Interés/Respuesta', val: scores.interes, max: 25, color: '#00F5C4' },
+    { name: 'Seguimiento', val: scores.contacto, max: 20, color: '#4F8EF7' },
+    { name: 'Condiciones', val: scores.condiciones, max: 20, color: '#A855F7' },
+    { name: 'Señales compra', val: scores.seniales, max: 15, color: '#F59E0B' },
+    { name: 'Estado operac.', val: scores.estado, max: 15, color: '#10B981' },
+    { name: 'Ext. / Urgencia', val: scores.externo, max: 10, color: '#F97316' },
+  ];
+  const w = document.getElementById('factoresWrap');
+  w.innerHTML = factores.map((f, i) => {
+    const pct = Math.round((f.val / f.max) * 100);
+    return `
+      <div class="factor-row" style="animation-delay:${i*0.07}s">
+        <div class="factor-name">${f.name}</div>
+        <div class="factor-bar-wrap">
+          <div class="factor-bar" style="width:${pct}%;background:${f.color};animation-delay:${i*0.1}s;"></div>
+        </div>
+        <div class="factor-pct" style="color:${f.color};">${f.val}/${f.max}</div>
+      </div>
+    `;
+  }).join('') + (scores.penTiempo + scores.penSilencio > 0 ? `
+    <div style="margin-top:10px;padding:10px 12px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:10px;font-size:12px;color:#fca5a5;">
+      ⚠️ Penalizaciones aplicadas: -${scores.penTiempo} por tiempo en operación, -${scores.penSilencio} por días sin contacto
+    </div>
+  ` : '');
+}
+
+// ===================== GRÁFICOS =====================
+function renderGraficos(scores, datos) {
+  const radarCtx = document.getElementById('radarChart').getContext('2d');
+  const barCtx = document.getElementById('barChart').getContext('2d');
+  const radarData = [
+    Math.round((scores.interes/25)*100),
+    Math.round((scores.contacto/20)*100),
+    Math.round((scores.condiciones/20)*100),
+    Math.round((scores.seniales/15)*100),
+    Math.round((scores.estado/15)*100),
+    Math.round((scores.externo/10)*100),
+  ];
+
+  if (radarChart) radarChart.destroy();
+  radarChart = new Chart(radarCtx, {
+    type: 'radar',
+    data: {
+      labels: ['Interés','Seguimiento','Condiciones','Señales','Estado','Externo'],
+      datasets: [{
+        label: 'Score %',
+        data: radarData,
+        backgroundColor: 'rgba(0,245,196,0.15)',
+        borderColor: '#00F5C4',
+        pointBackgroundColor: '#00F5C4',
+        pointRadius: 5,
+        borderWidth: 2,
+      }]
+    },
+    options: {
+      scales: { r: { beginAtZero: true, max: 100, ticks: { display: false, stepSize: 25 }, grid: { color: '#2A3345' }, angleLines: { color: '#2A3345' }, pointLabels: { color: '#8892A4', font: { size: 11 } } } },
+      plugins: { legend: { display: false } }
+    }
+  });
+
+  if (barChart) barChart.destroy();
+  barChart = new Chart(barCtx, {
+    type: 'bar',
+    data: {
+      labels: ['Interés','Seguimiento','Condiciones','Señales','Estado','Ext./Urg.'],
+      datasets: [
+        { label: 'Obtenido', data: [scores.interes, scores.contacto, scores.condiciones, scores.seniales, scores.estado, scores.externo], backgroundColor: ['#00F5C4','#4F8EF7','#A855F7','#F59E0B','#10B981','#F97316'], borderRadius: 6 },
+        { label: 'Máximo', data: [25,20,20,15,15,10], backgroundColor: 'rgba(42,51,69,0.6)', borderRadius: 6 }
+      ]
+    },
+    options: {
+      indexAxis: 'y',
+      scales: {
+        x: { beginAtZero: true, max: 25, ticks: { color: '#8892A4', font: { size: 10 } }, grid: { color: '#2A3345' } },
+        y: { ticks: { color: '#8892A4', font: { size: 11 } }, grid: { display: false } }
+      },
+      plugins: { legend: { labels: { color: '#8892A4', font: { size: 11 }, boxWidth: 10 } } }
+    }
+  });
+}
+
+// ===================== SENTIMIENTO IA =====================
+async function analizarSentimientoIA(comentarios, datos, prob) {
+  const w = document.getElementById('sentimientoResult');
+  if (!comentarios.trim()) {
+    w.innerHTML = '<div style="font-size:13px;color:var(--textodim);">Ingresa comentarios del cliente en la etapa 2 para analizar el sentimiento.</div>';
+    return;
+  }
+  w.innerHTML = '<div style="font-size:13px;color:var(--textodim);">Analizando sentimiento… <span class="loader-ring spin"></span></div>';
+
+  // Análisis local de palabras clave (rápido, sin API)
+  const texto = comentarios.toLowerCase();
+  const negativos = ['caro','costoso','no sé','lo pienso','tal vez','quizás','después','más tarde','otro','comparando','no tengo','no puedo','difícil','problema','duda','miedo'];
+  const positivos = ['me gusta','perfecto','cuando','listo','sí','bueno','me convence','seguro','decidido','excelente','fantástico','me encanta','quiero','vamos','adelante','cuándo'];
+  const neutros = ['voy a ver','en qué condiciones','necesito saber','cuánto','cómo'];
+
+  let scorePos = positivos.filter(p => texto.includes(p)).length;
+  let scoreNeg = negativos.filter(p => texto.includes(p)).length;
+  let scoreNeu = neutros.filter(p => texto.includes(p)).length;
+  const total = scorePos + scoreNeg + scoreNeu || 1;
+
+  const pctPos = Math.round((scorePos / total) * 100);
+  const pctNeg = Math.round((scoreNeg / total) * 100);
+  const pctNeu = 100 - pctPos - pctNeg;
+
+  let emoji, etiqueta, colorEti, descripcion;
+  if (pctPos >= 50) { emoji='😊'; etiqueta='Positivo'; colorEti='var(--menta)'; descripcion='El cliente muestra entusiasmo y disposición hacia la compra.'; }
+  else if (pctNeg >= 40) { emoji='😐'; etiqueta='Con objeciones'; colorEti='var(--naranja)'; descripcion='El cliente tiene dudas o barreras que debes resolver primero.'; }
+  else if (scorePos === 0 && scoreNeg === 0) { emoji='🔍'; etiqueta='Neutral'; colorEti='var(--azul)'; descripcion='No hay señales claras. Profundiza en sus necesidades.'; }
+  else { emoji='⚠️'; etiqueta='Mixto'; colorEti='var(--advertencia)'; descripcion='Hay señales positivas y negativas. Trabaja primero las objeciones.'; }
+
+  w.innerHTML = `
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+      <span style="font-size:2rem;">${emoji}</span>
+      <div>
+        <div style="font-size:15px;font-weight:700;color:${colorEti};">${etiqueta}</div>
+        <div style="font-size:12px;color:var(--textodim);">${descripcion}</div>
+      </div>
+    </div>
+    <div class="sentiment-labels"><span style="color:#fca5a5;">Negativo ${pctNeg}%</span><span style="color:#fdba74;">Neutro ${pctNeu}%</span><span style="color:var(--menta);">Positivo ${pctPos}%</span></div>
+    <div class="sentiment-bar-wrap">
+      <div class="sentiment-neg" style="flex:${pctNeg}"></div>
+      <div class="sentiment-neu" style="flex:${pctNeu}"></div>
+      <div class="sentiment-pos" style="flex:${pctPos}"></div>
+    </div>
+    <div style="margin-top:10px;font-size:12px;color:var(--textodim);">
+      ${scorePos > 0 ? `<span style="color:var(--menta);">✓ Palabras positivas:</span> ${positivos.filter(p=>texto.includes(p)).join(', ')}<br>` : ''}
+      ${scoreNeg > 0 ? `<span style="color:#fca5a5;">✗ Palabras de objeción:</span> ${negativos.filter(p=>texto.includes(p)).join(', ')}<br>` : ''}
+    </div>
+  `;
+}
+
+// ===================== RECOMENDACIONES =====================
+function generarRecomendaciones(datos, scores, prob) {
+  const w = document.getElementById('recomendacionesWrap');
+  const tips = [];
+
+  if (datos.diasSinContacto > 7) tips.push({ ico: '📲', txt: `Han pasado ${datos.diasSinContacto} días sin contacto. <strong>Envíale algo de valor hoy</strong>: un artículo, comparativa, o una foto del producto disponible.` });
+  if (datos.respuestaVelocidad <= 1) tips.push({ ico: '🔄', txt: 'El cliente no responde bien. Cambia el canal de comunicación — prueba <strong>WhatsApp con un mensaje breve y directo</strong>.' });
+  if (scores.condiciones < 10) tips.push({ ico: '📋', txt: 'Las condiciones aún no están definidas. <strong>Envía una cotización formal</strong> cuanto antes para generar compromiso.' });
+  if (senialesSeleccionadas.size < 3) tips.push({ ico: '🎯', txt: 'Pocas señales de compra detectadas. <strong>Genera interés</strong> mostrando testimonios, casos de éxito o una demostración.' });
+  if (datos.objecion <= 2) tips.push({ ico: '💬', txt: datos.objecion === 1 ? 'Objeción de precio: <strong>valida el valor antes de negociar</strong>. Muestra beneficios, ROI o diferenciadores.' : 'El cliente necesita tiempo: <strong>crea urgencia legítima</strong> (stock limitado, precio especial por tiempo limitado).' });
+  if (datos.competencia <= 2) tips.push({ ico: '🏆', txt: 'Hay competencia. <strong>Diferénciate inmediatamente</strong>: servicio, garantía, relación personal, o un beneficio exclusivo.' });
+  if (prob >= 70 && datos.estadoOp < 4) tips.push({ ico: '🤝', txt: '¡Momento clave! El cliente está listo. <strong>Propón el cierre directamente</strong>: "¿Procedemos con el anticipo o la firma esta semana?"' });
+  if (tips.length === 0) tips.push({ ico: '✅', txt: 'Todo va bien. <strong>Mantén el ritmo</strong>, confirma detalles finales y avanza hacia la firma.' });
+
+  w.innerHTML = tips.map(t => `
+    <div style="display:flex;gap:10px;padding:10px;background:var(--card2);border-radius:10px;margin-bottom:8px;border:1px solid var(--borde);">
+      <span style="font-size:18px;flex-shrink:0;">${t.ico}</span>
+      <div style="font-size:13px;color:var(--textodim);line-height:1.5;">${t.txt}</div>
+    </div>
+  `).join('');
+}
+
+// ===================== CHAT IA =====================
+async function sendChat() {
+  const inp = document.getElementById('chatInput');
+  const msg = inp.value.trim();
+  if (!msg) return;
+  inp.value = '';
+
+  const chat = document.getElementById('chatWrap');
+  chat.innerHTML += `<div class="msg-user"><div class="msg-user-bubble">${msg}</div></div>`;
+  chat.scrollTop = chat.scrollHeight;
+
+  // Typing indicator
+  const typId = 'typing-' + Date.now();
+  chat.innerHTML += `<div class="msg-ai" id="${typId}"><div class="ai-avatar">VM</div><div class="msg-ai-bubble"><div class="typing-dots"><span></span><span></span><span></span></div></div></div>`;
+  chat.scrollTop = chat.scrollHeight;
+
+  // Recopilar contexto
+  const datos = recopilarDatos();
+  const scores = calcularScores(datos);
+
+  const contexto = `Eres un experto asesor de ventas de alto rendimiento. Tienes acceso a los siguientes datos de la operación actual:
+
+- Cliente: ${datos.nombre}
+- Producto/Servicio: ${datos.producto || 'No especificado'}
+- Tipo de operación: ${datos.tipoOp}
+- Días en operación: ${datos.diasSinCerrar}
+- Días sin contacto: ${datos.diasSinContacto}
+- Contactos totales: ${datos.contactosTotales} (${datos.llamadas} llamadas, ${datos.whatsapp} WhatsApp, ${datos.correos} correos)
+- Comentarios del cliente: "${datos.comentarios}"
+- Probabilidad de cierre calculada: ${scores.total}%
+- Temperatura: ${scores.total < 30 ? 'Frío' : scores.total < 55 ? 'Tibio' : scores.total < 80 ? 'Caliente' : 'Muy Caliente'}
+- Estado de la operación: ${['Cancelada','Nuevo prospecto','Interesado','Negociando','Falta firma','Cerrada'][datos.estadoOp] || 'En proceso'}
+- Objeción principal: ${['','Precio','Tiempo','Necesita aprobación','Duda del producto','Sin objeciones'][datos.objecion] || 'No definida'}
+- Señales de compra detectadas: ${senialesSeleccionadas.size}/7
+- Urgencia del cliente: ${datos.urgencia}/5
+${datos.tipoOp === 'auto' && datos.hizoPrueba > 0 ? `- Prueba de manejo: ${datos.hizoPrueba === 3 ? `Sí realizó. Reacción: ${['','negativa','poco convencido','neutral','positiva','muy entusiasmado'][datos.reaccionPrueba]}. Percepción vendedor: ${['','no convencido','dudó','sin reacción','interés real','lo imaginó suyo'][datos.notaVendedor]}. Comentario: "${datos.comentariosPrueba}"` : datos.hizoPrueba === 2 ? 'Prueba pendiente/programada' : 'No quiso realizar prueba'}` : ''}
+
+Responde de forma directa, concreta y accionable en español. Máximo 120 palabras. Da consejos específicos para esta situación.`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1000,
+        system: contexto,
+        messages: [{ role: 'user', content: msg }]
+      })
+    });
+    const data = await res.json();
+    const respuesta = data.content?.[0]?.text || 'Hubo un error. Intenta de nuevo.';
+    document.getElementById(typId).querySelector('.msg-ai-bubble').innerHTML = respuesta.replace(/\n/g, '<br>');
+  } catch {
+    document.getElementById(typId).querySelector('.msg-ai-bubble').innerHTML = 'Error de conexión. Verifica tu conexión e intenta de nuevo.';
+  }
+  chat.scrollTop = chat.scrollHeight;
+}
+
+// ===================== TABS =====================
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(`tab-${name}`).classList.remove('hidden');
+  btn.classList.add('active');
+  if (name === 'posventa') renderPosventa();
+}
+
+// Enter en timeline
+document.addEventListener('keydown', e => {
+  if (e.target.id === 'tlInput' && e.key === 'Enter') addTimeline();
+});
+
+// ===================== CHAT FLOTANTE GLOBAL =====================
+let chatPanelOpen = false;
+
+function toggleChatPanel() {
+  chatPanelOpen = !chatPanelOpen;
+  const panel = document.getElementById('chatPanel');
+  const fab = document.getElementById('fabChat');
+  panel.classList.toggle('open', chatPanelOpen);
+  fab.textContent = chatPanelOpen ? '✕' : '🤖';
+  if (chatPanelOpen) {
+    setTimeout(() => document.getElementById('chatPanelInput').focus(), 300);
+  }
+}
+
+async function sendChatPanel() {
+  const inp = document.getElementById('chatPanelInput');
+  const msg = inp.value.trim();
+  if (!msg) return;
+  inp.value = '';
+
+  const chat = document.getElementById('chatPanelMessages');
+  chat.innerHTML += `<div class="msg-user"><div class="msg-user-bubble">${msg}</div></div>`;
+  chat.scrollTop = chat.scrollHeight;
+
+  const typId = 'ptyp-' + Date.now();
+  chat.innerHTML += `<div class="msg-ai" id="${typId}"><div class="ai-avatar">VM</div><div class="msg-ai-bubble"><div class="typing-dots"><span></span><span></span><span></span></div></div></div>`;
+  chat.scrollTop = chat.scrollHeight;
+
+  const datos = recopilarDatos();
+  const scores = calcularScores(datos);
+  const temp = scores.total < 30 ? 'Frío' : scores.total < 55 ? 'Tibio' : scores.total < 80 ? 'Caliente' : 'Muy Caliente';
+  const estadoTexto = ['Cancelada','Nuevo prospecto','Interesado','Negociando','Falta firma','Cerrada'][datos.estadoOp] || 'En proceso';
+
+  const contexto = `Eres un experto asesor de ventas de alto rendimiento integrado en VentaMinds PRO. Tienes acceso a los datos en tiempo real de esta operación:
+
+CLIENTE: ${datos.nombre} | PRODUCTO: ${datos.producto || 'No especificado'} | TIPO: ${datos.tipoOp}
+SCORE: ${scores.total}% (${temp}) | ESTADO: ${estadoTexto}
+DÍAS EN OP.: ${datos.diasSinCerrar} | DÍAS SIN CONTACTO: ${datos.diasSinContacto}
+CONTACTOS: ${datos.contactosTotales} (${datos.llamadas} llamadas, ${datos.whatsapp} WA, ${datos.correos} correos)
+SEÑALES DE COMPRA: ${senialesSeleccionadas.size}/7 | URGENCIA: ${datos.urgencia}/5
+OBJECIÓN PRINCIPAL: ${['','Precio','Tiempo','Necesita aprobación','Duda del producto','Sin objeciones'][datos.objecion]}
+COMENTARIOS DEL CLIENTE: "${datos.comentarios || 'Sin comentarios'}"
+${datos.tipoOp === 'auto' && datos.hizoPrueba > 0 ? `PRUEBA DE MANEJO: ${datos.hizoPrueba === 3 ? `Sí realizó. Reacción: ${['','negativa','poco convencido','neutral','positiva','muy entusiasmado'][datos.reaccionPrueba]}. "${datos.comentariosPrueba}"` : 'No realizó / pendiente'}` : ''}
+
+Responde de forma DIRECTA, CONCRETA y ACCIONABLE. Máximo 100 palabras. Da consejos específicos para esta situación real. No hagas preguntas, da la respuesta.`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1000,
+        system: contexto,
+        messages: [{ role: 'user', content: msg }]
+      })
+    });
+    const data = await res.json();
+    const respuesta = data.content?.[0]?.text || 'Hubo un error. Intenta de nuevo.';
+    document.getElementById(typId).querySelector('.msg-ai-bubble').innerHTML = respuesta.replace(/\n/g, '<br>');
+  } catch {
+    document.getElementById(typId).querySelector('.msg-ai-bubble').innerHTML = 'Error de conexión. Verifica tu conexión e intenta de nuevo.';
+  }
+  chat.scrollTop = chat.scrollHeight;
+}
+
+// ===================== INFORME: PREPARAR META =====================
+function prepararInforme() {
+  const datos = recopilarDatos();
+  const scores = calcularScores(datos);
+  const prob = scores.total;
+
+  const temp = prob < 30 ? '❄️ Frío' : prob < 55 ? '🌤️ Tibio' : prob < 80 ? '🔥 Caliente' : '💥 Muy Caliente';
+  const estadoTexto = ['Cancelada','Nuevo prospecto','Interesado','Negociando','Falta firma','Cerrada'][datos.estadoOp] || 'En proceso';
+
+  const meta = document.getElementById('reportMetaGrid');
+  meta.innerHTML = `
+    <div class="report-meta-box">
+      <div class="report-meta-label">Cliente</div>
+      <div class="report-meta-value" style="font-size:13px;">${datos.nombre || '—'}</div>
+    </div>
+    <div class="report-meta-box">
+      <div class="report-meta-label">Producto</div>
+      <div class="report-meta-value" style="font-size:13px;">${datos.producto || '—'}</div>
+    </div>
+    <div class="report-meta-box">
+      <div class="report-meta-label">Probabilidad</div>
+      <div class="report-meta-value" style="color:var(--menta);">${prob}%</div>
+    </div>
+    <div class="report-meta-box">
+      <div class="report-meta-label">Temperatura</div>
+      <div class="report-meta-value" style="font-size:13px;">${temp}</div>
+    </div>
+    <div class="report-meta-box">
+      <div class="report-meta-label">Estado</div>
+      <div class="report-meta-value" style="font-size:12px;">${estadoTexto}</div>
+    </div>
+    <div class="report-meta-box">
+      <div class="report-meta-label">Valor estimado</div>
+      <div class="report-meta-value" style="font-size:13px;">${datos.valorOp ? '$' + Number(datos.valorOp).toLocaleString('es-MX') : '—'}</div>
+    </div>
+  `;
+}
+
+// ===================== INFORME: GENERAR CON IA =====================
+async function generarInformeCompleto() {
+  const datos = recopilarDatos();
+  const scores = calcularScores(datos);
+  const prob = scores.total;
+
+  // Mostrar loading
+  document.getElementById('reportEmpty').style.display = 'none';
+  document.getElementById('reportContent').classList.add('hidden');
+  document.getElementById('reportGenerating').style.display = 'block';
+
+  const temp = prob < 30 ? 'Frío' : prob < 55 ? 'Tibio' : prob < 80 ? 'Caliente' : 'Muy Caliente';
+  const estadoTexto = ['Cancelada','Nuevo prospecto','Interesado','Negociando','Falta firma','Cerrada'][datos.estadoOp] || 'En proceso';
+  const objecionTexto = ['','Precio/presupuesto','Tiempo/lo pienso','Necesita aprobación','Duda del producto','Sin objeciones'][datos.objecion] || 'No definida';
+
+  const factoresDetalle = [
+    `Interés del cliente: ${scores.interes}/25 pts (${Math.round((scores.interes/25)*100)}%)`,
+    `Seguimiento y contacto: ${scores.contacto}/20 pts (${Math.round((scores.contacto/20)*100)}%)`,
+    `Condiciones de venta: ${scores.condiciones}/20 pts (${Math.round((scores.condiciones/20)*100)}%)`,
+    `Señales de compra: ${scores.seniales}/15 pts (${Math.round((scores.seniales/15)*100)}%)`,
+    `Estado de la operación: ${scores.estado}/15 pts (${Math.round((scores.estado/15)*100)}%)`,
+    `Factores externos/urgencia: ${scores.externo}/10 pts (${Math.round((scores.externo/10)*100)}%)`,
+  ].join('\n');
+
+  const promptIA = `Eres un analista ejecutivo de ventas de alto rendimiento. Genera un informe ejecutivo profesional y detallado para presentar a un director comercial. El informe debe ser claro, directo, accionable y con lenguaje de negocios.
+
+DATOS DE LA OPERACIÓN:
+- Cliente: ${datos.nombre || 'Sin nombre'}
+- Producto/Servicio: ${datos.producto || 'No especificado'}
+- Tipo de operación: ${datos.tipoOp}
+- Valor estimado: ${datos.valorOp ? '$'+Number(datos.valorOp).toLocaleString('es-MX') : 'No especificado'}
+- Fecha primer contacto: ${datos.fechaContacto}
+- Última interacción: ${datos.fechaUltima}
+- Días en operación: ${datos.diasSinCerrar} días
+- Días sin contacto: ${datos.diasSinContacto} días
+
+MÉTRICAS DE CONTACTO:
+- Llamadas realizadas: ${datos.llamadas}
+- Mensajes WhatsApp: ${datos.whatsapp}
+- Correos enviados: ${datos.correos}
+- Total contactos: ${datos.contactosTotales}
+- Velocidad de respuesta del cliente: ${datos.respuestaVelocidad === 5 ? 'Rápida (horas)' : datos.respuestaVelocidad === 3 ? 'Media (días)' : datos.respuestaVelocidad === 1 ? 'Esporádica' : 'No responde'}
+- Nivel de preguntas: ${datos.preguntasCliente === 5 ? 'Alto (muchas preguntas específicas)' : datos.preguntasCliente === 3 ? 'Medio (pocas preguntas)' : datos.preguntasCliente === 1 ? 'Bajo (no pregunta)' : 'Nulo'}
+- Acompañante en visita: ${datos.acompanante === 3 ? 'Sí, trajo familia/pareja/socio' : datos.acompanante === 1 ? 'No, solo' : 'No ha visitado'}
+
+CONDICIONES:
+- Modalidad de pago: ${datos.modalidadPago === 'contado' ? 'Contado' : datos.modalidadPago === 'credito' ? 'Crédito/Financiamiento' : 'No definida'}
+- Cotización: ${datos.cotizacion === '100' ? 'Firmada/Aceptada' : datos.cotizacion === '85' ? 'Aceptada en principio' : datos.cotizacion === '60' ? 'Pide cambios' : datos.cotizacion === '30' ? 'Enviada sin respuesta' : 'No enviada'}
+- Competencia: ${datos.competencia === 0 ? 'Sí, ve otras opciones' : datos.competencia === 2 ? 'Posiblemente' : datos.competencia === 5 ? 'No menciona' : 'Viene referido, confía'}
+- Objeción principal: ${objecionTexto}
+
+ANÁLISIS DE SEÑALES Y ESTADO:
+- Señales de compra detectadas: ${senialesSeleccionadas.size}/7
+- Estado actual de la operación: ${estadoTexto}
+- Urgencia del cliente: ${datos.urgencia}/5
+- Comentarios del cliente: "${datos.comentarios || 'Sin comentarios registrados'}"
+${datos.tipoOp === 'auto' ? `
+PRUEBA DE MANEJO (factor clave automotriz):
+- ¿Realizó prueba?: ${datos.hizoPrueba === 3 ? 'Sí' : datos.hizoPrueba === 2 ? 'Pendiente/programada' : datos.hizoPrueba === 1 ? 'Se ofreció pero no quiso' : 'No ha realizado prueba'}
+${datos.hizoPrueba === 3 ? `- Fue acompañado por: ${datos.pruebaCon === 'solo' ? 'Solo/a' : datos.pruebaCon === 'pareja' ? 'Pareja/cónyuge' : datos.pruebaCon === 'familia' ? 'Familia (hijos/padres)' : 'Socio/amigo de confianza'}
+- Reacción del cliente durante la prueba: ${['','Decepcionado/negativo','Poco convencido','Neutral','Positivo/sonrió','Muy entusiasmado'][datos.reaccionPrueba] || 'No registrada'}
+- Percepción del vendedor: ${['','No pareció convencido','Dudó/comparó','Sin reacción visible','Mostró interés real','Claramente lo imaginó suyo'][datos.notaVendedor] || 'No registrada'}
+- Comentarios durante/después de la prueba: "${datos.comentariosPrueba || 'Sin comentarios'}"
+- Segunda prueba: ${datos.segundaPrueba === 4 ? 'Sí, ya realizó segunda prueba' : datos.segundaPrueba === 2 ? 'Preguntó si podría volver a manejar' : 'No'}` : ''}` : ''}
+
+PUNTUACIÓN POR FACTORES:
+${factoresDetalle}
+SCORE TOTAL: ${prob}/100 — Temperatura: ${temp}
+
+Canal preferido: ${datos.canalPreferido || 'No definido'}
+Próximo contacto: ${datos.proximoContacto || 'Sin programar'}
+Compromisos pendientes: ${datos.compromisos || 'Ninguno'}
+Notas personales: ${datos.notasPersonales || 'Sin notas'}
+
+Genera el informe en 6 secciones separadas con exactamente estos marcadores de inicio (pon el marcador solo en su propia línea):
+
+###RESUMEN_EJECUTIVO###
+Escribe aquí 2-3 párrafos cortos sobre situación actual, probabilidad y temperatura. Máximo 120 palabras.
+
+###METRICAS_CLAVE###
+Escribe aquí lista con viñetas (•) de todas las métricas numéricas: días en operación, días sin contacto, contactos totales, señales detectadas, urgencia, score por factor. Con una interpretación breve de cada una.
+
+###ANALISIS_DETALLADO###
+Escribe aquí 4-5 párrafos con análisis profundo: comportamiento del cliente, tendencias, riesgos, oportunidades, análisis de objeciones, análisis de señales y evaluación de condiciones. Mínimo 180 palabras.
+
+###DIAGNOSTICO_FACTORES###
+Escribe aquí el diagnóstico de cada uno de los 6 factores de scoring con su resultado y qué significa para la operación. Usa el formato: FACTOR (pts/máx): diagnóstico.
+
+###PLAN_ACCION###
+Escribe aquí lista numerada de 5-7 acciones concretas e inmediatas. Cada acción debe incluir: qué hacer, por qué canal, y cuándo hacerlo.
+
+###ESTRATEGIA_CIERRE###
+Escribe aquí 2-3 párrafos con la estrategia específica de cierre: qué decirle al cliente, cuándo contactarlo, cómo manejar la objeción principal, y termina con una frase de cierre sugerida entre comillas.
+
+IMPORTANTE: Responde ÚNICAMENTE con las 6 secciones usando exactamente los marcadores ###NOMBRE###. No agregues texto antes ni después.`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 4000,
+        messages: [{ role: 'user', content: promptIA }]
+      })
+    });
+    const data = await res.json();
+    const texto = data.content?.[0]?.text || '';
+
+    // Parser robusto usando marcadores ###SECCION###
+    const parseSec = (key) => {
+      const start = texto.indexOf(`###${key}###`);
+      if (start === -1) return null;
+      const afterMarker = texto.indexOf('\n', start) + 1;
+      // Buscar el siguiente marcador
+      const nextMarker = texto.indexOf('###', afterMarker);
+      const content = nextMarker === -1
+        ? texto.slice(afterMarker)
+        : texto.slice(afterMarker, nextMarker);
+      return content.trim() || null;
+    };
+
+    const secciones = {
+      resumenText:          parseSec('RESUMEN_EJECUTIVO'),
+      metricasText:         parseSec('METRICAS_CLAVE'),
+      analisisDetalladoText: parseSec('ANALISIS_DETALLADO'),
+      diagnosticoText:      parseSec('DIAGNOSTICO_FACTORES'),
+      planAccionText:       parseSec('PLAN_ACCION'),
+      estrategiaText:       parseSec('ESTRATEGIA_CIERRE'),
+    };
+
+    // Fallback: si el parser falla (modelo desobedece formato), dividir por líneas vacías
+    const todosFallaron = Object.values(secciones).every(v => !v);
+    if (todosFallaron) {
+      // Mostrar el texto completo en análisis detallado como último recurso
+      document.getElementById('resumenText').textContent = 'Ver análisis completo abajo.';
+      document.getElementById('analisisDetalladoText').textContent = texto;
+      document.getElementById('metricasText').textContent = `Score total: ${prob}% — ${temp}\nContactos: ${datos.contactosTotales} | Señales: ${senialesSeleccionadas.size}/7 | Días: ${datos.diasSinCerrar}`;
+      document.getElementById('diagnosticoText').textContent = `Interés: ${scores.interes}/25 | Seguimiento: ${scores.contacto}/20 | Condiciones: ${scores.condiciones}/20 | Señales: ${scores.seniales}/15 | Estado: ${scores.estado}/15 | Externos: ${scores.externo}/10`;
+      document.getElementById('planAccionText').textContent = 'Consulta el análisis detallado para el plan de acción.';
+      document.getElementById('estrategiaText').textContent = 'Consulta el análisis detallado para la estrategia de cierre.';
+    } else {
+      Object.entries(secciones).forEach(([id, contenido]) => {
+        document.getElementById(id).textContent = contenido || 'Sin información para esta sección.';
+      });
+    }
+
+    document.getElementById('reportGenerating').style.display = 'none';
+    document.getElementById('reportContent').classList.remove('hidden');
+    mostrarToast('✅ Informe generado correctamente');
+
+  } catch(e) {
+    document.getElementById('reportGenerating').style.display = 'none';
+    document.getElementById('reportEmpty').style.display = 'block';
+    document.getElementById('reportEmpty').innerHTML = `<div class="report-empty-icon">⚠️</div><div style="font-weight:600;color:var(--texto);margin-bottom:6px;">Error al generar</div><div style="font-size:12px;">Revisa tu conexión e intenta nuevamente.</div>`;
+  }
+}
+
+// ===================== COPIAR SECCIÓN =====================
+function copiarAlPortapapeles(texto, onExito) {
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(texto).then(onExito).catch(() => {
+      copiarFallback(texto, onExito);
+    });
+  } else {
+    copiarFallback(texto, onExito);
+  }
+}
+
+function copiarFallback(texto, onExito) {
+  const ta = document.createElement('textarea');
+  ta.value = texto;
+  ta.style.position = 'fixed';
+  ta.style.left = '-9999px';
+  ta.style.top = '-9999px';
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  try {
+    document.execCommand('copy');
+    if (onExito) onExito();
+  } catch (e) {
+    console.error('No se pudo copiar:', e);
+  }
+  document.body.removeChild(ta);
+}
+
+function copiarSeccion(id, btn) {
+  const texto = document.getElementById(id).textContent;
+  copiarAlPortapapeles(texto, () => {
+    btn.classList.add('copied');
+    btn.textContent = '✅ Copiado';
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.innerHTML = '📋 Copiar';
+    }, 2000);
+  });
+}
+
+function copiarTodoElInforme() {
+  const secciones = [
+    { titulo: '⚡ RESUMEN EJECUTIVO', id: 'resumenText' },
+    { titulo: '📊 MÉTRICAS CLAVE', id: 'metricasText' },
+    { titulo: '🧠 ANÁLISIS DETALLADO', id: 'analisisDetalladoText' },
+    { titulo: '🎯 DIAGNÓSTICO POR FACTOR', id: 'diagnosticoText' },
+    { titulo: '🚀 PLAN DE ACCIÓN', id: 'planAccionText' },
+    { titulo: '🤝 ESTRATEGIA DE CIERRE', id: 'estrategiaText' },
+  ];
+  const datos = recopilarDatos();
+  const scores = calcularScores(datos);
+  const fecha = new Date().toLocaleDateString('es-MX', { year:'numeric', month:'long', day:'numeric' });
+
+  let texto = `INFORME EJECUTIVO — VentaMinds PRO\n`;
+  texto += `Generado: ${fecha}\n`;
+  texto += `Cliente: ${datos.nombre || '—'} | Producto: ${datos.producto || '—'} | Score: ${scores.total}%\n`;
+  texto += `${'═'.repeat(50)}\n\n`;
+
+  secciones.forEach(s => {
+    const el = document.getElementById(s.id);
+    if (el && el.textContent.trim()) {
+      texto += `${s.titulo}\n${'─'.repeat(40)}\n${el.textContent.trim()}\n\n`;
+    }
+  });
+
+  copiarAlPortapapeles(texto, () => {
+    mostrarToast('📋 Informe completo copiado');
+  });
+}
+
+// ===================== TOAST =====================
+function mostrarToast(msg) {
+  const t = document.getElementById('toastNotif');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ===================== EXPORTAR PDF =====================
+async function descargarPDF() {
+  const datos = recopilarDatos();
+  const scores = calcularScores(datos);
+  const prob = scores.total;
+  const fecha = new Date().toLocaleDateString('es-MX', { year:'numeric', month:'long', day:'numeric' });
+  const temp = prob < 30 ? 'Frío' : prob < 55 ? 'Tibio' : prob < 80 ? 'Caliente' : 'Muy Caliente';
+
+  // Mostrar barra de progreso
+  const bar = document.getElementById('pdfProgress');
+  bar.style.display = 'block';
+  mostrarToast('⏳ Generando PDF...');
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+  const W = 210, M = 14, CW = W - M * 2;
+  let y = 0;
+
+  // ── Helpers ──────────────────────────────────────────────
+  const addPage = () => { doc.addPage(); y = 20; };
+  const checkY = (need = 30) => { if (y + need > 270) addPage(); };
+  const hex = (h) => { const r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16); return [r,g,b]; };
+  const setColor = (h) => { const [r,g,b]=hex(h); doc.setTextColor(r,g,b); };
+  const setFill = (h) => { const [r,g,b]=hex(h); doc.setFillColor(r,g,b); };
+  const setDraw = (h) => { const [r,g,b]=hex(h); doc.setDrawColor(r,g,b); };
+
+  const wrapText = (text, x, startY, maxW, lineH, maxLines = 999) => {
+    const lines = doc.splitTextToSize(text, maxW);
+    const limited = lines.slice(0, maxLines);
+    limited.forEach(line => { checkY(lineH + 4); doc.text(line, x, y); y += lineH; });
+    return limited.length;
+  };
+
+  // ── PORTADA ──────────────────────────────────────────────
+  // Fondo oscuro portada
+  doc.setFillColor(13, 17, 23);
+  doc.rect(0, 0, W, 297, 'F');
+
+  // Gradiente superior (franja)
+  doc.setFillColor(0, 196, 154);
+  doc.rect(0, 0, W, 3, 'F');
+
+  // Logo y badge
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(28);
+  setColor('#00F5C4');
+  doc.text('VentaMinds', M, 40);
+  doc.setFontSize(10);
+  doc.setFillColor(0, 196, 154);
+  doc.roundedRect(M + 78, 33, 14, 7, 2, 2, 'F');
+  doc.setTextColor(0, 0, 0);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(7);
+  doc.text('PRO', M + 80, 38);
+
+  // Título
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(20);
+  setColor('#E2E8F0');
+  doc.text('INFORME EJECUTIVO', M, 62);
+  doc.text('DE OPERACIÓN COMERCIAL', M, 72);
+
+  // Línea separadora
+  setFill('#00F5C4');
+  doc.rect(M, 78, 50, 1.5, 'F');
+
+  // Datos del cliente — caja
+  doc.setFillColor(22, 27, 39);
+  doc.setDrawColor(42, 51, 69);
+  doc.roundedRect(M, 88, CW, 60, 4, 4, 'FD');
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9);
+  setColor('#8892A4');
+  doc.text('CLIENTE', M + 8, 100);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(14);
+  setColor('#E2E8F0');
+  doc.text(datos.nombre || 'Sin nombre', M + 8, 110);
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+  setColor('#8892A4');
+  doc.text('PRODUCTO / SERVICIO', M + 8, 122);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(11);
+  setColor('#E2E8F0');
+  doc.text(datos.producto || 'No especificado', M + 8, 130);
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+  setColor('#8892A4');
+  doc.text('TIPO DE OPERACIÓN', M + 8, 142);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(10);
+  setColor('#E2E8F0');
+  doc.text(datos.tipoOp || '—', M + 8, 149);
+
+  // Score grande
+  const scoreColor = prob >= 70 ? '#00F5C4' : prob >= 45 ? '#F97316' : '#EF4444';
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9);
+  setColor('#8892A4');
+  doc.text('SCORE DE CIERRE', M + CW - 55, 100);
+  doc.setFontSize(36);
+  const [sr,sg,sb] = hex(scoreColor);
+  doc.setTextColor(sr,sg,sb);
+  doc.text(`${prob}%`, M + CW - 55, 125);
+  doc.setFontSize(11);
+  setColor('#E2E8F0');
+  doc.text(temp, M + CW - 55, 135);
+
+  // Fecha y tipo
+  doc.setFontSize(10);
+  setColor('#8892A4');
+  doc.text(`Generado: ${fecha}`, M, 170);
+  doc.setFontSize(9);
+  doc.text('Confidencial — Solo para uso interno', M, 178);
+
+  // Gráfico de gauge (dibujado vectorialmente)
+  const cx = W/2, cy = 230, r = 40;
+  doc.setDrawColor(42, 51, 69);
+  doc.setLineWidth(6);
+  doc.circle(cx, cy, r, 'S');
+  // arco de color proporcional al score (simulado con texto visual)
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(22);
+  const [cr,cg,cb] = hex(scoreColor);
+  doc.setTextColor(cr,cg,cb);
+  doc.text(`${prob}%`, cx - 10, cy + 4);
+  doc.setFontSize(9);
+  setColor('#8892A4');
+  doc.text('probabilidad de cierre', cx - 24, cy + 14);
+
+  // Footer portada
+  setFill('#2A3345');
+  doc.rect(0, 285, W, 12, 'F');
+  doc.setFontSize(8);
+  setColor('#8892A4');
+  doc.text('VentaMinds PRO — Sistema de Análisis Comercial', M, 293);
+  doc.text('Confidencial', W - M - 18, 293);
+
+  // ── PÁGINA 2: MÉTRICAS ────────────────────────────────────
+  doc.addPage();
+  doc.setFillColor(13, 17, 23);
+  doc.rect(0, 0, W, 297, 'F');
+  setFill('#00F5C4');
+  doc.rect(0, 0, W, 2, 'F');
+  y = 20;
+
+  // Título sección
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(16);
+  setColor('#00F5C4');
+  doc.text('📊 MÉTRICAS Y FACTORES DE SCORING', M, y); y += 12;
+
+  setFill('#2A3345');
+  doc.rect(M, y, CW, 0.5, 'F');
+  y += 8;
+
+  // Cuadros de métricas 2x2
+  const boxW = (CW - 8) / 2, boxH = 28;
+  const estadoTexto = ['Cancelada','Nuevo prospecto','Interesado','Negociando','Falta firma','Cerrada'][datos.estadoOp] || 'En proceso';
+
+  const metricBoxes = [
+    { label: 'Probabilidad de Cierre', value: `${prob}%`, color: scoreColor },
+    { label: 'Temperatura', value: temp, color: '#F97316' },
+    { label: 'Días en Operación', value: `${datos.diasSinCerrar} días`, color: '#4F8EF7' },
+    { label: 'Días sin Contacto', value: `${datos.diasSinContacto} días`, color: datos.diasSinContacto > 7 ? '#EF4444' : '#00F5C4' },
+    { label: 'Contactos Totales', value: `${datos.contactosTotales}`, color: '#A855F7' },
+    { label: 'Señales de Compra', value: `${senialesSeleccionadas.size}/7`, color: '#00F5C4' },
+    { label: 'Urgencia del Cliente', value: `${datos.urgencia}/5`, color: '#F97316' },
+    { label: 'Estado Operación', value: estadoTexto, color: '#4F8EF7' },
+  ];
+
+  for (let i = 0; i < metricBoxes.length; i += 2) {
+    checkY(boxH + 6);
+    [0, 1].forEach(col => {
+      if (i + col >= metricBoxes.length) return;
+      const mb = metricBoxes[i + col];
+      const bx = M + col * (boxW + 8);
+      doc.setFillColor(22, 27, 39);
+      doc.setDrawColor(42, 51, 69);
+      doc.roundedRect(bx, y, boxW, boxH, 3, 3, 'FD');
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      setColor('#8892A4');
+      doc.text(mb.label.toUpperCase(), bx + 5, y + 9);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(14);
+      const [mr,mg,mb2] = hex(mb.color);
+      doc.setTextColor(mr,mg,mb2);
+      doc.text(String(mb.value), bx + 5, y + 21);
+    });
+    y += boxH + 6;
+  }
+
+  y += 6;
+
+  // Contactos desglose
+  checkY(40);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(12);
+  setColor('#E2E8F0');
+  doc.text('Desglose de Contactos', M, y); y += 8;
+
+  const contactos = [
+    { label: '📞 Llamadas', value: datos.llamadas, max: Math.max(datos.llamadas, datos.whatsapp, datos.correos, 1) },
+    { label: '💬 WhatsApp', value: datos.whatsapp, max: Math.max(datos.llamadas, datos.whatsapp, datos.correos, 1) },
+    { label: '✉️ Correos', value: datos.correos, max: Math.max(datos.llamadas, datos.whatsapp, datos.correos, 1) },
+  ];
+  const barColors = ['#4F8EF7', '#00F5C4', '#A855F7'];
+
+  contactos.forEach((c, i) => {
+    checkY(12);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    setColor('#8892A4');
+    doc.text(c.label, M, y);
+    // barra de fondo
+    doc.setFillColor(28, 35, 51);
+    doc.roundedRect(M + 32, y - 5, CW - 32 - 12, 7, 2, 2, 'F');
+    // barra de valor
+    const pct = c.max > 0 ? c.value / c.max : 0;
+    const [br,bg,bb] = hex(barColors[i]);
+    doc.setFillColor(br,bg,bb);
+    doc.roundedRect(M + 32, y - 5, Math.max(2, (CW - 32 - 12) * pct), 7, 2, 2, 'F');
+    // valor
+    doc.setFont('helvetica', 'bold');
+    setColor('#E2E8F0');
+    doc.text(String(c.value), W - M - 8, y);
+    y += 12;
+  });
+
+  y += 8;
+
+  // Factores de scoring
+  checkY(80);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(12);
+  setColor('#E2E8F0');
+  doc.text('Factores de Scoring', M, y); y += 8;
+
+  const factores = [
+    { nombre: 'Interés del cliente', obtenido: scores.interes, maximo: 25, color: '#00F5C4' },
+    { nombre: 'Seguimiento y contacto', obtenido: scores.contacto, maximo: 20, color: '#4F8EF7' },
+    { nombre: 'Condiciones de venta', obtenido: scores.condiciones, maximo: 20, color: '#A855F7' },
+    { nombre: 'Señales de compra', obtenido: scores.seniales, maximo: 15, color: '#F59E0B' },
+    { nombre: 'Estado de operación', obtenido: scores.estado, maximo: 15, color: '#10B981' },
+    { nombre: 'Urgencia/Externos', obtenido: scores.externo, maximo: 10, color: '#F97316' },
+  ];
+
+  factores.forEach(f => {
+    checkY(12);
+    const pct = f.obtenido / f.maximo;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    setColor('#8892A4');
+    doc.text(f.nombre, M, y);
+    doc.setFillColor(28, 35, 51);
+    doc.roundedRect(M + 52, y - 5, CW - 52 - 25, 7, 2, 2, 'F');
+    const [fr,fg,fb] = hex(f.color);
+    doc.setFillColor(fr,fg,fb);
+    doc.roundedRect(M + 52, y - 5, Math.max(2, (CW - 52 - 25) * pct), 7, 2, 2, 'F');
+    doc.setFont('helvetica', 'bold');
+    setColor('#E2E8F0');
+    doc.setFontSize(9);
+    doc.text(`${f.obtenido}/${f.maximo}`, W - M - 14, y);
+    y += 12;
+  });
+
+  // ── PÁGINAS SIGUIENTES: SECCIONES DEL INFORME ─────────────
+  const secciones = [
+    { titulo: '⚡ RESUMEN EJECUTIVO', id: 'resumenText', color: '#00F5C4' },
+    { titulo: '📊 MÉTRICAS CLAVE', id: 'metricasText', color: '#4F8EF7' },
+    { titulo: '🧠 ANÁLISIS DETALLADO', id: 'analisisDetalladoText', color: '#A855F7' },
+    { titulo: '🎯 DIAGNÓSTICO POR FACTOR', id: 'diagnosticoText', color: '#F59E0B' },
+    { titulo: '🚀 PLAN DE ACCIÓN', id: 'planAccionText', color: '#10B981' },
+    { titulo: '🤝 ESTRATEGIA DE CIERRE', id: 'estrategiaText', color: '#F97316' },
+  ];
+
+  secciones.forEach(s => {
+    const el = document.getElementById(s.id);
+    if (!el || !el.textContent.trim()) return;
+
+    addPage();
+    doc.setFillColor(13, 17, 23);
+    doc.rect(0, 0, W, 297, 'F');
+    const [sr,sg,sb] = hex(s.color);
+    doc.setFillColor(sr,sg,sb);
+    doc.rect(0, 0, W, 2, 'F');
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(14);
+    doc.setTextColor(sr,sg,sb);
+    doc.text(s.titulo, M, y); y += 3;
+    doc.setFillColor(sr,sg,sb);
+    doc.rect(M, y, 30, 1, 'F');
+    y += 8;
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    setColor('#CBD5E1');
+    wrapText(el.textContent.trim(), M, y, CW, 5.5);
+  });
+
+  // ── PÁGINA FINAL: HISTORIAL Y COMPROMISOS ─────────────────
+  addPage();
+  doc.setFillColor(13, 17, 23);
+  doc.rect(0, 0, W, 297, 'F');
+  setFill('#4F8EF7');
+  doc.rect(0, 0, W, 2, 'F');
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(14);
+  setColor('#4F8EF7');
+  doc.text('📋 INFORMACIÓN ADICIONAL', M, y); y += 10;
+
+  // Compromisos
+  if (datos.compromisos) {
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    setColor('#00F5C4');
+    doc.text('Compromisos Pendientes:', M, y); y += 6;
+    doc.setFont('helvetica', 'normal');
+    setColor('#CBD5E1');
+    wrapText(datos.compromisos, M, y, CW, 5.5);
+    y += 8;
+  }
+
+  // Notas personales
+  if (datos.notasPersonales) {
+    checkY(30);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    setColor('#00F5C4');
+    doc.text('Notas Personales del Cliente:', M, y); y += 6;
+    doc.setFont('helvetica', 'normal');
+    setColor('#CBD5E1');
+    wrapText(datos.notasPersonales, M, y, CW, 5.5);
+    y += 8;
+  }
+
+  // Próximo contacto
+  if (datos.proximoContacto) {
+    checkY(20);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    setColor('#00F5C4');
+    doc.text('Próximo Contacto Programado:', M, y); y += 6;
+    doc.setFont('helvetica', 'normal');
+    setColor('#CBD5E1');
+    doc.setFontSize(10);
+    doc.text(new Date(datos.proximoContacto).toLocaleString('es-MX'), M, y); y += 10;
+  }
+
+  // Timeline
+  if (timeline.length > 0) {
+    checkY(30);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    setColor('#00F5C4');
+    doc.text('Historial de la Operación:', M, y); y += 7;
+
+    timeline.forEach((ev, i) => {
+      checkY(10);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(9);
+      setColor('#E2E8F0');
+      doc.text(`${i+1}. ${ev.texto}`, M + 3, y);
+      doc.setFont('helvetica', 'normal');
+      setColor('#8892A4');
+      doc.setFontSize(8);
+      doc.text(ev.fecha, M + 6, y + 4);
+      y += 12;
+    });
+  }
+
+  // Footer en última página
+  checkY(20);
+  y = Math.max(y, 260);
+  setFill('#161B27');
+  doc.rect(0, y, W, 297 - y, 'F');
+  setFill('#2A3345');
+  doc.rect(0, y, W, 0.5, 'F');
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8);
+  setColor('#8892A4');
+  doc.text(`Informe generado por VentaMinds PRO — ${fecha}`, M, y + 10);
+  doc.text('Uso confidencial e interno', M, y + 16);
+  doc.setFont('helvetica', 'bold');
+  setColor('#00F5C4');
+  doc.text('VentaMinds PRO', W - M - 28, y + 10);
+
+  // Guardar
+  const nombre = datos.nombre ? datos.nombre.replace(/\s+/g,'_') : 'cliente';
+  doc.save(`VentaMinds_Informe_${nombre}_${new Date().toISOString().slice(0,10)}.pdf`);
+
+  bar.style.display = 'none';
+  mostrarToast('📥 PDF descargado exitosamente');
+}
+</script>
+</body>
+</html>
