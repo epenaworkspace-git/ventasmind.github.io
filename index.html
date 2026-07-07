@@ -25,20 +25,6 @@
     --textodim: #8892A4;
     --borde: #2A3345;
   }
-  html[data-theme="light"] {
-    --fondo: #F4F6FB;
-    --card: #FFFFFF;
-    --card2: #F0F2F8;
-    --menta: #00B894;
-    --menta2: #009975;
-    --azul: #2563EB;
-    --violeta: #8B2FD8;
-    --naranja: #EA580C;
-    --rojo: #DC2626;
-    --texto: #1A2233;
-    --textodim: #5B6478;
-    --borde: #DDE3EF;
-  }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     background: var(--fondo);
@@ -46,20 +32,7 @@
     font-family: 'Inter', sans-serif;
     min-height: 100vh;
     overflow-x: hidden;
-    transition: background 0.25s, color 0.25s;
   }
-  .theme-toggle {
-    width: 34px; height: 34px;
-    border-radius: 10px;
-    background: var(--card2);
-    border: 1px solid var(--borde);
-    color: var(--texto);
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer;
-    font-size: 16px;
-    transition: all 0.2s;
-  }
-  .theme-toggle:hover { border-color: var(--menta); transform: translateY(-1px); }
 
   /* === ANIMACIONES === */
   @keyframes pulseGlow {
@@ -938,6 +911,26 @@
     white-space: nowrap;
   }
   .toast-notif.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .provider-row { margin-bottom: 18px; padding-bottom: 18px; border-bottom: 1px solid var(--borde); }
+  .provider-row:last-child { border-bottom: none; }
+  .provider-label { font-size: 13px; font-weight: 700; margin-bottom: 6px; color: var(--texto); }
+  .apikey-field-wrap { position: relative; display: flex; align-items: center; }
+  .apikey-field { flex: 1; background: var(--card2); border: 1px solid var(--borde); border-radius: 10px; padding: 10px 40px 10px 12px; color: var(--texto); font-size: 13px; font-family: inherit; }
+  .apikey-eye { position: absolute; right: 8px; background: none; border: none; cursor: pointer; font-size: 15px; color: var(--textodim); }
+  .apikey-status-row { display: flex; align-items: center; gap: 6px; margin-top: 6px; font-size: 11px; color: var(--textodim); }
+  .apikey-status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--textodim); flex-shrink: 0; }
+  .apikey-status-dot.has-key { background: var(--menta); }
+  .apikey-status-dot.testing { background: var(--menta); animation: apikeyPulse 0.9s ease-in-out infinite; }
+  .apikey-status-dot.error { background: var(--rojo); }
+  @keyframes apikeyPulse { 0%,100%{opacity:1;} 50%{opacity:.35;} }
+  .apikey-btns { display: flex; gap: 8px; margin-top: 8px; }
+  .btn-save-key, .btn-test-key, .btn-del-key { font-size: 12px; padding: 7px 12px; border-radius: 10px; border: 1px solid var(--borde); background: var(--card2); color: var(--texto); cursor: pointer; }
+  .btn-save-key:hover { border-color: var(--menta); color: var(--menta); }
+  .btn-test-key:hover { border-color: var(--menta); color: var(--menta); }
+  .btn-del-key:hover { border-color: var(--rojo); color: var(--rojo); }
+  .settings-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 300; align-items: flex-start; justify-content: center; padding: 40px 16px; overflow-y: auto; }
+  .settings-overlay.open { display: flex; }
+  .settings-modal { background: var(--card); border: 1px solid var(--borde); border-radius: 16px; max-width: 480px; width: 100%; padding: 20px; }
 </style>
 </head>
 <body>
@@ -952,7 +945,7 @@
     </div>
     <div style="display:flex;gap:10px;align-items:center;">
       <div id="alertIndicator" class="hidden" style="width:10px;height:10px;border-radius:50%;background:var(--rojo);animation:pulseGlow 1.5s infinite;box-shadow:0 0 8px var(--rojo)"></div>
-      <button id="themeToggle" class="theme-toggle" onclick="toggleTheme()" title="Cambiar tema">🌙</button>
+      <button onclick="openSettings()" title="Configuración" style="background:var(--card2);border:1px solid var(--borde);color:var(--textodim);border-radius:8px;width:32px;height:32px;font-size:14px;cursor:pointer;">⚙️</button>
       <button onclick="resetApp()" style="background:var(--card2);border:1px solid var(--borde);color:var(--textodim);border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;font-family:Inter,sans-serif;">Nueva</button>
     </div>
   </div>
@@ -972,6 +965,24 @@
     <div class="step-dot" id="dot-6" onclick="goTo(6)">📊</div>
     <div class="step-line" id="line-6"></div>
     <div class="step-dot" id="dot-7" onclick="goTo(7)">📄</div>
+  </div>
+
+  <!-- MODAL: CONFIGURACIÓN DE APIs -->
+  <div class="settings-overlay" id="settingsOverlay">
+    <div class="settings-modal">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+        <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;">⚙️ Configuración · APIs de IA</div>
+      </div>
+      <p style="font-size:12px;color:var(--textodim);margin-bottom:16px;">Configura una o varias. Se usa la primera disponible y si falla se pasa automáticamente a la siguiente (fallback).</p>
+      <div id="apiProvidersList"></div>
+      <div style="font-size:11px;color:var(--textodim);margin-top:14px;padding-top:14px;border-top:1px solid var(--borde);">
+        <strong style="color:var(--texto);">¿Cuándo necesitas una API Key?</strong><br>
+        • <strong>Dentro de Claude.ai</strong> (este chat): no necesitas nada para Claude, la app usa tu cuenta automáticamente.<br>
+        • <strong>Fuera de Claude.ai</strong> (archivo local, tu servidor, GitHub Pages): ingresa tus claves.<br><br>
+        Las claves se guardan solo en este dispositivo y nunca se envían a ningún servidor ajeno.
+      </div>
+      <button onclick="closeSettings()" style="margin-top:16px;width:100%;background:var(--card2);border:1px solid var(--borde);color:var(--texto);border-radius:10px;padding:10px;font-size:13px;cursor:pointer;">Cerrar</button>
+    </div>
   </div>
 
   <!-- =================== ETAPA 1: DATOS =================== -->
@@ -1637,21 +1648,215 @@
 
 <!-- CHART.JS -->
 <script>
-// ===================== TEMA CLARO/OSCURO =====================
-let temaActual = 'dark';
-function aplicarTema(t) {
-  temaActual = t;
-  document.documentElement.setAttribute('data-theme', t === 'light' ? 'light' : '');
-  const btn = document.getElementById('themeToggle');
-  if (btn) btn.textContent = t === 'light' ? '☀️' : '🌙';
+// ═══════════════════════════════════════════════════════════════════════════
+// ── CONFIGURACIÓN MULTI-IA (Claude / Gemini / ChatGPT / Grok con fallback) ──
+// ═══════════════════════════════════════════════════════════════════════════
+const CFG_STORAGE_KEY = 'vmpro_cfg';
+const CFG = { claude:'', gemini:'', chatgpt:'', grok:'' };
+function cfgLoad(){ try{ const c=localStorage.getItem(CFG_STORAGE_KEY); if(c) Object.assign(CFG, JSON.parse(c)); }catch(e){} }
+function cfgSaveLocal(){ try{ localStorage.setItem(CFG_STORAGE_KEY, JSON.stringify(CFG)); }catch(e){} }
+const API_KEY_RULES = {
+  claude:  v => v.trim().length > 0,
+  gemini:  v => v.trim().length > 0,
+  chatgpt: v => v.trim().length > 0,
+  grok:    v => v.trim().length > 0,
+};
+function cfgValidateKey(provider, value){ if(!value) return null; const r=API_KEY_RULES[provider]; return r?r(value):true; }
+const CLAUDE_MODELS  = ['claude-sonnet-5','claude-haiku-4-5-20251001'];
+const GEMINI_MODELS  = ['gemini-2.5-flash','gemini-2.0-flash'];
+const CHATGPT_MODELS = ['gpt-4o-mini','gpt-4.1-mini','gpt-3.5-turbo'];
+const GROK_MODELS    = ['grok-3-mini','grok-2-latest','grok-beta'];
+
+async function _fetchWithRetry(url, opts, maxRetries=2){
+  for(let attempt=0; attempt<=maxRetries; attempt++){
+    let res;
+    try{ res = await fetch(url, opts); }
+    catch(e){
+      if(attempt===maxRetries) return { error:'NETWORK', message:'Error de red' };
+      await new Promise(r=>setTimeout(r, Math.pow(2,attempt)*5000)); continue;
+    }
+    if(res.status===429){
+      if(attempt===maxRetries) return { error:'RATE_LIMIT', message:'Límite de peticiones alcanzado' };
+      const ra=res.headers.get('Retry-After');
+      await new Promise(r=>setTimeout(r, ra?parseInt(ra)*1000:Math.pow(2,attempt)*5000));
+      continue;
+    }
+    return { res };
+  }
 }
-function toggleTheme() {
-  aplicarTema(temaActual === 'light' ? 'dark' : 'light');
+async function callClaudeAI(messages, system, opts={}){
+  if(!CFG.claude) return { error:'NO_KEY', message:'Falta la API Key de Claude' };
+  for(const model of (opts.models||CLAUDE_MODELS)){
+    const body = { model, max_tokens:opts.maxTokens||1000, messages };
+    if(system) body.system = system;
+    const r = await _fetchWithRetry('https://api.anthropic.com/v1/messages', { method:'POST', headers:{ 'Content-Type':'application/json', 'x-api-key':CFG.claude, 'anthropic-version':'2023-06-01', 'anthropic-dangerous-direct-browser-access':'true' }, body:JSON.stringify(body) }, opts.maxRetries);
+    if(r.error){ if(r.error==='RATE_LIMIT') continue; return r; }
+    const res=r.res;
+    if(res.status===401) return { error:'INVALID_KEY', message:'API Key de Claude inválida' };
+    if(res.status===404||res.status===429) continue;
+    if(!res.ok) return { error:'HTTP_'+res.status, message:'Error HTTP '+res.status };
+    let data; try{ data=await res.json(); }catch(e){ return { error:'EMPTY', message:'Respuesta vacía' }; }
+    const text=(data.content||[]).map(b=>b.text||'').join('').trim();
+    if(!text) return { error:'EMPTY', message:'Respuesta vacía' };
+    return { ok:true, text, label:'Claude' };
+  }
+  return { error:'NO_MODEL', message:'Ningún modelo de Claude disponible' };
 }
-(function initTheme() {
-  const prefiereClaro = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
-  aplicarTema(prefiereClaro ? 'light' : 'dark');
-})();
+async function callGeminiAI(messages, system, opts={}){
+  if(!CFG.gemini) return { error:'NO_KEY', message:'Falta la API Key de Gemini' };
+  const contents = messages.map(m=>({ role: m.role==='assistant'?'model':'user', parts:[{ text:m.content }] }));
+  for(const model of (opts.models||GEMINI_MODELS)){
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${CFG.gemini}`;
+    const body = { contents, generationConfig:{ maxOutputTokens: opts.maxTokens||1000 } };
+    if(system) body.systemInstruction = { parts:[{ text:system }] };
+    const r = await _fetchWithRetry(url, { method:'POST', headers:{ 'Content-Type':'application/json' }, body:JSON.stringify(body) }, opts.maxRetries);
+    if(r.error){ if(r.error==='RATE_LIMIT') continue; return r; }
+    const res=r.res;
+    if(res.status===400||res.status===403) return { error:'INVALID_KEY', message:'API Key de Gemini inválida' };
+    if(res.status===404||res.status===429) continue;
+    if(!res.ok) return { error:'HTTP_'+res.status, message:'Error HTTP '+res.status };
+    let data; try{ data=await res.json(); }catch(e){ return { error:'EMPTY', message:'Respuesta vacía' }; }
+    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    if(!text) return { error:'EMPTY', message:'Respuesta vacía' };
+    return { ok:true, text, label:'Gemini' };
+  }
+  return { error:'NO_MODEL', message:'Ningún modelo de Gemini disponible' };
+}
+async function _callOpenAICompatibleAI(messages, system, apiKey, models, endpoint, label, opts={}){
+  if(!apiKey) return { error:'NO_KEY', message:`Falta la API Key de ${label}` };
+  const msgs = system ? [{ role:'system', content:system }, ...messages] : messages;
+  for(const model of models){
+    const r = await _fetchWithRetry(endpoint, { method:'POST', headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer '+apiKey }, body:JSON.stringify({ model, messages:msgs, max_tokens:opts.maxTokens||1000 }) }, opts.maxRetries);
+    if(r.error){ if(r.error==='RATE_LIMIT') continue; return r; }
+    const res=r.res;
+    if(res.status===401) return { error:'INVALID_KEY', message:`API Key de ${label} inválida` };
+    if(res.status===404||res.status===429) continue;
+    if(!res.ok) return { error:'HTTP_'+res.status, message:'Error HTTP '+res.status };
+    let data; try{ data=await res.json(); }catch(e){ return { error:'EMPTY', message:'Respuesta vacía' }; }
+    const text = data?.choices?.[0]?.message?.content;
+    if(!text) return { error:'EMPTY', message:'Respuesta vacía' };
+    return { ok:true, text, label };
+  }
+  return { error:'NO_MODEL', message:`Ningún modelo de ${label} disponible` };
+}
+const callChatGPTAI = (messages, system, opts={}) => _callOpenAICompatibleAI(messages, system, CFG.chatgpt, opts.models||CHATGPT_MODELS, 'https://api.openai.com/v1/chat/completions', 'ChatGPT', opts);
+const callGrokAI    = (messages, system, opts={}) => _callOpenAICompatibleAI(messages, system, CFG.grok, opts.models||GROK_MODELS, 'https://api.x.ai/v1/chat/completions', 'Grok', opts);
+async function callAI(messages, system, opts={}){
+  const providers=[];
+  if(CFG.claude)  providers.push(()=>callClaudeAI(messages,system,opts));
+  if(CFG.gemini)  providers.push(()=>callGeminiAI(messages,system,opts));
+  if(CFG.chatgpt) providers.push(()=>callChatGPTAI(messages,system,opts));
+  if(CFG.grok)    providers.push(()=>callGrokAI(messages,system,opts));
+  if(!providers.length) return { error:'NO_KEY', message:'No hay ninguna API Key configurada. Ve a la pestaña ⚙️ Config.' };
+  let last=null;
+  for(const fn of providers){ const r=await fn(); if(r.ok) return r; last=r; }
+  return last || { error:'NO_MODEL', message:'Ningún proveedor respondió' };
+}
+
+// ─── UI de Configuración ────────────────────────────────────────────────────
+const AI_PROVIDERS_META = [
+  { id:'claude',  label:'Claude (Anthropic)', placeholder:'sk-ant-api03-...', help:'console.anthropic.com/settings/keys' },
+  { id:'gemini',  label:'Gemini (Google)',    placeholder:'AIza...',          help:'aistudio.google.com/apikey' },
+  { id:'chatgpt', label:'ChatGPT (OpenAI)',   placeholder:'sk-...',           help:'platform.openai.com/api-keys' },
+  { id:'grok',    label:'Grok (xAI)',         placeholder:'xai-...',          help:'console.x.ai' },
+];
+// Verificación REAL de conexión: llamada mínima real a cada API.
+// Un 429/cuota se reporta como "clave válida"; solo 401/403 se trata como clave inválida.
+async function testApiKeyConnection(providerId, key){
+  const testPrompt = 'Responde únicamente con la palabra OK.';
+  let r;
+  try{
+    if(providerId==='claude'){
+      r = await fetch('https://api.anthropic.com/v1/messages', { method:'POST',
+        headers:{ 'Content-Type':'application/json','anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true','x-api-key':key },
+        body: JSON.stringify({ model:'claude-haiku-4-5-20251001', max_tokens:10, messages:[{role:'user',content:testPrompt}] }) });
+    } else if(providerId==='gemini'){
+      r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`, { method:'POST',
+        headers:{ 'Content-Type':'application/json' },
+        body: JSON.stringify({ contents:[{parts:[{text:testPrompt}]}], generationConfig:{maxOutputTokens:10} }) });
+    } else if(providerId==='chatgpt'){
+      r = await fetch('https://api.openai.com/v1/chat/completions', { method:'POST',
+        headers:{ 'Content-Type':'application/json','Authorization':'Bearer '+key },
+        body: JSON.stringify({ model:'gpt-4o-mini', max_tokens:10, messages:[{role:'user',content:testPrompt}] }) });
+    } else if(providerId==='grok'){
+      r = await fetch('https://api.x.ai/v1/chat/completions', { method:'POST',
+        headers:{ 'Content-Type':'application/json','Authorization':'Bearer '+key },
+        body: JSON.stringify({ model:'grok-3-mini', max_tokens:10, messages:[{role:'user',content:testPrompt}] }) });
+    } else { return { ok:false, message:'Proveedor desconocido' }; }
+  }catch(e){ return { ok:false, message:'No se pudo conectar (red sin conexión o bloqueo CORS del navegador)' }; }
+  if(r.status===401||r.status===403) return { ok:false, message:'Clave inválida o sin permisos (401/403)' };
+  if(r.status===429) return { ok:false, message:'Límite de solicitudes alcanzado — la clave sí es válida' };
+  if(r.status===404) return { ok:false, message:'Modelo no disponible para esta clave (404)' };
+  if(!r.ok){
+    let msg='HTTP '+r.status;
+    try{ const e=await r.json(); msg=e?.error?.message||e?.message||msg; }catch(_){}
+    if(/quota|credit|insufficient|billing/i.test(msg)) return { ok:false, message:'Sin crédito/cuota disponible — la clave sí es válida ('+msg+')' };
+    return { ok:false, message:msg };
+  }
+  return { ok:true, message:'Conexión verificada correctamente ✅' };
+}
+function renderApiProvidersUI(){
+  const list = document.getElementById('apiProvidersList');
+  if(!list) return;
+  list.innerHTML = AI_PROVIDERS_META.map(p => `
+    <div class="provider-row">
+      <div class="provider-label">${p.label}</div>
+      <div class="apikey-field-wrap">
+        <input class="apikey-field" id="apikey-input-${p.id}" type="password" placeholder="${p.placeholder}" autocomplete="off" spellcheck="false" />
+        <button class="apikey-eye" data-eye="${p.id}" type="button">👁</button>
+      </div>
+      <div class="apikey-status-row">
+        <div class="apikey-status-dot" id="apikey-dot-${p.id}"></div>
+        <span id="apikey-status-text-${p.id}">Sin clave</span>
+      </div>
+      <div class="apikey-btns">
+        <button class="btn-save-key" data-save="${p.id}" type="button">💾 Guardar</button>
+        <button class="btn-test-key" data-test="${p.id}" type="button">🧪 Probar</button>
+        <button class="btn-del-key" data-del="${p.id}" type="button">🗑 Borrar</button>
+      </div>
+      <div style="font-size:11px;color:var(--textodim);margin-top:4px;">Obtén tu clave en <strong>${p.help}</strong></div>
+    </div>
+  `).join('');
+  AI_PROVIDERS_META.forEach(p => {
+    const saved = CFG[p.id];
+    const dot = document.getElementById('apikey-dot-'+p.id);
+    const txt = document.getElementById('apikey-status-text-'+p.id);
+    const inp = document.getElementById('apikey-input-'+p.id);
+    if(saved){ dot.classList.add('has-key'); txt.textContent='✓ Clave guardada'; inp.value=saved; }
+    else { dot.classList.remove('has-key'); txt.textContent='Sin clave configurada'; inp.value=''; }
+    list.querySelector(`[data-eye="${p.id}"]`).addEventListener('click', () => { inp.type = inp.type==='password' ? 'text' : 'password'; });
+    list.querySelector(`[data-save="${p.id}"]`).addEventListener('click', async () => {
+      const val = inp.value.trim();
+      if(!val){ alert('Ingresa una API key primero'); return; }
+      if(cfgValidateKey(p.id, val) === false){ alert('⚠️ Formato de clave no reconocido para ' + p.label); }
+      CFG[p.id] = val; cfgSaveLocal(); renderApiProvidersUI();
+      const dot2=document.getElementById('apikey-dot-'+p.id), txt2=document.getElementById('apikey-status-text-'+p.id);
+      if(dot2){ dot2.classList.remove('has-key','error'); dot2.classList.add('testing'); }
+      if(txt2) txt2.textContent='🔄 Verificando conexión…';
+      const result = await testApiKeyConnection(p.id, val);
+      if(dot2) dot2.classList.remove('testing');
+      if(result.ok){ if(dot2){ dot2.classList.remove('error'); dot2.classList.add('has-key'); } if(txt2) txt2.textContent='✓ Conectado'; }
+      else{ if(dot2){ dot2.classList.remove('has-key'); dot2.classList.add('error'); } if(txt2) txt2.textContent='✗ '+result.message; }
+    });
+    list.querySelector(`[data-test="${p.id}"]`).addEventListener('click', async () => {
+      const val = inp.value.trim() || CFG[p.id];
+      if(!val){ alert('Ingresa una API key primero'); return; }
+      const dot2=document.getElementById('apikey-dot-'+p.id), txt2=document.getElementById('apikey-status-text-'+p.id);
+      if(dot2){ dot2.classList.remove('has-key','error'); dot2.classList.add('testing'); }
+      if(txt2) txt2.textContent='🔄 Verificando conexión…';
+      const result = await testApiKeyConnection(p.id, val);
+      if(dot2) dot2.classList.remove('testing');
+      if(result.ok){ if(dot2){ dot2.classList.remove('error'); if(CFG[p.id]) dot2.classList.add('has-key'); } if(txt2) txt2.textContent='✓ '+result.message; }
+      else{ if(dot2){ dot2.classList.remove('has-key'); dot2.classList.add('error'); } if(txt2) txt2.textContent='✗ '+result.message; }
+    });
+    list.querySelector(`[data-del="${p.id}"]`).addEventListener('click', () => {
+      CFG[p.id] = ''; cfgSaveLocal(); renderApiProvidersUI();
+    });
+  });
+}
+function openSettings(){ renderApiProvidersUI(); document.getElementById('settingsOverlay').classList.add('open'); }
+function closeSettings(){ document.getElementById('settingsOverlay').classList.remove('open'); }
+cfgLoad();
 
 // ===================== STATE =====================
 let etapa = 1;
@@ -2347,18 +2552,8 @@ ${datos.tipoOp === 'auto' && datos.hizoPrueba > 0 ? `- Prueba de manejo: ${datos
 Responde de forma directa, concreta y accionable en español. Máximo 120 palabras. Da consejos específicos para esta situación.`;
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 1000,
-        system: contexto,
-        messages: [{ role: 'user', content: msg }]
-      })
-    });
-    const data = await res.json();
-    const respuesta = data.content?.[0]?.text || 'Hubo un error. Intenta de nuevo.';
+    const r = await callAI([{ role: 'user', content: msg }], contexto, { maxTokens: 1000 });
+    const respuesta = r.ok ? r.text : (r.message || 'Hubo un error. Intenta de nuevo.');
     document.getElementById(typId).querySelector('.msg-ai-bubble').innerHTML = respuesta.replace(/\n/g, '<br>');
   } catch {
     document.getElementById(typId).querySelector('.msg-ai-bubble').innerHTML = 'Error de conexión. Verifica tu conexión e intenta de nuevo.';
@@ -2427,18 +2622,8 @@ ${datos.tipoOp === 'auto' && datos.hizoPrueba > 0 ? `PRUEBA DE MANEJO: ${datos.h
 Responde de forma DIRECTA, CONCRETA y ACCIONABLE. Máximo 100 palabras. Da consejos específicos para esta situación real. No hagas preguntas, da la respuesta.`;
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 1000,
-        system: contexto,
-        messages: [{ role: 'user', content: msg }]
-      })
-    });
-    const data = await res.json();
-    const respuesta = data.content?.[0]?.text || 'Hubo un error. Intenta de nuevo.';
+    const r = await callAI([{ role: 'user', content: msg }], contexto, { maxTokens: 1000 });
+    const respuesta = r.ok ? r.text : (r.message || 'Hubo un error. Intenta de nuevo.');
     document.getElementById(typId).querySelector('.msg-ai-bubble').innerHTML = respuesta.replace(/\n/g, '<br>');
   } catch {
     document.getElementById(typId).querySelector('.msg-ai-bubble').innerHTML = 'Error de conexión. Verifica tu conexión e intenta de nuevo.';
@@ -2581,17 +2766,9 @@ Escribe aquí 2-3 párrafos con la estrategia específica de cierre: qué decirl
 IMPORTANTE: Responde ÚNICAMENTE con las 6 secciones usando exactamente los marcadores ###NOMBRE###. No agregues texto antes ni después.`;
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 4000,
-        messages: [{ role: 'user', content: promptIA }]
-      })
-    });
-    const data = await res.json();
-    const texto = data.content?.[0]?.text || '';
+    const r = await callAI([{ role: 'user', content: promptIA }], null, { maxTokens: 4000 });
+    if (!r.ok) throw new Error(r.message || 'Error de IA');
+    const texto = r.text || '';
 
     // Parser robusto usando marcadores ###SECCION###
     const parseSec = (key) => {
