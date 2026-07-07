@@ -215,7 +215,8 @@
   .inp::placeholder { color: var(--textodim); }
   .field { margin-bottom: 14px; }
   .field-date-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .field-date-grid .field-label { min-height: 28px; display: flex; align-items: flex-end; }
+  .field-date-grid .field-label { min-height: 28px; line-height: 14px; margin-bottom: 6px; }
+  .field-date-grid .field-label br { line-height: 14px; }
 
   /* === SLIDER INTERÉS === */
   .slider-wrap { position: relative; }
@@ -277,6 +278,10 @@
     font-family: 'Inter', sans-serif;
   }
   .btn-ghost:hover { border-color: var(--menta); color: var(--menta); }
+  .nav-bottom #btnAnt {
+    background: var(--card2);
+    opacity: 1;
+  }
 
   /* === TERMÓMETRO ANIMADO === */
   .therm-container {
@@ -674,8 +679,9 @@
   .nav-bottom {
     position: fixed;
     bottom: 0; left: 0; right: 0;
-    background: rgba(13,17,23,0.95);
+    background: rgba(13,17,23,0.98);
     backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     border-top: 1px solid var(--borde);
     display: flex;
     justify-content: center;
@@ -686,6 +692,7 @@
     margin: 0 auto;
     left: 50%;
     transform: translateX(-50%);
+    z-index: 500;
   }
 
   /* === TIMELINE === */
@@ -1013,11 +1020,11 @@
       </div>
       <div class="field-date-grid">
         <div class="field">
-          <label class="field-label">Fecha primer contacto</label>
+          <label class="field-label">Fecha primer<br>contacto</label>
           <input type="date" id="fechaContacto" class="inp">
         </div>
         <div class="field">
-          <label class="field-label">Última interacción</label>
+          <label class="field-label">Última interacción<br>&nbsp;</label>
           <input type="date" id="fechaUltima" class="inp">
         </div>
       </div>
