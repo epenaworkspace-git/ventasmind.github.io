@@ -941,9 +941,68 @@
   .settings-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 300; align-items: flex-start; justify-content: center; padding: 40px 16px; overflow-y: auto; }
   .settings-overlay.open { display: flex; }
   .settings-modal { background: var(--card); border: 1px solid var(--borde); border-radius: 16px; max-width: 480px; width: 100%; padding: 20px; }
+
+  /* ══════════ IDIOMA — banderas, botón, hoja y chips ══════════ */
+  .flag-ico { width: 18px; height: 13px; border-radius: 2px; vertical-align: middle; margin-right: 2px; box-shadow: 0 0 0 1px rgba(255,255,255,0.08); flex-shrink: 0; }
+  .lang-btn { background: var(--card2); border: 1px solid var(--borde); color: var(--textodim); border-radius: 8px; padding: 5px 10px; font-size: 12px; cursor: pointer; font-family: 'Inter', sans-serif; display: flex; align-items: center; gap: 4px; }
+  .lang-btn:hover { border-color: var(--menta); color: var(--menta); }
+  .lang-sheet-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 400; align-items: flex-end; justify-content: center; }
+  .lang-sheet-overlay.open { display: flex; }
+  .lang-sheet { background: var(--card); border-radius: 20px 20px 0 0; width: 100%; max-width: 480px; padding: 12px 8px 20px; animation: slideUpSheet .25s ease; }
+  @keyframes slideUpSheet { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  .lang-sheet-handle { width: 36px; height: 4px; background: var(--borde); border-radius: 2px; margin: 4px auto 12px; }
+  .lang-sheet-title { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 15px; padding: 0 12px 10px; }
+  .lang-opt { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-radius: 12px; font-size: 14px; color: var(--texto); cursor: pointer; }
+  .lang-opt:hover { background: var(--card2); }
+  .lang-opt.selected { background: rgba(0,245,196,0.08); color: var(--menta); font-weight: 600; }
+  .settings-chip { padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; border: 1.5px solid var(--borde); background: var(--card2); color: var(--textodim); cursor: pointer; display: inline-flex; align-items: center; gap: 4px; transition: all .2s; }
+  .settings-chip.active { border-color: var(--menta); background: rgba(0,245,196,0.08); color: var(--menta); font-weight: 600; }
+
+  /* ══════════ ESTÁNDAR DE DISEÑO — SOLO VISUAL, SIN CAMBIOS FUNCIONALES ══════════ */
+  @media (min-width: 901px) {
+    body { zoom: 1.15; }
+  }
 </style>
 </head>
 <body>
+<style>
+  .auth-gate-overlay{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;
+    background:rgba(6,10,16,.92);backdrop-filter:blur(6px);padding:20px;}
+  .auth-gate-box{width:100%;max-width:380px;background:#0e1620;border:1px solid rgba(0,245,196,.25);
+    border-radius:18px;padding:28px 24px;box-shadow:0 20px 60px rgba(0,0,0,.5);}
+  .auth-gate-box h2{margin:0 0 6px;font-size:1.25rem;color:#f2f6f8;}
+  .auth-gate-sub{margin:0 0 20px;color:#8a97a3;font-size:.85rem;}
+  .auth-gate-box input{width:100%;box-sizing:border-box;margin-bottom:10px;padding:11px 12px;border-radius:10px;
+    border:1px solid rgba(255,255,255,.12);background:#141d29;color:#f2f6f8;font-size:.95rem;}
+  .auth-gate-btn{width:100%;box-sizing:border-box;padding:11px 12px;border-radius:10px;border:none;
+    font-weight:600;font-size:.9rem;cursor:pointer;margin-bottom:10px;}
+  .auth-gate-btn.google{background:#fff;color:#1f1f1f;}
+  .auth-gate-btn.primary{background:#00F5C4;color:#052018;}
+  .auth-gate-btn.neutral{background:#1c2733;color:#e8eef2;border:1px solid rgba(255,255,255,.1);}
+  .auth-gate-row{display:flex;gap:8px;}
+  .auth-gate-row .auth-gate-btn{margin-bottom:0;}
+  .auth-gate-divider{display:flex;align-items:center;gap:10px;margin:14px 0;color:#5c6975;font-size:.75rem;}
+  .auth-gate-divider::before,.auth-gate-divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.1);}
+  .auth-gate-msg{margin-top:8px;font-size:.8rem;min-height:16px;line-height:1.4;}
+</style>
+<div id="authGateOverlay" class="auth-gate-overlay">
+  <div class="auth-gate-box">
+    <h2>🔒 Inicia sesión para continuar</h2>
+    <p class="auth-gate-sub">Tus datos se guardan de forma segura y sincronizada entre tus dispositivos.</p>
+    <button id="gateGoogleBtn" class="auth-gate-btn google" type="button">🔵 Continuar con Google</button>
+    <div class="auth-gate-divider"><span>o con tu email</span></div>
+    <input type="email" id="gateEmail" placeholder="tu@email.com" autocomplete="email">
+    <input type="password" id="gatePass" placeholder="Contraseña (mínimo 6 caracteres)" autocomplete="current-password">
+    <div class="auth-gate-row">
+      <button id="gateLoginBtn" class="auth-gate-btn primary" type="button">Iniciar sesión</button>
+      <button id="gateRegisterBtn" class="auth-gate-btn neutral" type="button">Crear cuenta</button>
+    </div>
+    <div class="auth-gate-divider"><span>o sin contraseña</span></div>
+    <button id="gateLinkBtn" class="auth-gate-btn neutral" type="button">✉️ Enviarme un enlace de acceso</button>
+    <div id="gateMsg" class="auth-gate-msg"></div>
+  </div>
+</div>
+
 
 <div class="app-wrap">
 
@@ -955,8 +1014,9 @@
     </div>
     <div style="display:flex;gap:10px;align-items:center;">
       <div id="alertIndicator" class="hidden" style="width:10px;height:10px;border-radius:50%;background:var(--rojo);animation:pulseGlow 1.5s infinite;box-shadow:0 0 8px var(--rojo)"></div>
+      <button class="lang-btn" id="langBtn" onclick="openLangSheet()" title="Idioma">🌐 <span id="langBtnLabel">ES</span></button>
       <button onclick="openSettings()" title="Configuración" style="background:var(--card2);border:1px solid var(--borde);color:var(--textodim);border-radius:8px;width:32px;height:32px;font-size:14px;cursor:pointer;">⚙️</button>
-      <button onclick="resetApp()" style="background:var(--card2);border:1px solid var(--borde);color:var(--textodim);border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;font-family:Inter,sans-serif;">Nueva</button>
+      <button onclick="resetApp()" data-i18n="btnNueva" style="background:var(--card2);border:1px solid var(--borde);color:var(--textodim);border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;font-family:Inter,sans-serif;">Nueva</button>
     </div>
   </div>
 
@@ -981,55 +1041,81 @@
   <div class="settings-overlay" id="settingsOverlay">
     <div class="settings-modal">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
-        <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;">⚙️ Configuración · APIs de IA</div>
+        <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;" data-i18n="settingsTitle">⚙️ Configuración · APIs de IA</div>
       </div>
-      <p style="font-size:12px;color:var(--textodim);margin-bottom:16px;">Configura una o varias. Se usa la primera disponible y si falla se pasa automáticamente a la siguiente (fallback).</p>
+      <p style="font-size:12px;color:var(--textodim);margin-bottom:16px;" data-i18n="settingsDesc">Configura una o varias. Se usa la primera disponible y si falla se pasa automáticamente a la siguiente (fallback).</p>
       <div id="apiProvidersList"></div>
-      <div style="font-size:11px;color:var(--textodim);margin-top:14px;padding-top:14px;border-top:1px solid var(--borde);">
-        <strong style="color:var(--texto);">¿Cuándo necesitas una API Key?</strong><br>
-        • <strong>Dentro de Claude.ai</strong> (este chat): no necesitas nada para Claude, la app usa tu cuenta automáticamente.<br>
-        • <strong>Fuera de Claude.ai</strong> (archivo local, tu servidor, GitHub Pages): ingresa tus claves.<br><br>
-        Las claves se guardan solo en este dispositivo y nunca se envían a ningún servidor ajeno.
+
+      <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--borde);">
+        <div style="font-size:12px;font-weight:700;color:var(--texto);margin-bottom:8px;" data-i18n="settingsUiLang">Idioma de interfaz</div>
+        <div id="uiLangChips" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;"></div>
+        <div style="font-size:12px;font-weight:700;color:var(--texto);margin-bottom:8px;" data-i18n="settingsRespLang">Idioma de respuesta (IA)</div>
+        <div id="respLangChips" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
       </div>
-      <button onclick="closeSettings()" style="margin-top:16px;width:100%;background:var(--card2);border:1px solid var(--borde);color:var(--texto);border-radius:10px;padding:10px;font-size:13px;cursor:pointer;">Cerrar</button>
+
+      <div style="font-size:11px;color:var(--textodim);margin-top:14px;padding-top:14px;border-top:1px solid var(--borde);">
+        <strong style="color:var(--texto);" data-i18n="settingsApiWhen">¿Cuándo necesitas una API Key?</strong><br>
+        • <strong data-i18n="settingsApiInsideStrong">Dentro de Claude.ai</strong><span data-i18n="settingsApiInside"> (este chat): no necesitas nada para Claude, la app usa tu cuenta automáticamente.</span><br>
+        • <strong data-i18n="settingsApiOutsideStrong">Fuera de Claude.ai</strong><span data-i18n="settingsApiOutside"> (archivo local, tu servidor, GitHub Pages): ingresa tus claves.</span><br><br>
+        <span data-i18n="settingsApiPrivacy">Las claves se guardan solo en este dispositivo y nunca se envían a ningún servidor ajeno.</span>
+      </div>
+
+      <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--borde);">
+        <div style="font-size:12px;font-weight:700;color:var(--texto);margin-bottom:8px;">🔗 Cuenta y sincronización</div>
+        <p id="fbAccountStatus" style="font-size:11px;color:var(--textodim);margin:0 0 10px;">Conectando…</p>
+        <div id="fbAccountForm">
+          <input class="inp" id="fbEmail" type="email" placeholder="tu@correo.com" autocomplete="off" style="margin-bottom:8px;">
+          <input class="inp" id="fbPass" type="password" placeholder="Contraseña (mínimo 6 caracteres)" autocomplete="off" style="margin-bottom:10px;">
+          <div style="display:flex;gap:8px;">
+            <button id="fbCreateBtn" class="btn-primary" style="flex:1;padding:9px;font-size:12px;">✦ Crear cuenta</button>
+            <button id="fbSignInBtn" class="btn-ghost" style="flex:1;padding:9px;font-size:12px;">Iniciar sesión</button>
+          </div>
+          <p style="font-size:10px;color:var(--textodim);margin-top:8px;">Crear una cuenta vincula lo que ya tienes en este dispositivo — no pierdes nada.</p>
+        </div>
+        <div id="fbAccountSignedIn" style="display:none;">
+          <button id="fbSignOutBtn" class="btn-ghost" style="width:100%;padding:9px;font-size:12px;">🚪 Cerrar sesión</button>
+        </div>
+      </div>
+
+      <button onclick="closeSettings()" data-i18n="btnCerrar" style="margin-top:16px;width:100%;background:var(--card2);border:1px solid var(--borde);color:var(--texto);border-radius:10px;padding:10px;font-size:13px;cursor:pointer;">Cerrar</button>
     </div>
   </div>
 
   <!-- =================== ETAPA 1: DATOS =================== -->
   <div id="sec-1" class="section">
     <div class="card">
-      <div class="card-title"><span>👤</span> Datos del Cliente</div>
+      <div class="card-title"><span>👤</span> <span data-i18n="s1Title">Datos del Cliente</span></div>
 
       <div class="field">
-        <label class="field-label">Nombre completo</label>
-        <input type="text" id="nombre" class="inp" placeholder="Ej: Carlos Mendoza">
+        <label class="field-label" data-i18n="lblNombre">Nombre completo</label>
+        <input type="text" id="nombre" class="inp" data-i18n-ph="phNombre" placeholder="Ej: Carlos Mendoza">
       </div>
       <div class="field">
-        <label class="field-label">Tipo de operación</label>
+        <label class="field-label" data-i18n="lblTipoOp">Tipo de operación</label>
         <select id="tipoOp" class="inp" onchange="actualizarCardPrueba()">
-          <option value="">Seleccionar…</option>
-          <option value="auto">🚗 Vehículo / Automotriz</option>
-          <option value="inmueble">🏠 Bien Raíz / Inmueble</option>
-          <option value="servicio">⚙️ Servicio Especializado</option>
-          <option value="otro">📦 Otro producto</option>
+          <option value="" data-i18n="optSelecciona">Seleccionar…</option>
+          <option value="auto" data-i18n="optTipoAuto">🚗 Vehículo / Automotriz</option>
+          <option value="inmueble" data-i18n="optTipoInmueble">🏠 Bien Raíz / Inmueble</option>
+          <option value="servicio" data-i18n="optTipoServicio">⚙️ Servicio Especializado</option>
+          <option value="otro" data-i18n="optTipoOtro">📦 Otro producto</option>
         </select>
       </div>
       <div class="field">
-        <label class="field-label">Producto o servicio de interés</label>
-        <input type="text" id="producto" class="inp" placeholder="Ej: SUV 2025, Depto 3 rec., CRM empresarial…">
+        <label class="field-label" data-i18n="lblProducto">Producto o servicio de interés</label>
+        <input type="text" id="producto" class="inp" data-i18n-ph="phProducto" placeholder="Ej: SUV 2025, Depto 3 rec., CRM empresarial…">
       </div>
       <div class="field-date-grid">
         <div class="field">
-          <label class="field-label">Fecha primer<br>contacto</label>
+          <label class="field-label" data-i18n-html="lblFechaContacto">Fecha primer<br>contacto</label>
           <input type="date" id="fechaContacto" class="inp">
         </div>
         <div class="field">
-          <label class="field-label">Última interacción<br>&nbsp;</label>
+          <label class="field-label" data-i18n-html="lblFechaUltima">Última interacción<br>&nbsp;</label>
           <input type="date" id="fechaUltima" class="inp">
         </div>
       </div>
       <div class="field">
-        <label class="field-label">Valor estimado (opcional)</label>
+        <label class="field-label" data-i18n="lblValorOp">Valor estimado (opcional)</label>
         <input type="number" id="valorOp" class="inp" placeholder="$ 0.00">
       </div>
     </div>
@@ -1038,118 +1124,118 @@
   <!-- =================== ETAPA 2: SEGUIMIENTO =================== -->
   <div id="sec-2" class="section hidden">
     <div class="card">
-      <div class="card-title"><span>📡</span> Registro de Contactos</div>
+      <div class="card-title"><span>📡</span> <span data-i18n="s2Title">Registro de Contactos</span></div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px;">
         <div>
-          <label class="field-label">📞 Llamadas</label>
+          <label class="field-label" data-i18n="lblLlamadas">📞 Llamadas</label>
           <input type="number" min="0" value="0" id="llamadas" class="inp" style="text-align:center;" onfocus="if(this.value==='0')this.value=''" onblur="if(this.value==='')this.value='0'">
         </div>
         <div>
-          <label class="field-label">💬 WhatsApp</label>
+          <label class="field-label" data-i18n="lblWhatsapp">💬 WhatsApp</label>
           <input type="number" min="0" value="0" id="whatsapp" class="inp" style="text-align:center;" onfocus="if(this.value==='0')this.value=''" onblur="if(this.value==='')this.value='0'">
         </div>
         <div>
-          <label class="field-label">✉️ Correos</label>
+          <label class="field-label" data-i18n="lblCorreos">✉️ Correos</label>
           <input type="number" min="0" value="0" id="correos" class="inp" style="text-align:center;" onfocus="if(this.value==='0')this.value=''" onblur="if(this.value==='')this.value='0'">
         </div>
       </div>
       <div class="field">
-        <label class="field-label">¿El cliente responde?</label>
+        <label class="field-label" data-i18n="lblRespVelocidad">¿El cliente responde?</label>
         <select id="respuestaVelocidad" class="inp">
-          <option value="5">Sí, responde rápido (horas)</option>
-          <option value="3">Responde pero tarda (días)</option>
-          <option value="1">Responde esporádicamente</option>
-          <option value="0">No responde / ignoró</option>
+          <option value="5" data-i18n="optRespRapido">Sí, responde rápido (horas)</option>
+          <option value="3" data-i18n="optRespTarda">Responde pero tarda (días)</option>
+          <option value="1" data-i18n="optRespEsporadico">Responde esporádicamente</option>
+          <option value="0" data-i18n="optRespNo">No responde / ignoró</option>
         </select>
       </div>
       <div class="field">
-        <label class="field-label">¿El cliente hace preguntas?</label>
+        <label class="field-label" data-i18n="lblPreguntasCliente">¿El cliente hace preguntas?</label>
         <select id="preguntasCliente" class="inp">
-          <option value="5">Sí, muchas preguntas específicas</option>
-          <option value="3">Pocas preguntas generales</option>
-          <option value="1">Solo responde, no pregunta</option>
-          <option value="0">No hay interacción</option>
+          <option value="5" data-i18n="optPregMuchas">Sí, muchas preguntas específicas</option>
+          <option value="3" data-i18n="optPregPocas">Pocas preguntas generales</option>
+          <option value="1" data-i18n="optPregSolo">Solo responde, no pregunta</option>
+          <option value="0" data-i18n="optPregNo">No hay interacción</option>
         </select>
       </div>
       <div class="field">
-        <label class="field-label">Últimos comentarios del cliente <span style="color:var(--menta);font-size:10px;">← IA analiza esto</span></label>
-        <textarea id="comentarios" rows="3" class="inp" style="resize:none;" placeholder="Ej: 'Lo veo caro', 'Me gustó mucho, voy a pensarlo', 'Mi esposa también quiere verlo'…"></textarea>
+        <label class="field-label"><span data-i18n="lblComentarios">Últimos comentarios del cliente</span> <span style="color:var(--menta);font-size:10px;" data-i18n="lblIAAnaliza">← IA analiza esto</span></label>
+        <textarea id="comentarios" rows="3" class="inp" style="resize:none;" data-i18n-ph="phComentarios" placeholder="Ej: 'Lo veo caro', 'Me gustó mucho, voy a pensarlo', 'Mi esposa también quiere verlo'…"></textarea>
       </div>
       <div class="field">
-        <label class="field-label">¿Ha traído a alguien más? (acompañante)</label>
+        <label class="field-label" data-i18n="lblAcompanante">¿Ha traído a alguien más? (acompañante)</label>
         <select id="acompanante" class="inp">
-          <option value="3">Sí, trajo familia / pareja / socio</option>
-          <option value="1">No, solo</option>
-          <option value="0">No ha visitado en persona</option>
+          <option value="3" data-i18n="optAcompFamilia">Sí, trajo familia / pareja / socio</option>
+          <option value="1" data-i18n="optAcompSolo">No, solo</option>
+          <option value="0" data-i18n="optAcompNoVisita">No ha visitado en persona</option>
         </select>
       </div>
     </div>
 
     <!-- CARD PRUEBA DE MANEJO — solo visible en modo automotriz -->
     <div id="cardPruebaManejo" class="card hidden">
-      <div class="card-title"><span>🚗</span> Prueba de Manejo</div>
+      <div class="card-title"><span>🚗</span> <span data-i18n="s2bTitle">Prueba de Manejo</span></div>
 
       <div class="field">
-        <label class="field-label">¿Realizó prueba de manejo?</label>
+        <label class="field-label" data-i18n="lblHizoPrueba">¿Realizó prueba de manejo?</label>
         <select id="hizoPrueba" class="inp" onchange="togglePruebaDetalle(this.value)">
-          <option value="0">No ha realizado prueba</option>
-          <option value="1">Se ofreció pero no quiso</option>
-          <option value="2">Quedó pendiente / programada</option>
-          <option value="3">Sí, la realizó</option>
+          <option value="0" data-i18n="optPruebaNo">No ha realizado prueba</option>
+          <option value="1" data-i18n="optPruebaOfrecio">Se ofreció pero no quiso</option>
+          <option value="2" data-i18n="optPruebaPendiente">Quedó pendiente / programada</option>
+          <option value="3" data-i18n="optPruebaSi">Sí, la realizó</option>
         </select>
       </div>
 
       <div id="pruebaDetalle" class="hidden">
         <div class="field">
-          <label class="field-label">¿Con quién fue la prueba?</label>
+          <label class="field-label" data-i18n="lblPruebaCon">¿Con quién fue la prueba?</label>
           <select id="pruebaCon" class="inp">
-            <option value="solo">Solo/a</option>
-            <option value="pareja">Con pareja / cónyuge</option>
-            <option value="familia">Con familia (hijos, padres…)</option>
-            <option value="socio">Con socio / amigo de confianza</option>
+            <option value="solo" data-i18n="optPruebaConSolo">Solo/a</option>
+            <option value="pareja" data-i18n="optPruebaConPareja">Con pareja / cónyuge</option>
+            <option value="familia" data-i18n="optPruebaConFamilia">Con familia (hijos, padres…)</option>
+            <option value="socio" data-i18n="optPruebaConSocio">Con socio / amigo de confianza</option>
           </select>
         </div>
 
         <div class="field">
-          <label class="field-label">¿Cómo reaccionó durante la prueba?</label>
+          <label class="field-label" data-i18n="lblReaccionPrueba">¿Cómo reaccionó durante la prueba?</label>
           <select id="reaccionPrueba" class="inp">
-            <option value="5">Muy entusiasmado/a, expresó que le encantó</option>
-            <option value="4">Positivo/a, sonrió y preguntó más detalles</option>
-            <option value="3">Neutral, no mostró mucha emoción</option>
-            <option value="2">Poco convencido/a, hizo comparaciones</option>
-            <option value="1">Decepcionado/a o mencionó algo negativo</option>
+            <option value="5" data-i18n="optReac5">Muy entusiasmado/a, expresó que le encantó</option>
+            <option value="4" data-i18n="optReac4">Positivo/a, sonrió y preguntó más detalles</option>
+            <option value="3" data-i18n="optReac3">Neutral, no mostró mucha emoción</option>
+            <option value="2" data-i18n="optReac2">Poco convencido/a, hizo comparaciones</option>
+            <option value="1" data-i18n="optReac1">Decepcionado/a o mencionó algo negativo</option>
           </select>
         </div>
 
         <div class="field">
-          <label class="field-label">¿Cómo lo notaste tú como vendedor?</label>
+          <label class="field-label" data-i18n="lblNotaVendedor">¿Cómo lo notaste tú como vendedor?</label>
           <select id="notaVendedor" class="inp">
-            <option value="5">Lo vi muy conectado con el vehículo, claramente lo imaginó suyo</option>
-            <option value="4">Mostró interés real, hizo preguntas técnicas o de uso</option>
-            <option value="3">Estuvo tranquilo, sin mucha reacción visible</option>
-            <option value="2">Pareció dudar o comparar mentalmente con otro vehículo</option>
-            <option value="1">No pareció convencido, no hizo preguntas después</option>
+            <option value="5" data-i18n="optNota5">Lo vi muy conectado con el vehículo, claramente lo imaginó suyo</option>
+            <option value="4" data-i18n="optNota4">Mostró interés real, hizo preguntas técnicas o de uso</option>
+            <option value="3" data-i18n="optNota3">Estuvo tranquilo, sin mucha reacción visible</option>
+            <option value="2" data-i18n="optNota2">Pareció dudar o comparar mentalmente con otro vehículo</option>
+            <option value="1" data-i18n="optNota1">No pareció convencido, no hizo preguntas después</option>
           </select>
         </div>
 
         <div class="field">
-          <label class="field-label">Comentarios del cliente durante / después de la prueba <span style="color:var(--menta);font-size:10px;">← IA analiza esto</span></label>
-          <textarea id="comentariosPrueba" rows="3" class="inp" style="resize:none;" placeholder="Ej: 'Se maneja muy suave', 'Me gusta el sonido del motor', 'Sí, cuando lo tengamos lo llevamos al taller de mi cuñado'…"></textarea>
+          <label class="field-label"><span data-i18n="lblComentariosPrueba">Comentarios del cliente durante / después de la prueba</span> <span style="color:var(--menta);font-size:10px;" data-i18n="lblIAAnaliza">← IA analiza esto</span></label>
+          <textarea id="comentariosPrueba" rows="3" class="inp" style="resize:none;" data-i18n-ph="phComentariosPrueba" placeholder="Ej: 'Se maneja muy suave', 'Me gusta el sonido del motor', 'Sí, cuando lo tengamos lo llevamos al taller de mi cuñado'…"></textarea>
         </div>
 
         <div class="field">
-          <label class="field-label">¿Pidió hacer otra prueba o regresó a preguntar?</label>
+          <label class="field-label" data-i18n="lblSegundaPrueba">¿Pidió hacer otra prueba o regresó a preguntar?</label>
           <select id="segundaPrueba" class="inp">
-            <option value="0">No, fue una sola vez</option>
-            <option value="2">Preguntó si podría volver a manejarlo</option>
-            <option value="4">Sí, ya realizó una segunda prueba</option>
+            <option value="0" data-i18n="optSeg0">No, fue una sola vez</option>
+            <option value="2" data-i18n="optSeg2">Preguntó si podría volver a manejarlo</option>
+            <option value="4" data-i18n="optSeg4">Sí, ya realizó una segunda prueba</option>
           </select>
         </div>
 
         <!-- Badge de señal de compra -->
         <div style="background:rgba(0,245,196,0.07);border:1px solid rgba(0,245,196,0.25);border-radius:10px;padding:10px 12px;font-size:12px;color:var(--textodim);display:flex;gap:8px;align-items:flex-start;">
           <span style="font-size:16px;flex-shrink:0;">💡</span>
-          <span>La prueba de manejo es uno de los <strong style="color:var(--texto);">indicadores más fuertes de compra</strong> en ventas automotrices. Un cliente que maneja y pregunta por detalles de entrega tiene alta probabilidad de cierre.</span>
+          <span data-i18n-html="badgePrueba">La prueba de manejo es uno de los <strong style="color:var(--texto);">indicadores más fuertes de compra</strong> en ventas automotrices. Un cliente que maneja y pregunta por detalles de entrega tiene alta probabilidad de cierre.</span>
         </div>
       </div>
     </div>
@@ -1158,63 +1244,63 @@
   <!-- =================== ETAPA 3: CONDICIONES =================== -->
   <div id="sec-3" class="section hidden">
     <div class="card">
-      <div class="card-title"><span>💰</span> Condiciones de la Operación</div>
+      <div class="card-title"><span>💰</span> <span data-i18n="s3Title">Condiciones de la Operación</span></div>
       <div class="field">
-        <label class="field-label">Modalidad de pago</label>
+        <label class="field-label" data-i18n="lblModalidadPago">Modalidad de pago</label>
         <select id="modalidadPago" class="inp" onchange="toggleCredito(this.value)">
-          <option value="0">No definido</option>
-          <option value="contado">De contado</option>
-          <option value="credito">A crédito / financiamiento</option>
+          <option value="0" data-i18n="optPagoNoDef">No definido</option>
+          <option value="contado" data-i18n="optPagoContado">De contado</option>
+          <option value="credito" data-i18n="optPagoCredito">A crédito / financiamiento</option>
         </select>
       </div>
       <div id="bloqueCredito" class="hidden">
         <div class="field">
-          <label class="field-label">Estado del crédito</label>
+          <label class="field-label" data-i18n="lblEstadoCredito">Estado del crédito</label>
           <select id="estadoCredito" class="inp">
-            <option value="0">No solicitado</option>
-            <option value="30">Iniciando proceso</option>
-            <option value="60">En revisión</option>
-            <option value="90">Pre-aprobado</option>
-            <option value="100">✅ Aprobado</option>
-            <option value="-50">❌ Rechazado</option>
+            <option value="0" data-i18n="optCredNoSol">No solicitado</option>
+            <option value="30" data-i18n="optCredIniciando">Iniciando proceso</option>
+            <option value="60" data-i18n="optCredRevision">En revisión</option>
+            <option value="90" data-i18n="optCredPreaprobado">Pre-aprobado</option>
+            <option value="100" data-i18n="optCredAprobado">✅ Aprobado</option>
+            <option value="-50" data-i18n="optCredRechazado">❌ Rechazado</option>
           </select>
         </div>
         <div class="field">
-          <label class="field-label">Documentación entregada</label>
+          <label class="field-label" data-i18n="lblDocumentos">Documentación entregada</label>
           <select id="documentos" class="inp">
-            <option value="0">Ninguna</option>
-            <option value="50">Parcial</option>
-            <option value="100">Completa</option>
+            <option value="0" data-i18n="optDocNinguna">Ninguna</option>
+            <option value="50" data-i18n="optDocParcial">Parcial</option>
+            <option value="100" data-i18n="optDocCompleta">Completa</option>
           </select>
         </div>
       </div>
       <div class="field">
-        <label class="field-label">Cotización enviada</label>
+        <label class="field-label" data-i18n="lblCotizacion">Cotización enviada</label>
         <select id="cotizacion" class="inp">
-          <option value="0">No enviada</option>
-          <option value="30">Enviada, sin respuesta</option>
-          <option value="60">Revisada, pide cambios</option>
-          <option value="85">Revisada y aceptada en principio</option>
-          <option value="100">Firmada / aceptada formalmente</option>
+          <option value="0" data-i18n="optCotNoEnviada">No enviada</option>
+          <option value="30" data-i18n="optCotSinResp">Enviada, sin respuesta</option>
+          <option value="60" data-i18n="optCotPideCambios">Revisada, pide cambios</option>
+          <option value="85" data-i18n="optCotAceptadaPrincipio">Revisada y aceptada en principio</option>
+          <option value="100" data-i18n="optCotFirmada">Firmada / aceptada formalmente</option>
         </select>
       </div>
       <div class="field">
-        <label class="field-label">¿Hay competencia en juego?</label>
+        <label class="field-label" data-i18n="lblCompetencia">¿Hay competencia en juego?</label>
         <select id="competencia" class="inp">
-          <option value="0">Sí, está viendo otras opciones</option>
-          <option value="2">Posiblemente</option>
-          <option value="5">No menciona competencia</option>
-          <option value="8">Viene referido, ya confía en nosotros</option>
+          <option value="0" data-i18n="optCompSi">Sí, está viendo otras opciones</option>
+          <option value="2" data-i18n="optCompPosible">Posiblemente</option>
+          <option value="5" data-i18n="optCompNo">No menciona competencia</option>
+          <option value="8" data-i18n="optCompReferido">Viene referido, ya confía en nosotros</option>
         </select>
       </div>
       <div class="field">
-        <label class="field-label">Objeción principal</label>
+        <label class="field-label" data-i18n="lblObjecion">Objeción principal</label>
         <select id="objecion" class="inp">
-          <option value="1">Precio / presupuesto</option>
-          <option value="2">Tiempo / "lo pienso"</option>
-          <option value="3">Necesita aprobación de tercero</option>
-          <option value="4">Duda del producto</option>
-          <option value="5">Sin objeciones claras</option>
+          <option value="1" data-i18n="optObjPrecio">Precio / presupuesto</option>
+          <option value="2" data-i18n="optObjTiempo">Tiempo / "lo pienso"</option>
+          <option value="3" data-i18n="optObjTercero">Necesita aprobación de tercero</option>
+          <option value="4" data-i18n="optObjDuda">Duda del producto</option>
+          <option value="5" data-i18n="optObjSinObj">Sin objeciones claras</option>
         </select>
       </div>
     </div>
@@ -1223,29 +1309,29 @@
   <!-- =================== ETAPA 4: SEÑALES COMPRA =================== -->
   <div id="sec-4" class="section hidden">
     <div class="card">
-      <div class="card-title"><span>🎯</span> Señales de Compra</div>
-      <p style="font-size:12px;color:var(--textodim);margin-bottom:14px;">Marca todas las señales que hayas observado en el cliente:</p>
+      <div class="card-title"><span>🎯</span> <span data-i18n="s4Title">Señales de Compra</span></div>
+      <p style="font-size:12px;color:var(--textodim);margin-bottom:14px;" data-i18n="s4Desc">Marca todas las señales que hayas observado en el cliente:</p>
       <div id="senialesWrap" style="display:flex;flex-direction:column;gap:8px;"></div>
     </div>
     <div class="card">
-      <div class="card-title"><span>📋</span> Estado de la Operación</div>
+      <div class="card-title"><span>📋</span> <span data-i18n="s4bTitle">Estado de la Operación</span></div>
       <div class="field">
-        <label class="field-label">¿En qué punto estamos?</label>
+        <label class="field-label" data-i18n="lblEstadoOp">¿En qué punto estamos?</label>
         <select id="estadoOp" class="inp">
-          <option value="1">Prospecto nuevo / primer contacto</option>
-          <option value="2">Interesado, explorando opciones</option>
-          <option value="3">Negociando condiciones</option>
-          <option value="4">Falta solo anticipo / firma</option>
-          <option value="5">✅ Operación cerrada</option>
-          <option value="0">❌ Se perdió / canceló</option>
+          <option value="1" data-i18n="optEstado1">Prospecto nuevo / primer contacto</option>
+          <option value="2" data-i18n="optEstado2">Interesado, explorando opciones</option>
+          <option value="3" data-i18n="optEstado3">Negociando condiciones</option>
+          <option value="4" data-i18n="optEstado4">Falta solo anticipo / firma</option>
+          <option value="5" data-i18n="optEstado5">✅ Operación cerrada</option>
+          <option value="0" data-i18n="optEstado0">❌ Se perdió / canceló</option>
         </select>
       </div>
       <div class="field">
-        <label class="field-label">Nivel de urgencia del cliente</label>
+        <label class="field-label" data-i18n="lblUrgencia">Nivel de urgencia del cliente</label>
         <div class="slider-wrap">
-          <input type="range" id="urgencia" min="1" max="5" value="3" oninput="updateSliderLabel('urgencia','urgenciaLbl',['Sin urgencia','Baja urgencia','Urgencia media','Alta urgencia','Necesita ahora'])">
-          <div style="text-align:center;font-size:13px;font-weight:600;color:var(--menta);margin-top:6px;" id="urgenciaLbl">Urgencia media</div>
-          <div class="slider-labels"><span>Sin urgencia</span><span>Necesita ahora</span></div>
+          <input type="range" id="urgencia" min="1" max="5" value="3" oninput="updateSliderLabel('urgencia','urgenciaLbl',I18N[currentUiLang].urgLevels)">
+          <div style="text-align:center;font-size:13px;font-weight:600;color:var(--menta);margin-top:6px;" id="urgenciaLbl" data-i18n="urgMedia">Urgencia media</div>
+          <div class="slider-labels"><span data-i18n="urgSinUrgencia">Sin urgencia</span><span data-i18n="urgAhora">Necesita ahora</span></div>
         </div>
       </div>
     </div>
@@ -1254,40 +1340,40 @@
   <!-- =================== ETAPA 5: NOTAS =================== -->
   <div id="sec-5" class="section hidden">
     <div class="card">
-      <div class="card-title"><span>📝</span> Notas y Seguimiento</div>
+      <div class="card-title"><span>📝</span> <span data-i18n="s5Title">Notas y Seguimiento</span></div>
       <div class="field">
-        <label class="field-label">Próximo contacto programado</label>
+        <label class="field-label" data-i18n="lblProximoContacto">Próximo contacto programado</label>
         <input type="datetime-local" id="proximoContacto" class="inp">
       </div>
       <div class="field">
-        <label class="field-label">Canal preferido del cliente</label>
+        <label class="field-label" data-i18n="lblCanalPreferido">Canal preferido del cliente</label>
         <select id="canalPreferido" class="inp">
-          <option value="whatsapp">WhatsApp</option>
-          <option value="llamada">Llamada telefónica</option>
-          <option value="email">Correo electrónico</option>
-          <option value="presencial">Visita presencial</option>
-          <option value="videollamada">Videollamada</option>
+          <option value="whatsapp" data-i18n="optCanalWhatsapp">WhatsApp</option>
+          <option value="llamada" data-i18n="optCanalLlamada">Llamada telefónica</option>
+          <option value="email" data-i18n="optCanalEmail">Correo electrónico</option>
+          <option value="presencial" data-i18n="optCanalPresencial">Visita presencial</option>
+          <option value="videollamada" data-i18n="optCanalVideo">Videollamada</option>
         </select>
       </div>
       <div class="field">
-        <label class="field-label">Notas personales del cliente</label>
-        <textarea id="notasPersonales" rows="3" class="inp" style="resize:none;" placeholder="Ej: Tiene hijos, le gusta el golf, viaja seguido, su cumpleaños es en marzo…"></textarea>
+        <label class="field-label" data-i18n="lblNotasPersonales">Notas personales del cliente</label>
+        <textarea id="notasPersonales" rows="3" class="inp" style="resize:none;" data-i18n-ph="phNotasPersonales" placeholder="Ej: Tiene hijos, le gusta el golf, viaja seguido, su cumpleaños es en marzo…"></textarea>
       </div>
       <div class="field">
-        <label class="field-label">Compromisos pendientes (vendedor)</label>
-        <textarea id="compromisos" rows="2" class="inp" style="resize:none;" placeholder="Ej: Enviar catálogo el lunes, agendar prueba de manejo…"></textarea>
+        <label class="field-label" data-i18n="lblCompromisos">Compromisos pendientes (vendedor)</label>
+        <textarea id="compromisos" rows="2" class="inp" style="resize:none;" data-i18n-ph="phCompromisos" placeholder="Ej: Enviar catálogo el lunes, agendar prueba de manejo…"></textarea>
       </div>
     </div>
 
     <!-- Timeline de acciones -->
     <div class="card">
-      <div class="card-title"><span>🕒</span> Historial de la Operación</div>
+      <div class="card-title"><span>🕒</span> <span data-i18n="s5bTitle">Historial de la Operación</span></div>
       <div id="timelineWrap">
-        <div style="font-size:12px;color:var(--textodim);">Agrega eventos al timeline para llevar el historial completo.</div>
+        <div style="font-size:12px;color:var(--textodim);" data-i18n="timelineEmptyInit">Agrega eventos al timeline para llevar el historial completo.</div>
       </div>
       <div style="display:flex;gap:8px;margin-top:12px;">
-        <input type="text" id="tlInput" class="inp" placeholder="¿Qué ocurrió?" style="font-size:13px;">
-        <button onclick="addTimeline()" class="btn-primary" style="padding:10px 14px;white-space:nowrap;font-size:13px;">+ Agregar</button>
+        <input type="text" id="tlInput" class="inp" data-i18n-ph="phTlInput" placeholder="¿Qué ocurrió?" style="font-size:13px;">
+        <button onclick="addTimeline()" class="btn-primary" data-i18n="btnAgregar" style="padding:10px 14px;white-space:nowrap;font-size:13px;">+ Agregar</button>
       </div>
     </div>
   </div>
@@ -1300,17 +1386,17 @@
 
     <!-- GAUGE PROBABILIDAD -->
     <div class="card" style="text-align:center;">
-      <div class="card-title" style="justify-content:center;"><span>🎯</span> Probabilidad de Cierre</div>
+      <div class="card-title" style="justify-content:center;"><span>🎯</span> <span data-i18n="s6aTitle">Probabilidad de Cierre</span></div>
       <div class="gauge-wrap">
         <canvas id="gaugeCanvas" width="220" height="130"></canvas>
         <div class="gauge-value" id="gaugeVal" style="color:var(--menta);">0%</div>
-        <div class="gauge-label">Score de cierre</div>
+        <div class="gauge-label" data-i18n="gaugeLabel">Score de cierre</div>
       </div>
     </div>
 
     <!-- TEMPERATURA + MÉTRICAS -->
     <div class="card">
-      <div class="card-title"><span>🌡️</span> Temperatura del Cliente</div>
+      <div class="card-title"><span>🌡️</span> <span data-i18n="s6bTitle">Temperatura del Cliente</span></div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
         <span id="tempLabel" style="font-size:1.2rem;font-weight:700;">—</span>
         <span id="diasLabel" style="font-size:12px;color:var(--textodim);"></span>
@@ -1319,41 +1405,41 @@
         <div id="thermFill" class="therm-fill" style="width:0%;"></div>
       </div>
       <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--textodim);margin-top:4px;">
-        <span>❄️ Frío</span><span>🌤️ Tibio</span><span>🔥 Caliente</span><span>💥 Muy Caliente</span>
+        <span data-i18n="thermFrio">❄️ Frío</span><span data-i18n="thermTibio">🌤️ Tibio</span><span data-i18n="thermCaliente">🔥 Caliente</span><span data-i18n="thermMuyCaliente">💥 Muy Caliente</span>
       </div>
     </div>
 
     <!-- MÉTRICAS 4 CUADROS -->
     <div class="metrics-grid">
       <div class="metric-box">
-        <div class="metric-label">Días sin cerrar</div>
+        <div class="metric-label" data-i18n="metricDiasSinCerrar">Días sin cerrar</div>
         <div class="metric-value" id="mDias" style="color:var(--azul);">0</div>
         <div class="metric-sub" id="mDiasUlt"></div>
       </div>
       <div class="metric-box">
-        <div class="metric-label">Contactos totales</div>
+        <div class="metric-label" data-i18n="metricContactosTotales">Contactos totales</div>
         <div class="metric-value" id="mContactos" style="color:var(--violeta);">0</div>
-        <div class="metric-sub">llamadas + msgs</div>
+        <div class="metric-sub" data-i18n="metricContactosSub">llamadas + msgs</div>
       </div>
       <div class="metric-box">
-        <div class="metric-label">Señales compra</div>
+        <div class="metric-label" data-i18n="metricSenialesCompra">Señales compra</div>
         <div class="metric-value" id="mSeniales" style="color:var(--menta);">0/7</div>
-        <div class="metric-sub">detectadas</div>
+        <div class="metric-sub" data-i18n="metricSenialesSub">detectadas</div>
       </div>
       <div class="metric-box">
-        <div class="metric-label">Urgencia</div>
+        <div class="metric-label" data-i18n="metricUrgencia">Urgencia</div>
         <div class="metric-value" id="mUrgencia" style="color:var(--naranja);">—</div>
-        <div class="metric-sub">del cliente</div>
+        <div class="metric-sub" data-i18n="metricUrgenciaSub">del cliente</div>
       </div>
     </div>
 
     <!-- TABS -->
     <div class="tabs-bar">
-      <button class="tab-btn active" onclick="switchTab('factores',this)">Factores</button>
-      <button class="tab-btn" onclick="switchTab('graficos',this)">Gráficos</button>
-      <button class="tab-btn" onclick="switchTab('sentimiento',this)">Sentimiento</button>
-      <button class="tab-btn" onclick="switchTab('posventa',this)">Posventa</button>
-      <button class="tab-btn" onclick="switchTab('chat',this)">Chat IA</button>
+      <button class="tab-btn active" onclick="switchTab('factores',this)" data-i18n="tabFactores">Factores</button>
+      <button class="tab-btn" onclick="switchTab('graficos',this)" data-i18n="tabGraficos">Gráficos</button>
+      <button class="tab-btn" onclick="switchTab('sentimiento',this)" data-i18n="tabSentimiento">Sentimiento</button>
+      <button class="tab-btn" onclick="switchTab('posventa',this)" data-i18n="tabPosventa">Posventa</button>
+      <button class="tab-btn" onclick="switchTab('chat',this)" data-i18n="tabChat">Chat IA</button>
     </div>
 
     <!-- TAB: FACTORES -->
@@ -1364,11 +1450,11 @@
     <!-- TAB: GRÁFICOS -->
     <div id="tab-graficos" class="tab-content hidden">
       <div class="card" style="padding:14px;">
-        <div style="font-size:12px;color:var(--textodim);margin-bottom:10px;font-weight:600;">RADAR DE FACTORES</div>
+        <div style="font-size:12px;color:var(--textodim);margin-bottom:10px;font-weight:600;" data-i18n="radarTitle">RADAR DE FACTORES</div>
         <canvas id="radarChart" height="220"></canvas>
       </div>
       <div class="card" style="padding:14px;">
-        <div style="font-size:12px;color:var(--textodim);margin-bottom:10px;font-weight:600;">DESGLOSE DE PUNTUACIÓN</div>
+        <div style="font-size:12px;color:var(--textodim);margin-bottom:10px;font-weight:600;" data-i18n="barTitle">DESGLOSE DE PUNTUACIÓN</div>
         <canvas id="barChart" height="200"></canvas>
       </div>
     </div>
@@ -1376,27 +1462,27 @@
     <!-- TAB: SENTIMIENTO -->
     <div id="tab-sentimiento" class="tab-content hidden">
       <div class="card">
-        <div class="card-title"><span>🧠</span> Análisis de Sentimiento IA</div>
+        <div class="card-title"><span>🧠</span> <span data-i18n="sentimientoTitle">Análisis de Sentimiento IA</span></div>
         <div id="sentimientoResult">
-          <div style="font-size:13px;color:var(--textodim);">Ingresa comentarios del cliente en la etapa 2 para analizar el sentimiento.</div>
+          <div style="font-size:13px;color:var(--textodim);" data-i18n="sentimientoEmptyInit">Ingresa comentarios del cliente en la etapa 2 para analizar el sentimiento.</div>
         </div>
       </div>
       <div class="card" id="recomendacionesCard">
-        <div class="card-title"><span>💡</span> Recomendaciones</div>
-        <div id="recomendacionesWrap" style="font-size:13px;color:var(--textodim);">Completa la información para recibir recomendaciones personalizadas.</div>
+        <div class="card-title"><span>💡</span> <span data-i18n="recomendacionesTitle">Recomendaciones</span></div>
+        <div id="recomendacionesWrap" style="font-size:13px;color:var(--textodim);" data-i18n="recomendacionesEmptyInit">Completa la información para recibir recomendaciones personalizadas.</div>
       </div>
     </div>
 
     <!-- TAB: POSVENTA -->
     <div id="tab-posventa" class="tab-content hidden">
       <div class="card">
-        <div class="card-title"><span>🔄</span> Lista de Posventa</div>
+        <div class="card-title"><span>🔄</span> <span data-i18n="posventaTitle">Lista de Posventa</span></div>
         <div id="posventaList"></div>
       </div>
       <div class="card" style="background:rgba(0,245,196,0.06);border-color:rgba(0,245,196,0.25);">
-        <div class="card-title" style="color:var(--menta);"><span>🌟</span> Estrategia de Referidos</div>
-        <p style="font-size:13px;color:var(--textodim);line-height:1.6;">El momento ideal para pedir referidos es entre los <strong style="color:var(--texto);">7 y 15 días</strong> después de la entrega, cuando el cliente ya disfruta el producto y está satisfecho.</p>
-        <div style="background:var(--card2);border-radius:10px;padding:12px;margin-top:10px;font-size:12px;color:var(--textodim);font-style:italic;line-height:1.6;">
+        <div class="card-title" style="color:var(--menta);"><span>🌟</span> <span data-i18n="referidosTitle">Estrategia de Referidos</span></div>
+        <p style="font-size:13px;color:var(--textodim);line-height:1.6;" data-i18n-html="referidosDesc">El momento ideal para pedir referidos es entre los <strong style="color:var(--texto);">7 y 15 días</strong> después de la entrega, cuando el cliente ya disfruta el producto y está satisfecho.</p>
+        <div style="background:var(--card2);border-radius:10px;padding:12px;margin-top:10px;font-size:12px;color:var(--textodim);font-style:italic;line-height:1.6;" data-i18n="referidosQuote">
           "Me da mucho gusto que estés contento/a con tu compra. Si conoces a alguien que esté buscando algo similar, te agradecería mucho que me recomiendes — es la mejor forma en que puedo crecer. ¿Conoces a alguien?"
         </div>
       </div>
@@ -1407,14 +1493,14 @@
       <div class="chat-wrap" id="chatWrap">
         <div class="msg-ai">
           <div class="ai-avatar">VM</div>
-          <div class="msg-ai-bubble">¡Hola! Soy tu asesor de ventas IA. Tengo acceso a todos los datos de esta operación. Puedes preguntarme cómo manejar objeciones, qué decirle al cliente, cuándo llamar, o cualquier táctica de cierre. ¿En qué te ayudo?</div>
+          <div class="msg-ai-bubble" data-i18n="chatWelcome">¡Hola! Soy tu asesor de ventas IA. Tengo acceso a todos los datos de esta operación. Puedes preguntarme cómo manejar objeciones, qué decirle al cliente, cuándo llamar, o cualquier táctica de cierre. ¿En qué te ayudo?</div>
         </div>
       </div>
       <div class="chat-input-row">
-        <input type="text" id="chatInput" class="chat-input" placeholder="Ej: ¿Cómo manejo la objeción de precio?" onkeydown="if(event.key==='Enter')sendChat()">
+        <input type="text" id="chatInput" class="chat-input" data-i18n-ph="phChatInput" placeholder="Ej: ¿Cómo manejo la objeción de precio?" onkeydown="if(event.key==='Enter')sendChat()">
         <button class="chat-send" onclick="sendChat()">➤</button>
       </div>
-      <p style="font-size:10px;color:var(--textodim);margin-top:6px;text-align:center;">La IA usa todos los datos de esta operación para responderte.</p>
+      <p style="font-size:10px;color:var(--textodim);margin-top:6px;text-align:center;" data-i18n="chatFooterNote">La IA usa todos los datos de esta operación para responderte.</p>
     </div>
 
   </div>
@@ -1425,8 +1511,8 @@
 <div id="sec-7" class="section hidden" style="max-width:480px;margin:0 auto;padding:0 16px 100px;">
 
   <div style="padding:18px 0 14px;border-bottom:1px solid var(--borde);margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;">
-    <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;">📄 Informe Ejecutivo</div>
-    <div style="font-size:11px;color:var(--textodim);">IA + Métricas + PDF</div>
+    <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;"><span>📄</span> <span data-i18n="s7Title">Informe Ejecutivo</span></div>
+    <div style="font-size:11px;color:var(--textodim);" data-i18n="s7Sub">IA + Métricas + PDF</div>
   </div>
 
   <!-- META DATOS RÁPIDOS -->
@@ -1434,21 +1520,21 @@
 
   <!-- BOTÓN GENERAR -->
   <button class="btn-generate-report" onclick="generarInformeCompleto()">
-    <span>✨</span> Generar Informe con IA
+    <span>✨</span> <span data-i18n="btnGenerarInforme">Generar Informe con IA</span>
   </button>
 
   <!-- LOADING STATE -->
   <div class="report-generating" id="reportGenerating">
     <div class="loader-ring spin"></div>
-    <div style="font-weight:600;color:var(--texto);margin-bottom:4px;">Analizando operación…</div>
-    <div style="font-size:12px;">La IA está preparando tu informe detallado</div>
+    <div style="font-weight:600;color:var(--texto);margin-bottom:4px;" data-i18n="generatingTitle">Analizando operación…</div>
+    <div style="font-size:12px;" data-i18n="generatingSub">La IA está preparando tu informe detallado</div>
   </div>
 
   <!-- EMPTY STATE -->
   <div class="report-empty" id="reportEmpty">
     <div class="report-empty-icon">📋</div>
-    <div style="font-weight:600;color:var(--texto);margin-bottom:6px;">Sin informe generado</div>
-    <div style="font-size:12px;">Presiona el botón de arriba para que la IA genere un informe ejecutivo completo con todos los datos de esta operación.</div>
+    <div style="font-weight:600;color:var(--texto);margin-bottom:6px;" data-i18n="emptyTitle">Sin informe generado</div>
+    <div style="font-size:12px;" data-i18n="emptyDesc">Presiona el botón de arriba para que la IA genere un informe ejecutivo completo con todos los datos de esta operación.</div>
   </div>
 
   <!-- CONTENIDO DEL INFORME -->
@@ -1458,21 +1544,21 @@
     <div class="report-actions">
       <button class="btn-report-action" onclick="descargarPDF()">
         <span class="btn-icon">📥</span>
-        <span>Descargar PDF</span>
-        <span style="font-size:10px;color:var(--textodim);font-weight:400;">Con métricas y gráficos</span>
+        <span data-i18n="btnDescargarPDF">Descargar PDF</span>
+        <span style="font-size:10px;color:var(--textodim);font-weight:400;" data-i18n="btnDescargarPDFSub">Con métricas y gráficos</span>
       </button>
       <button class="btn-report-action" onclick="copiarTodoElInforme()">
         <span class="btn-icon">📋</span>
-        <span>Copiar todo</span>
-        <span style="font-size:10px;color:var(--textodim);font-weight:400;">Texto completo</span>
+        <span data-i18n="btnCopiarTodo">Copiar todo</span>
+        <span style="font-size:10px;color:var(--textodim);font-weight:400;" data-i18n="btnCopiarTodoSub">Texto completo</span>
       </button>
     </div>
 
     <!-- SECCIÓN: RESUMEN EJECUTIVO (corto) -->
     <div class="report-section">
       <div class="report-section-header">
-        <div class="report-section-title"><span>⚡</span> Resumen Ejecutivo</div>
-        <button class="btn-copy" onclick="copiarSeccion('resumenText', this)">📋 Copiar</button>
+        <div class="report-section-title"><span>⚡</span> <span data-i18n="repResumen">Resumen Ejecutivo</span></div>
+        <button class="btn-copy" onclick="copiarSeccion('resumenText', this)" data-i18n="btnCopiar">📋 Copiar</button>
       </div>
       <div class="report-section-body" id="resumenText"></div>
     </div>
@@ -1480,8 +1566,8 @@
     <!-- SECCIÓN: MÉTRICAS CLAVE -->
     <div class="report-section">
       <div class="report-section-header">
-        <div class="report-section-title"><span>📊</span> Métricas Clave</div>
-        <button class="btn-copy" onclick="copiarSeccion('metricasText', this)">📋 Copiar</button>
+        <div class="report-section-title"><span>📊</span> <span data-i18n="repMetricas">Métricas Clave</span></div>
+        <button class="btn-copy" onclick="copiarSeccion('metricasText', this)" data-i18n="btnCopiar">📋 Copiar</button>
       </div>
       <div class="report-section-body" id="metricasText"></div>
     </div>
@@ -1489,8 +1575,8 @@
     <!-- SECCIÓN: ANÁLISIS DETALLADO IA -->
     <div class="report-section">
       <div class="report-section-header">
-        <div class="report-section-title"><span>🧠</span> Análisis Detallado IA</div>
-        <button class="btn-copy" onclick="copiarSeccion('analisisDetalladoText', this)">📋 Copiar</button>
+        <div class="report-section-title"><span>🧠</span> <span data-i18n="repAnalisis">Análisis Detallado IA</span></div>
+        <button class="btn-copy" onclick="copiarSeccion('analisisDetalladoText', this)" data-i18n="btnCopiar">📋 Copiar</button>
       </div>
       <div class="report-section-body" id="analisisDetalladoText"></div>
     </div>
@@ -1498,8 +1584,8 @@
     <!-- SECCIÓN: DIAGNÓSTICO POR FACTOR -->
     <div class="report-section">
       <div class="report-section-header">
-        <div class="report-section-title"><span>🎯</span> Diagnóstico por Factor</div>
-        <button class="btn-copy" onclick="copiarSeccion('diagnosticoText', this)">📋 Copiar</button>
+        <div class="report-section-title"><span>🎯</span> <span data-i18n="repDiagnostico">Diagnóstico por Factor</span></div>
+        <button class="btn-copy" onclick="copiarSeccion('diagnosticoText', this)" data-i18n="btnCopiar">📋 Copiar</button>
       </div>
       <div class="report-section-body" id="diagnosticoText"></div>
     </div>
@@ -1507,8 +1593,8 @@
     <!-- SECCIÓN: PLAN DE ACCIÓN -->
     <div class="report-section">
       <div class="report-section-header">
-        <div class="report-section-title"><span>🚀</span> Plan de Acción Inmediata</div>
-        <button class="btn-copy" onclick="copiarSeccion('planAccionText', this)">📋 Copiar</button>
+        <div class="report-section-title"><span>🚀</span> <span data-i18n="repPlan">Plan de Acción Inmediata</span></div>
+        <button class="btn-copy" onclick="copiarSeccion('planAccionText', this)" data-i18n="btnCopiar">📋 Copiar</button>
       </div>
       <div class="report-section-body" id="planAccionText"></div>
     </div>
@@ -1516,14 +1602,14 @@
     <!-- SECCIÓN: ESTRATEGIA DE CIERRE -->
     <div class="report-section">
       <div class="report-section-header">
-        <div class="report-section-title"><span>🤝</span> Estrategia de Cierre</div>
-        <button class="btn-copy" onclick="copiarSeccion('estrategiaText', this)">📋 Copiar</button>
+        <div class="report-section-title"><span>🤝</span> <span data-i18n="repEstrategia">Estrategia de Cierre</span></div>
+        <button class="btn-copy" onclick="copiarSeccion('estrategiaText', this)" data-i18n="btnCopiar">📋 Copiar</button>
       </div>
       <div class="report-section-body" id="estrategiaText"></div>
     </div>
 
     <!-- BOTÓN REGENERAR -->
-    <button onclick="generarInformeCompleto()" style="width:100%;padding:12px;background:transparent;border:1px solid var(--borde);color:var(--textodim);border-radius:12px;cursor:pointer;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;margin-top:4px;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--menta)';this.style.color='var(--menta)'" onmouseout="this.style.borderColor='var(--borde)';this.style.color='var(--textodim)'">
+    <button onclick="generarInformeCompleto()" data-i18n="btnRegenerar" style="width:100%;padding:12px;background:transparent;border:1px solid var(--borde);color:var(--textodim);border-radius:12px;cursor:pointer;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;margin-top:4px;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--menta)';this.style.color='var(--menta)'" onmouseout="this.style.borderColor='var(--borde)';this.style.color='var(--textodim)'">
       🔄 Regenerar Informe
     </button>
 
@@ -1540,8 +1626,8 @@
     <div class="chat-panel-title">
       <div class="chat-panel-avatar">VM</div>
       <div>
-        <div>Asesor VentaMinds IA</div>
-        <div style="font-size:10px;color:var(--menta);font-weight:400;">● En línea — usa los datos de esta operación</div>
+        <div data-i18n="chatPanelTitle">Asesor VentaMinds IA</div>
+        <div style="font-size:10px;color:var(--menta);font-weight:400;" data-i18n="chatPanelStatus">● En línea — usa los datos de esta operación</div>
       </div>
     </div>
     <button class="chat-panel-close" onclick="toggleChatPanel()">✕</button>
@@ -1549,11 +1635,11 @@
   <div class="chat-panel-messages" id="chatPanelMessages">
     <div class="msg-ai">
       <div class="ai-avatar">VM</div>
-      <div class="msg-ai-bubble">¡Hola! Soy tu asesor de ventas IA. Tengo acceso a todos los datos de esta operación en tiempo real.<br><br>Puedo ayudarte con:<br>• Cómo manejar objeciones<br>• Qué decirle al cliente ahora<br>• Cuándo y cómo llamar<br>• Tácticas de cierre específicas<br><br>¿En qué te ayudo?</div>
+      <div class="msg-ai-bubble" data-i18n-html="chatPanelWelcome">¡Hola! Soy tu asesor de ventas IA. Tengo acceso a todos los datos de esta operación en tiempo real.<br><br>Puedo ayudarte con:<br>• Cómo manejar objeciones<br>• Qué decirle al cliente ahora<br>• Cuándo y cómo llamar<br>• Tácticas de cierre específicas<br><br>¿En qué te ayudo?</div>
     </div>
   </div>
   <div class="chat-panel-input-row">
-    <input type="text" id="chatPanelInput" class="chat-input" placeholder="Pregunta lo que necesites…" onkeydown="if(event.key==='Enter')sendChatPanel()">
+    <input type="text" id="chatPanelInput" class="chat-input" data-i18n-ph="phChatPanelInput" placeholder="Pregunta lo que necesites…" onkeydown="if(event.key==='Enter')sendChatPanel()">
     <button class="chat-send" onclick="sendChatPanel()">➤</button>
   </div>
 </div>
@@ -1576,7 +1662,7 @@
     animation: slideUp 0.3s cubic-bezier(.22,.68,0,1.2) both;
   ">
     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
-      <div style="font-family:'Space Grotesk',sans-serif; font-size:16px; font-weight:700;">
+      <div style="font-family:'Space Grotesk',sans-serif; font-size:16px; font-weight:700;" data-i18n="recalcTitle">
         ✏️ Actualizar y recalcular
       </div>
       <button onclick="cerrarModalRecalcular()" style="
@@ -1584,65 +1670,65 @@
         font-size:20px; cursor:pointer; line-height:1;
       ">✕</button>
     </div>
-    <p style="font-size:12px; color:#8892A4; margin-bottom:18px; line-height:1.5;">
+    <p style="font-size:12px; color:#8892A4; margin-bottom:18px; line-height:1.5;" data-i18n="recalcDesc">
       Ajusta lo que cambió y agrega contexto extra. El score y el informe se regenerarán completos.
     </p>
 
     <!-- Estado operación -->
     <div class="field">
-      <label class="field-label">Estado actual de la operación</label>
+      <label class="field-label" data-i18n="lblEstadoActual">Estado actual de la operación</label>
       <select id="r_estadoOp" class="inp"></select>
     </div>
 
     <!-- Urgencia -->
     <div class="field">
-      <label class="field-label">Urgencia del cliente</label>
+      <label class="field-label" data-i18n="lblUrgenciaCliente">Urgencia del cliente</label>
       <select id="r_urgencia" class="inp">
-        <option value="1">1 — Sin urgencia</option>
-        <option value="2">2 — Baja</option>
-        <option value="3" selected>3 — Media</option>
-        <option value="4">4 — Alta</option>
-        <option value="5">5 — Ahora mismo</option>
+        <option value="1" data-i18n="urg1">1 — Sin urgencia</option>
+        <option value="2" data-i18n="urg2">2 — Baja</option>
+        <option value="3" selected data-i18n="urg3">3 — Media</option>
+        <option value="4" data-i18n="urg4">4 — Alta</option>
+        <option value="5" data-i18n="urg5">5 — Ahora mismo</option>
       </select>
     </div>
 
     <!-- Señales de compra nuevas -->
     <div class="field">
-      <label class="field-label">¿Mostró nuevas señales de compra?</label>
+      <label class="field-label" data-i18n="lblNuevasSeniales">¿Mostró nuevas señales de compra?</label>
       <select id="r_seniales" class="inp">
-        <option value="0">No, sin cambios</option>
-        <option value="1">Sí, 1 señal nueva</option>
-        <option value="2">Sí, 2 señales nuevas</option>
-        <option value="3">Sí, 3 o más señales nuevas</option>
+        <option value="0" data-i18n="optNuevSen0">No, sin cambios</option>
+        <option value="1" data-i18n="optNuevSen1">Sí, 1 señal nueva</option>
+        <option value="2" data-i18n="optNuevSen2">Sí, 2 señales nuevas</option>
+        <option value="3" data-i18n="optNuevSen3">Sí, 3 o más señales nuevas</option>
       </select>
     </div>
 
     <!-- Objeción -->
     <div class="field">
-      <label class="field-label">Objeción principal (si cambió)</label>
+      <label class="field-label" data-i18n="lblObjecionCambio">Objeción principal (si cambió)</label>
       <select id="r_objecion" class="inp">
-        <option value="">— Sin cambio —</option>
-        <option value="5">Sin objeciones ahora</option>
-        <option value="1">Precio / presupuesto</option>
-        <option value="2">Tiempo / lo piensa</option>
-        <option value="3">Necesita aprobación</option>
-        <option value="4">Duda del producto</option>
+        <option value="" data-i18n="optObjSinCambio">— Sin cambio —</option>
+        <option value="5" data-i18n="optObjSinAhora">Sin objeciones ahora</option>
+        <option value="1" data-i18n="optObjPrecio">Precio / presupuesto</option>
+        <option value="2" data-i18n="optObjTiempoR">Tiempo / lo piensa</option>
+        <option value="3" data-i18n="optObjTerceroR">Necesita aprobación</option>
+        <option value="4" data-i18n="optObjDuda">Duda del producto</option>
       </select>
     </div>
 
     <!-- Notas adicionales -->
     <div class="field">
-      <label class="field-label">Contexto adicional para el informe</label>
+      <label class="field-label" data-i18n="lblContextoAdicional">Contexto adicional para el informe</label>
       <textarea id="notasRecalculo" class="inp" rows="4"
-        placeholder="Ej: El cliente llamó por iniciativa propia, mencionó que ya habló con su pareja y ambos están de acuerdo..."
+        data-i18n-ph="phNotasRecalculo" placeholder="Ej: El cliente llamó por iniciativa propia, mencionó que ya habló con su pareja y ambos están de acuerdo..."
         style="resize:none; line-height:1.5; font-size:13px;"></textarea>
     </div>
 
     <div style="display:flex; gap:10px; margin-top:4px;">
-      <button onclick="cerrarModalRecalcular()" class="btn-ghost" style="flex:1; padding:12px;">
+      <button onclick="cerrarModalRecalcular()" class="btn-ghost" data-i18n="btnCancelar" style="flex:1; padding:12px;">
         Cancelar
       </button>
-      <button onclick="confirmarRecalculo()" class="btn-primary" style="flex:2; padding:12px;">
+      <button onclick="confirmarRecalculo()" class="btn-primary" data-i18n="btnRecalcular" style="flex:2; padding:12px;">
         ↻ Recalcular análisis
       </button>
     </div>
@@ -1651,12 +1737,26 @@
 
 <!-- NAV FIJA ABAJO -->
 <div class="nav-bottom">
-  <button id="btnAnt" class="btn-ghost hidden" onclick="navigate(-1)">← Anterior</button>
+  <button id="btnAnt" class="btn-ghost hidden" onclick="navigate(-1)" data-i18n="btnAnterior">← Anterior</button>
   <div style="font-size:12px;color:var(--textodim);" id="navLabel">Paso 1 de 6</div>
-  <button id="btnSig" class="btn-primary" onclick="navigate(1)">Siguiente →</button>
+  <button id="btnSig" class="btn-primary" onclick="navigate(1)" data-i18n="btnSiguiente">Siguiente →</button>
+</div>
+
+<!-- LANG SHEET (idioma de interfaz) -->
+<div class="lang-sheet-overlay" id="langSheetOverlay" onclick="if(event.target===this) closeLangSheet()">
+  <div class="lang-sheet" id="langSheet">
+    <div class="lang-sheet-handle"></div>
+    <div class="lang-sheet-title">🌐 <span data-i18n="modalUiLangTitle">Idioma de interfaz</span></div>
+    <div id="langSheetList" style="max-height:60vh;overflow-y:auto;"></div>
+  </div>
 </div>
 
 <!-- CHART.JS -->
+<!-- ══ Firebase (sincronización de preferencias entre dispositivos) ══ -->
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore-compat.js"></script>
+
 <script>
 // ═══════════════════════════════════════════════════════════════════════════
 // ── CONFIGURACIÓN MULTI-IA (Claude / Gemini / ChatGPT / Grok con fallback) ──
@@ -1665,6 +1765,232 @@ const CFG_STORAGE_KEY = 'vmpro_cfg';
 const CFG = { claude:'', gemini:'', chatgpt:'', grok:'' };
 function cfgLoad(){ try{ const c=localStorage.getItem(CFG_STORAGE_KEY); if(c) Object.assign(CFG, JSON.parse(c)); }catch(e){} }
 function cfgSaveLocal(){ try{ localStorage.setItem(CFG_STORAGE_KEY, JSON.stringify(CFG)); }catch(e){} }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ── FIREBASE: sesión + sincronización de preferencias entre dispositivos ──
+// NUNCA sincroniza: API keys (CFG.*), que se quedan solo en este dispositivo.
+// SÍ sincroniza: idioma de interfaz e idioma de respuesta (las únicas
+// preferencias/config que tiene hoy esta app). El negocio en curso (etapa,
+// timeline, señales, posventa, datos del cliente) NO se sincroniza por
+// ahora — no hay una fuente de verdad externa para esos datos, pero son
+// datos de negocio pesados y específicos de una negociación, no config
+// liviana; si Eddy quiere que también viajen entre dispositivos, es un
+// documento aparte (ej. usuarios/{uid}/deals/{dealId}), no este.
+// ═══════════════════════════════════════════════════════════════════════════
+const firebaseConfig = {
+  apiKey: "AIzaSyATTrYMqivDJGLhQYDDjEqLCyv-YEMSK2A",
+  authDomain: "nexus-pro-plus.firebaseapp.com",
+  projectId: "nexus-pro-plus",
+  storageBucket: "nexus-pro-plus.firebasestorage.app",
+  messagingSenderId: "5726048688",
+  appId: "1:5726048688:web:4e977b0657d192a0008675",
+  measurementId: "G-Z5FNXEQTFN"
+};
+let fbApp=null, fbAuth=null, fbDb=null, fbUser=null, fbUnsub=null;
+let fbSaveTimer=null, fbReady=false, fbApplyingRemote=false;
+
+// ── Guarda en Firestore (agrupado, con retraso de ~500ms) ────────────────────
+function fbScheduleSave(){
+  if(fbApplyingRemote) return;
+  if(!fbReady||!fbUser||!fbDb) return;
+  clearTimeout(fbSaveTimer);
+  fbSaveTimer=setTimeout(fbFlushSave,500);
+}
+async function fbFlushSave(){
+  if(!fbReady||!fbUser||!fbDb) return;
+  try{
+    await fbDb.collection('usuarios').doc(fbUser.uid).set({
+      prefs:{ uiLang: currentUiLang, respLang: currentRespLang },
+      apiKeys: CFG,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    },{merge:true});
+  }catch(e){ console.warn('Firebase: no se pudo guardar',e); }
+}
+
+// ── Aplica un doc remoto recibido por onSnapshot ──────────────────────────────
+function fbApplyRemote(data){
+  if(!data) return;
+  fbApplyingRemote=true;
+  if(data.prefs){
+    const p=data.prefs;
+    if(p.uiLang && p.uiLang!==currentUiLang) applyUiLang(p.uiLang);
+    if(p.respLang && p.respLang!==currentRespLang) setRespLang(p.respLang);
+  }
+  if(data.apiKeys && typeof data.apiKeys==='object'){
+    let cambioKeys=false;
+    Object.keys(CFG).forEach(provider=>{
+      const remoteVal=data.apiKeys[provider];
+      if(typeof remoteVal==='string' && remoteVal && remoteVal!==CFG[provider]){
+        CFG[provider]=remoteVal; cambioKeys=true;
+      }
+    });
+    if(cambioKeys){
+      cfgSaveLocal();
+      if(typeof renderApiProvidersUI==='function') renderApiProvidersUI();
+    }
+  }
+  fbApplyingRemote=false;
+}
+
+// ── Escucha en tiempo real el documento del usuario ───────────────────────────
+function fbListenUser(){
+  if(fbUnsub){ fbUnsub(); fbUnsub=null; }
+  if(!fbUser||!fbDb) return;
+  fbUnsub=fbDb.collection('usuarios').doc(fbUser.uid).onSnapshot({includeMetadataChanges:true},(snap)=>{
+    if(snap.metadata.hasPendingWrites){ return; } // ignora el eco de nuestras propias escrituras
+    if(snap.exists) fbApplyRemote(snap.data());
+  },(err)=>console.warn('Firebase: listener falló',err));
+}
+
+// ─── Auth Gate: exige inicio de sesión real en navegador (no aplica en modo artefacto) ──
+const AUTH_GATE_EMAIL_KEY = 'nexusAuthGateEmail';
+
+function showAuthGate(){ const el=document.getElementById('authGateOverlay'); if(el) el.style.display='flex'; }
+function hideAuthGate(){ const el=document.getElementById('authGateOverlay'); if(el) el.style.display='none'; }
+function gateMsg(text, isError){
+  const m=document.getElementById('gateMsg'); if(!m) return;
+  m.textContent = text||''; m.style.color = isError ? '#ff6b6b' : '#00F5C4';
+}
+async function gateSignInGoogle(){
+  try{ await fbAuth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
+  catch(e){ gateMsg('No se pudo iniciar sesión con Google: '+(e.message||e.code), true); }
+}
+async function gateSignInEmail(){
+  const email=(document.getElementById('gateEmail').value||'').trim();
+  const pass=document.getElementById('gatePass').value||'';
+  if(!email||!pass){ gateMsg('Escribe email y contraseña.', true); return; }
+  try{ await fbAuth.signInWithEmailAndPassword(email, pass); }
+  catch(e){ gateMsg('No se pudo iniciar sesión: '+(e.message||e.code), true); }
+}
+async function gateRegisterEmail(){
+  const email=(document.getElementById('gateEmail').value||'').trim();
+  const pass=document.getElementById('gatePass').value||'';
+  if(!email||!pass){ gateMsg('Escribe email y contraseña.', true); return; }
+  try{ await fbAuth.createUserWithEmailAndPassword(email, pass); }
+  catch(e){
+    if(e.code==='auth/email-already-in-use') gateMsg('Ese email ya tiene cuenta. Usa "Iniciar sesión".', true);
+    else if(e.code==='auth/weak-password') gateMsg('La contraseña debe tener al menos 6 caracteres.', true);
+    else gateMsg('No se pudo crear la cuenta: '+(e.message||e.code), true);
+  }
+}
+async function gateSendEmailLink(){
+  const email=(document.getElementById('gateEmail').value||'').trim();
+  if(!email){ gateMsg('Escribe tu email para enviarte el enlace.', true); return; }
+  const actionCodeSettings = { url: window.location.href.split('#')[0], handleCodeInApp: true };
+  try{
+    await fbAuth.sendSignInLinkToEmail(email, actionCodeSettings);
+    window.localStorage.setItem(AUTH_GATE_EMAIL_KEY, email);
+    gateMsg('✅ Te enviamos un enlace a '+email+'. Ábrelo desde este mismo navegador para entrar.', false);
+  }catch(e){ gateMsg('No se pudo enviar el enlace: '+(e.message||e.code), true); }
+}
+async function gateCompleteEmailLinkIfNeeded(){
+  try{
+    if(fbAuth.isSignInWithEmailLink(window.location.href)){
+      let email = window.localStorage.getItem(AUTH_GATE_EMAIL_KEY);
+      if(!email) email = window.prompt('Confirma tu email para completar el acceso:');
+      if(email){
+        await fbAuth.signInWithEmailLink(email, window.location.href);
+        window.localStorage.removeItem(AUTH_GATE_EMAIL_KEY);
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    }
+  }catch(e){ console.warn('[Nube] No se pudo completar el acceso por enlace:', e); }
+}
+function initAuthGate(){
+  const map=[['gateGoogleBtn',gateSignInGoogle],['gateLoginBtn',gateSignInEmail],
+             ['gateRegisterBtn',gateRegisterEmail],['gateLinkBtn',gateSendEmailLink]];
+  map.forEach(([id,fn])=>{ const b=document.getElementById(id); if(b) b.addEventListener('click', fn); });
+}
+
+// ── Inicialización: exige login real en navegador (Google / email+contraseña / enlace por correo) ──
+async function fbInit(){
+  if(typeof firebase==='undefined'){
+    fbUpdateAccountUI();
+    return;
+  }
+  try{
+    fbApp=firebase.initializeApp(firebaseConfig);
+    fbAuth=firebase.auth();
+    fbDb=firebase.firestore();
+    try{ await fbDb.enablePersistence({synchronizeTabs:true}); }catch(e){}
+    initAuthGate();
+    await gateCompleteEmailLinkIfNeeded();
+    fbAuth.onAuthStateChanged(async (user)=>{
+      if(user){
+        hideAuthGate();
+        fbUser=user; fbReady=true;
+        try{
+          const doc=await fbDb.collection('usuarios').doc(user.uid).get();
+          if(doc.exists) fbApplyRemote(doc.data());
+          else fbFlushSave();
+        }catch(e){}
+        fbListenUser();
+        fbUpdateAccountUI();
+      } else {
+        // Ya no se crea sesión anónima automática: en navegador real se exige login (Google, email+contraseña o enlace por correo)
+        showAuthGate();
+      }
+    });
+  }catch(e){ console.warn('Firebase: no disponible en este entorno',e); fbUpdateAccountUI(); }
+}
+
+// ── Cuenta y sincronización (UI en Configuración) ─────────────────────────────
+function fbUpdateAccountUI(){
+  const statusEl=document.getElementById('fbAccountStatus');
+  const formEl=document.getElementById('fbAccountForm');
+  const signedInEl=document.getElementById('fbAccountSignedIn');
+  if(!statusEl) return;
+  if(typeof firebase==='undefined'){
+    statusEl.textContent='⚠️ Sincronización no disponible en este visor (bloquea Google). Abre el archivo en un navegador normal para usarla.';
+    if(formEl) formEl.style.display='none';
+    if(signedInEl) signedInEl.style.display='none';
+    return;
+  }
+  const isAnon = fbUser && fbUser.isAnonymous;
+  const isReal = fbUser && !fbUser.isAnonymous;
+  statusEl.textContent = isReal ? `Conectado como ${fbUser.email}` : (isAnon ? 'Modo invitado — tus preferencias se guardan, pero solo en este dispositivo hasta que crees una cuenta.' : 'Conectando…');
+  if(formEl) formEl.style.display = isReal ? 'none' : 'block';
+  if(signedInEl) signedInEl.style.display = isReal ? 'flex' : 'none';
+}
+async function fbCreateAccount(email,pass){
+  if(!fbAuth||!fbUser) return mostrarToast('Sincronización no disponible');
+  try{
+    const cred=firebase.auth.EmailAuthProvider.credential(email,pass);
+    await fbUser.linkWithCredential(cred);
+    fbUser=fbAuth.currentUser;
+    fbUpdateAccountUI(); fbListenUser();
+    mostrarToast('✅ Cuenta creada — ahora sincroniza entre dispositivos');
+  }catch(e){ mostrarToast('❌ '+(e.message||'No se pudo crear la cuenta')); }
+}
+async function fbSignIn(email,pass){
+  if(!fbAuth) return mostrarToast('Sincronización no disponible');
+  try{
+    await fbAuth.signInWithEmailAndPassword(email,pass);
+    mostrarToast('✅ Sesión iniciada');
+  }catch(e){ mostrarToast('❌ '+(e.message||'No se pudo iniciar sesión')); }
+}
+async function fbSignOutUser(){
+  if(!fbAuth) return;
+  try{ await fbAuth.signOut(); }catch(e){}
+}
+function initAccountSyncUI(){
+  const createBtn=document.getElementById('fbCreateBtn');
+  const signInBtn=document.getElementById('fbSignInBtn');
+  const signOutBtn=document.getElementById('fbSignOutBtn');
+  const emailInput=document.getElementById('fbEmail');
+  const passInput=document.getElementById('fbPass');
+  if(createBtn) createBtn.addEventListener('click',()=>{
+    const email=(emailInput?.value||'').trim(), pass=passInput?.value||'';
+    if(!email||pass.length<6) return mostrarToast('Correo válido y contraseña de 6+ caracteres');
+    fbCreateAccount(email,pass);
+  });
+  if(signInBtn) signInBtn.addEventListener('click',()=>{
+    const email=(emailInput?.value||'').trim(), pass=passInput?.value||'';
+    if(!email||!pass) return mostrarToast('Ingresa correo y contraseña');
+    fbSignIn(email,pass);
+  });
+  if(signOutBtn) signOutBtn.addEventListener('click',fbSignOutUser);
+}
 const API_KEY_RULES = {
   claude:  v => v.trim().length > 0,
   gemini:  v => v.trim().length > 0,
@@ -1751,16 +2077,21 @@ async function _callOpenAICompatibleAI(messages, system, apiKey, models, endpoin
 }
 const callChatGPTAI = (messages, system, opts={}) => _callOpenAICompatibleAI(messages, system, CFG.chatgpt, opts.models||CHATGPT_MODELS, 'https://api.openai.com/v1/chat/completions', 'ChatGPT', opts);
 const callGrokAI    = (messages, system, opts={}) => _callOpenAICompatibleAI(messages, system, CFG.grok, opts.models||GROK_MODELS, 'https://api.x.ai/v1/chat/completions', 'Grok', opts);
+const RESP_LANG_NAMES = { es:'Spanish', en:'English', de:'German', fr:'French', it:'Italian', pt:'Portuguese', uk:'Ukrainian', ru:'Russian', he:'Hebrew', zh:'Chinese', ja:'Japanese', ko:'Korean', hi:'Hindi', sw:'Swahili' };
 async function callAI(messages, system, opts={}){
+  if (currentRespLang && currentRespLang !== 'auto') {
+    const langName = RESP_LANG_NAMES[currentRespLang] || currentRespLang;
+    system = `${system}\n\nCRITICAL OUTPUT LANGUAGE RULE: You must respond entirely in ${langName}, regardless of the language of the input data below. Do not mix languages.`;
+  }
   const providers=[];
   if(CFG.claude)  providers.push(()=>callClaudeAI(messages,system,opts));
   if(CFG.gemini)  providers.push(()=>callGeminiAI(messages,system,opts));
   if(CFG.chatgpt) providers.push(()=>callChatGPTAI(messages,system,opts));
   if(CFG.grok)    providers.push(()=>callGrokAI(messages,system,opts));
-  if(!providers.length) return { error:'NO_KEY', message:'No hay ninguna API Key configurada. Ve a la pestaña ⚙️ Config.' };
+  if(!providers.length) return { error:'NO_KEY', message:tr('errNoApiKey') };
   let last=null;
   for(const fn of providers){ const r=await fn(); if(r.ok) return r; last=r; }
-  return last || { error:'NO_MODEL', message:'Ningún proveedor respondió' };
+  return last || { error:'NO_MODEL', message:tr('errNoModel') };
 }
 
 // Extracción y reparación robusta de JSON proveniente de la IA (por si algún
@@ -1878,7 +2209,7 @@ function renderApiProvidersUI(){
       const val = inp.value.trim();
       if(!val){ alert('Ingresa una API key primero'); return; }
       if(cfgValidateKey(p.id, val) === false){ alert('⚠️ Formato de clave no reconocido para ' + p.label); }
-      CFG[p.id] = val; cfgSaveLocal(); renderApiProvidersUI();
+      CFG[p.id] = val; cfgSaveLocal(); fbScheduleSave(); renderApiProvidersUI();
       const dot2=document.getElementById('apikey-dot-'+p.id), txt2=document.getElementById('apikey-status-text-'+p.id);
       if(dot2){ dot2.classList.remove('has-key','error'); dot2.classList.add('testing'); }
       if(txt2) txt2.textContent='🔄 Verificando conexión…';
@@ -1899,13 +2230,820 @@ function renderApiProvidersUI(){
       else{ if(dot2){ dot2.classList.remove('has-key'); dot2.classList.add('error'); } if(txt2) txt2.textContent='✗ '+result.message; }
     });
     list.querySelector(`[data-del="${p.id}"]`).addEventListener('click', () => {
-      CFG[p.id] = ''; cfgSaveLocal(); renderApiProvidersUI();
+      CFG[p.id] = ''; cfgSaveLocal(); fbScheduleSave(); renderApiProvidersUI();
     });
   });
 }
-function openSettings(){ renderApiProvidersUI(); document.getElementById('settingsOverlay').classList.add('open'); }
+function openSettings(){ renderApiProvidersUI(); renderSettingsLangChips(); document.getElementById('settingsOverlay').classList.add('open'); }
 function closeSettings(){ document.getElementById('settingsOverlay').classList.remove('open'); }
 cfgLoad();
+
+const I18N = {
+  es: {
+    badgePrueba: `La prueba de manejo es uno de los <strong style="color:var(--texto);">indicadores más fuertes de compra</strong> en ventas automotrices. Un cliente que maneja y pregunta por detalles de entrega tiene alta probabilidad de cierre.`,
+    barTitle: `DESGLOSE DE PUNTUACIÓN`,
+    btnAgregar: `+ Agregar`,
+    btnAnterior: `← Anterior`,
+    btnCancelar: `Cancelar`,
+    btnCerrar: `Cerrar`,
+    btnCopiar: `📋 Copiar`,
+    btnCopiarTodo: `Copiar todo`,
+    btnCopiarTodoSub: `Texto completo`,
+    btnDescargarPDF: `Descargar PDF`,
+    btnDescargarPDFSub: `Con métricas y gráficos`,
+    btnGenerarInforme: `Generar Informe con IA`,
+    btnNueva: `Nueva`,
+    btnRecalcular: `↻ Recalcular análisis`,
+    btnRecalcularNav: `✏️ Recalcular`,
+    btnRegenerar: `🔄 Regenerar Informe`,
+    btnSiguiente: `Siguiente →`,
+    btnVerAnalisis: `Ver Análisis →`,
+    btnVerInforme: `Ver Informe →`,
+    chartCondiciones: `Condiciones`,
+    chartEstado: `Estado`,
+    chartExtUrg: `Ext./Urg.`,
+    chartExterno: `Externo`,
+    chartInteres: `Interés`,
+    chartMaximo: `Máximo`,
+    chartObtenido: `Obtenido`,
+    chartScorePct: `Score %`,
+    chartSeguimiento: `Seguimiento`,
+    chartSeniales: `Señales`,
+    chatFooterNote: `La IA usa todos los datos de esta operación para responderte.`,
+    chatPanelStatus: `● En línea — usa los datos de esta operación`,
+    chatPanelTitle: `Asesor VentaMinds IA`,
+    chatPanelWelcome: `¡Hola! Soy tu asesor de ventas IA. Tengo acceso a todos los datos de esta operación en tiempo real.<br><br>Puedo ayudarte con:<br>• Cómo manejar objeciones<br>• Qué decirle al cliente ahora<br>• Cuándo y cómo llamar<br>• Tácticas de cierre específicas<br><br>¿En qué te ayudo?`,
+    chatWelcome: `¡Hola! Soy tu asesor de ventas IA. Tengo acceso a todos los datos de esta operación. Puedes preguntarme cómo manejar objeciones, qué decirle al cliente, cuándo llamar, o cualquier táctica de cierre. ¿En qué te ayudo?`,
+    confirmNuevaOp: `¿Iniciar una nueva operación? Se borrarán los datos actuales.`,
+    emptyDesc: `Presiona el botón de arriba para que la IA genere un informe ejecutivo completo con todos los datos de esta operación.`,
+    emptyTitle: `Sin informe generado`,
+    errNoApiKey: `No hay ninguna API Key configurada. Ve a la pestaña ⚙️ Config.`,
+    errNoModel: `Ningún proveedor respondió`,
+    estadoCancelada: `Cancelada`,
+    estadoCerrada: `Cerrada`,
+    estadoEnProceso: `En proceso`,
+    estadoFaltaFirma: `Falta firma`,
+    estadoInteresado: `Interesado`,
+    estadoNegociando: `Negociando`,
+    estadoNuevoProspecto: `Nuevo prospecto`,
+    factCondiciones: `Condiciones`,
+    factEstado: `Estado operac.`,
+    factExterno: `Ext. / Urgencia`,
+    factInteres: `Interés/Respuesta`,
+    factSeguimiento: `Seguimiento`,
+    factSeniales: `Señales compra`,
+    gaugeLabel: `Score de cierre`,
+    generatingSub: `La IA está preparando tu informe detallado`,
+    generatingTitle: `Analizando operación…`,
+    lblAcompanante: `¿Ha traído a alguien más? (acompañante)`,
+    lblCanalPreferido: `Canal preferido del cliente`,
+    lblComentarios: `Últimos comentarios del cliente`,
+    lblComentariosPrueba: `Comentarios del cliente durante / después de la prueba`,
+    lblCompetencia: `¿Hay competencia en juego?`,
+    lblCompromisos: `Compromisos pendientes (vendedor)`,
+    lblContextoAdicional: `Contexto adicional para el informe`,
+    lblCorreos: `✉️ Correos`,
+    lblCorreosPlain: `Correos`,
+    lblCotizacion: `Cotización enviada`,
+    lblDocumentos: `Documentación entregada`,
+    lblEstadoActual: `Estado actual de la operación`,
+    lblEstadoCredito: `Estado del crédito`,
+    lblEstadoOp: `¿En qué punto estamos?`,
+    lblFechaContacto: `Fecha primer<br>contacto`,
+    lblFechaUltima: `Última interacción<br>&nbsp;`,
+    lblHizoPrueba: `¿Realizó prueba de manejo?`,
+    lblIAAnaliza: `← IA analiza esto`,
+    lblLlamadas: `📞 Llamadas`,
+    lblLlamadasPlain: `Llamadas`,
+    lblModalidadPago: `Modalidad de pago`,
+    lblNombre: `Nombre completo`,
+    lblNotaVendedor: `¿Cómo lo notaste tú como vendedor?`,
+    lblNotasPersonales: `Notas personales del cliente`,
+    lblNuevasSeniales: `¿Mostró nuevas señales de compra?`,
+    lblObjecion: `Objeción principal`,
+    lblObjecionCambio: `Objeción principal (si cambió)`,
+    lblPreguntasCliente: `¿El cliente hace preguntas?`,
+    lblProducto: `Producto o servicio de interés`,
+    lblProximoContacto: `Próximo contacto programado`,
+    lblPruebaCon: `¿Con quién fue la prueba?`,
+    lblReaccionPrueba: `¿Cómo reaccionó durante la prueba?`,
+    lblRespVelocidad: `¿El cliente responde?`,
+    lblSegundaPrueba: `¿Pidió hacer otra prueba o regresó a preguntar?`,
+    lblTipoOp: `Tipo de operación`,
+    lblUrgencia: `Nivel de urgencia del cliente`,
+    lblUrgenciaCliente: `Urgencia del cliente`,
+    lblValorOp: `Valor estimado (opcional)`,
+    lblWhatsapp: `💬 WhatsApp`,
+    lblWhatsappPlain: `WhatsApp`,
+    metaContactosTotales: `Contactos Totales`,
+    metaDiasOperacion: `Días en Operación`,
+    metaDiasSinContacto: `Días sin Contacto`,
+    metaEstadoOperacion: `Estado Operación`,
+    metaProbCierre: `Probabilidad de Cierre`,
+    metaSenialesCompra: `Señales de Compra`,
+    metaTemperatura: `Temperatura`,
+    metaUrgenciaCliente: `Urgencia del Cliente`,
+    metricContactosSub: `llamadas + msgs`,
+    metricContactosTotales: `Contactos totales`,
+    metricDiasSinCerrar: `Días sin cerrar`,
+    metricSenialesCompra: `Señales compra`,
+    metricSenialesSub: `detectadas`,
+    metricUrgencia: `Urgencia`,
+    metricUrgenciaSub: `del cliente`,
+    modalUiLangTitle: `Idioma de interfaz`,
+    navLabel: `Paso {n} de {total}`,
+    optAcompFamilia: `Sí, trajo familia / pareja / socio`,
+    optAcompNoVisita: `No ha visitado en persona`,
+    optAcompSolo: `No, solo`,
+    optCanalEmail: `Correo electrónico`,
+    optCanalLlamada: `Llamada telefónica`,
+    optCanalPresencial: `Visita presencial`,
+    optCanalVideo: `Videollamada`,
+    optCanalWhatsapp: `WhatsApp`,
+    optCompNo: `No menciona competencia`,
+    optCompPosible: `Posiblemente`,
+    optCompReferido: `Viene referido, ya confía en nosotros`,
+    optCompSi: `Sí, está viendo otras opciones`,
+    optCotAceptadaPrincipio: `Revisada y aceptada en principio`,
+    optCotFirmada: `Firmada / aceptada formalmente`,
+    optCotNoEnviada: `No enviada`,
+    optCotPideCambios: `Revisada, pide cambios`,
+    optCotSinResp: `Enviada, sin respuesta`,
+    optCredAprobado: `✅ Aprobado`,
+    optCredIniciando: `Iniciando proceso`,
+    optCredNoSol: `No solicitado`,
+    optCredPreaprobado: `Pre-aprobado`,
+    optCredRechazado: `❌ Rechazado`,
+    optCredRevision: `En revisión`,
+    optDocCompleta: `Completa`,
+    optDocNinguna: `Ninguna`,
+    optDocParcial: `Parcial`,
+    optEstado0: `❌ Se perdió / canceló`,
+    optEstado1: `Prospecto nuevo / primer contacto`,
+    optEstado2: `Interesado, explorando opciones`,
+    optEstado3: `Negociando condiciones`,
+    optEstado4: `Falta solo anticipo / firma`,
+    optEstado5: `✅ Operación cerrada`,
+    optNota1: `No pareció convencido, no hizo preguntas después`,
+    optNota2: `Pareció dudar o comparar mentalmente con otro vehículo`,
+    optNota3: `Estuvo tranquilo, sin mucha reacción visible`,
+    optNota4: `Mostró interés real, hizo preguntas técnicas o de uso`,
+    optNota5: `Lo vi muy conectado con el vehículo, claramente lo imaginó suyo`,
+    optNuevSen0: `No, sin cambios`,
+    optNuevSen1: `Sí, 1 señal nueva`,
+    optNuevSen2: `Sí, 2 señales nuevas`,
+    optNuevSen3: `Sí, 3 o más señales nuevas`,
+    optObjDuda: `Duda del producto`,
+    optObjPrecio: `Precio / presupuesto`,
+    optObjSinAhora: `Sin objeciones ahora`,
+    optObjSinCambio: `— Sin cambio —`,
+    optObjSinObj: `Sin objeciones claras`,
+    optObjTercero: `Necesita aprobación de tercero`,
+    optObjTerceroR: `Necesita aprobación`,
+    optObjTiempo: `Tiempo / "lo pienso"`,
+    optObjTiempoR: `Tiempo / lo piensa`,
+    optPagoContado: `De contado`,
+    optPagoCredito: `A crédito / financiamiento`,
+    optPagoNoDef: `No definido`,
+    optPregMuchas: `Sí, muchas preguntas específicas`,
+    optPregNo: `No hay interacción`,
+    optPregPocas: `Pocas preguntas generales`,
+    optPregSolo: `Solo responde, no pregunta`,
+    optPruebaConFamilia: `Con familia (hijos, padres…)`,
+    optPruebaConPareja: `Con pareja / cónyuge`,
+    optPruebaConSocio: `Con socio / amigo de confianza`,
+    optPruebaConSolo: `Solo/a`,
+    optPruebaNo: `No ha realizado prueba`,
+    optPruebaOfrecio: `Se ofreció pero no quiso`,
+    optPruebaPendiente: `Quedó pendiente / programada`,
+    optPruebaSi: `Sí, la realizó`,
+    optReac1: `Decepcionado/a o mencionó algo negativo`,
+    optReac2: `Poco convencido/a, hizo comparaciones`,
+    optReac3: `Neutral, no mostró mucha emoción`,
+    optReac4: `Positivo/a, sonrió y preguntó más detalles`,
+    optReac5: `Muy entusiasmado/a, expresó que le encantó`,
+    optRespEsporadico: `Responde esporádicamente`,
+    optRespNo: `No responde / ignoró`,
+    optRespRapido: `Sí, responde rápido (horas)`,
+    optRespTarda: `Responde pero tarda (días)`,
+    optSeg0: `No, fue una sola vez`,
+    optSeg2: `Preguntó si podría volver a manejarlo`,
+    optSeg4: `Sí, ya realizó una segunda prueba`,
+    optSelecciona: `Seleccionar…`,
+    optTipoAuto: `🚗 Vehículo / Automotriz`,
+    optTipoInmueble: `🏠 Bien Raíz / Inmueble`,
+    optTipoOtro: `📦 Otro producto`,
+    optTipoServicio: `⚙️ Servicio Especializado`,
+    palabrasObjecion: `Palabras de objeción:`,
+    palabrasPositivas: `Palabras positivas:`,
+    pdfCliente: `CLIENTE`,
+    pdfCompromisosPend: `Compromisos Pendientes:`,
+    pdfConfidencial: `Confidencial — Solo para uso interno`,
+    pdfConfidencialShort: `Confidencial`,
+    pdfDesgloseContactos: `Desglose de Contactos`,
+    pdfDiasSuffix: ` días`,
+    pdfFactCondiciones: `Condiciones de venta`,
+    pdfFactEstado: `Estado de operación`,
+    pdfFactInteres: `Interés del cliente`,
+    pdfFactSeguimiento: `Seguimiento y contacto`,
+    pdfFactSeniales: `Señales de compra`,
+    pdfFactUrgencia: `Urgencia/Externos`,
+    pdfFactoresScoring: `Factores de Scoring`,
+    pdfFooterGenerado: `Informe generado por VentaMinds PRO —`,
+    pdfFooterSistema: `VentaMinds PRO — Sistema de Análisis Comercial`,
+    pdfGenerado: `Generado:`,
+    pdfHistorialOp: `Historial de la Operación:`,
+    pdfInfoAdicional: `📋 INFORMACIÓN ADICIONAL`,
+    pdfMetricasTitle: `📊 MÉTRICAS Y FACTORES DE SCORING`,
+    pdfNoEspecificado: `No especificado`,
+    pdfNotasPersonales: `Notas Personales del Cliente:`,
+    pdfPortadaTitle1: `INFORME EJECUTIVO`,
+    pdfPortadaTitle2: `DE OPERACIÓN COMERCIAL`,
+    pdfProbCierre: `probabilidad de cierre`,
+    pdfProductoServicio: `PRODUCTO / SERVICIO`,
+    pdfProximoContactoProg: `Próximo Contacto Programado:`,
+    pdfScoreCierre: `SCORE DE CIERRE`,
+    pdfSecAnalisis: `🧠 ANÁLISIS DETALLADO`,
+    pdfSecDiagnostico: `🎯 DIAGNÓSTICO POR FACTOR`,
+    pdfSecEstrategia: `🤝 ESTRATEGIA DE CIERRE`,
+    pdfSecMetricas: `📊 MÉTRICAS CLAVE`,
+    pdfSecPlan: `🚀 PLAN DE ACCIÓN`,
+    pdfSecResumen: `⚡ RESUMEN EJECUTIVO`,
+    pdfSinNombre: `Sin nombre`,
+    pdfTipoOperacion: `TIPO DE OPERACIÓN`,
+    pdfUsoConfidencial: `Uso confidencial e interno`,
+    penalizacionesMsg: `Penalizaciones aplicadas: -{a} por tiempo en operación, -{b} por días sin contacto`,
+    phChatInput: `Ej: ¿Cómo manejo la objeción de precio?`,
+    phChatPanelInput: `Pregunta lo que necesites…`,
+    phComentarios: `Ej: 'Lo veo caro', 'Me gustó mucho, voy a pensarlo', 'Mi esposa también quiere verlo'…`,
+    phComentariosPrueba: `Ej: 'Se maneja muy suave', 'Me gusta el sonido del motor', 'Sí, cuando lo tengamos lo llevamos al taller de mi cuñado'…`,
+    phCompromisos: `Ej: Enviar catálogo el lunes, agendar prueba de manejo…`,
+    phNombre: `Ej: Carlos Mendoza`,
+    phNotasPersonales: `Ej: Tiene hijos, le gusta el golf, viaja seguido, su cumpleaños es en marzo…`,
+    phNotasRecalculo: `Ej: El cliente llamó por iniciativa propia, mencionó que ya habló con su pareja y ambos están de acuerdo...`,
+    phProducto: `Ej: SUV 2025, Depto 3 rec., CRM empresarial…`,
+    phTlInput: `¿Qué ocurrió?`,
+    posventaTitle: `Lista de Posventa`,
+    posventa_p1_sub: `Generar confianza y resolver dudas iniciales`,
+    posventa_p1_txt: `Llamar 24-48h después de la entrega para confirmar satisfacción`,
+    posventa_p2_sub: `Agrega valor y mantiene comunicación activa`,
+    posventa_p2_txt: `Enviar mensaje de WhatsApp de bienvenida con tips de uso`,
+    posventa_p3_sub: `Detectar si hay algún pendiente o insatisfacción`,
+    posventa_p3_txt: `Seguimiento a los 7 días: verificar experiencia`,
+    posventa_p4_sub: `Ideal cuando el cliente ya experimenta el beneficio`,
+    posventa_p4_txt: `Solicitar reseña o testimonio (7-15 días)`,
+    posventa_p5_sub: `Momento de mayor satisfacción emocional`,
+    posventa_p5_txt: `Pedir referidos (entre día 10-15)`,
+    posventa_p6_sub: `Detectar oportunidades de upsell o cross-sell`,
+    posventa_p6_txt: `Contacto de seguimiento a los 30 días`,
+    ptsSenial: `pts de señal`,
+    radarTitle: `RADAR DE FACTORES`,
+    recalcDesc: `Ajusta lo que cambió y agrega contexto extra. El score y el informe se regenerarán completos.`,
+    recalcTitle: `✏️ Actualizar y recalcular`,
+    recomendacionesEmptyInit: `Completa la información para recibir recomendaciones personalizadas.`,
+    recomendacionesTitle: `Recomendaciones`,
+    referidosDesc: `El momento ideal para pedir referidos es entre los <strong style="color:var(--texto);">7 y 15 días</strong> después de la entrega, cuando el cliente ya disfruta el producto y está satisfecho.`,
+    referidosQuote: `"Me da mucho gusto que estés contento/a con tu compra. Si conoces a alguien que esté buscando algo similar, te agradecería mucho que me recomiendes — es la mejor forma en que puedo crecer. ¿Conoces a alguien?"`,
+    referidosTitle: `Estrategia de Referidos`,
+    repAnalisis: `Análisis Detallado IA`,
+    repDiagnostico: `Diagnóstico por Factor`,
+    repEstrategia: `Estrategia de Cierre`,
+    repMetricas: `Métricas Clave`,
+    repPlan: `Plan de Acción Inmediata`,
+    repResumen: `Resumen Ejecutivo`,
+    s1Title: `Datos del Cliente`,
+    s2Title: `Registro de Contactos`,
+    s2bTitle: `Prueba de Manejo`,
+    s3Title: `Condiciones de la Operación`,
+    s4Desc: `Marca todas las señales que hayas observado en el cliente:`,
+    s4Title: `Señales de Compra`,
+    s4bTitle: `Estado de la Operación`,
+    s5Title: `Notas y Seguimiento`,
+    s5bTitle: `Historial de la Operación`,
+    s6aTitle: `Probabilidad de Cierre`,
+    s6bTitle: `Temperatura del Cliente`,
+    s7Sub: `IA + Métricas + PDF`,
+    s7Title: `Informe Ejecutivo`,
+    senial_s1: `Pregunta por precios, descuentos o formas de pago`,
+    senial_s2: `Pregunta por plazos de entrega o disponibilidad`,
+    senial_s3: `Habla en futuro: "cuando lo tenga", "cuando me lo entregues"`,
+    senial_s4: `Trajo a alguien más a conocer el producto`,
+    senial_s5: `Pidió ver o probar el producto de nuevo`,
+    senial_s6: `Negoció algún detalle o condición`,
+    senial_s7: `Preguntó por garantías / servicio posventa`,
+    sentConObjeciones: `Con objeciones`,
+    sentDescMixto: `Hay señales positivas y negativas. Trabaja primero las objeciones.`,
+    sentDescNeutral: `No hay señales claras. Profundiza en sus necesidades.`,
+    sentDescObjeciones: `El cliente tiene dudas o barreras que debes resolver primero.`,
+    sentDescPositivo: `El cliente muestra entusiasmo y disposición hacia la compra.`,
+    sentMixto: `Mixto`,
+    sentNegativo: `Negativo`,
+    sentNeutral: `Neutral`,
+    sentNeutro: `Neutro`,
+    sentPositivo: `Positivo`,
+    sentimientoEmptyInit: `Ingresa comentarios del cliente en la etapa 2 para analizar el sentimiento.`,
+    sentimientoTitle: `Análisis de Sentimiento IA`,
+    settingsApiInside: `(este chat): no necesitas nada para Claude, la app usa tu cuenta automáticamente.`,
+    settingsApiInsideStrong: `Dentro de Claude.ai`,
+    settingsApiOutside: `(archivo local, tu servidor, GitHub Pages): ingresa tus claves.`,
+    settingsApiOutsideStrong: `Fuera de Claude.ai`,
+    settingsApiPrivacy: `Las claves se guardan solo en este dispositivo y nunca se envían a ningún servidor ajeno.`,
+    settingsApiWhen: `¿Cuándo necesitas una API Key?`,
+    settingsDesc: `Configura una o varias. Se usa la primera disponible y si falla se pasa automáticamente a la siguiente (fallback).`,
+    settingsRespLang: `Idioma de respuesta (IA)`,
+    settingsTitle: `⚙️ Configuración · APIs de IA`,
+    settingsUiLang: `Idioma de interfaz`,
+    tabChat: `Chat IA`,
+    tabFactores: `Factores`,
+    tabGraficos: `Gráficos`,
+    tabPosventa: `Posventa`,
+    tabSentimiento: `Sentimiento`,
+    thermCaliente: `🔥 Caliente`,
+    thermCalientePlain: `Caliente`,
+    thermFrio: `❄️ Frío`,
+    thermFrioPlain: `Frío`,
+    thermMuyCaliente: `💥 Muy Caliente`,
+    thermMuyCalientePlain: `Muy Caliente`,
+    thermTibio: `🌤️ Tibio`,
+    thermTibioPlain: `Tibio`,
+    timelineEmpty: `Sin eventos aún. Agrega acciones para llevar el historial.`,
+    timelineEmptyInit: `Agrega eventos al timeline para llevar el historial completo.`,
+    tipCompetencia: `Hay competencia. <strong>Diferénciate inmediatamente</strong>: servicio, garantía, relación personal, o un beneficio exclusivo.`,
+    tipCondiciones: `Las condiciones aún no están definidas. <strong>Envía una cotización formal</strong> cuanto antes para generar compromiso.`,
+    tipMomentoClave: `¡Momento clave! El cliente está listo. <strong>Propón el cierre directamente</strong>: "¿Procedemos con el anticipo o la firma esta semana?"`,
+    tipNoResponde: `El cliente no responde bien. Cambia el canal de comunicación — prueba <strong>WhatsApp con un mensaje breve y directo</strong>.`,
+    tipObjPrecio: `Objeción de precio: <strong>valida el valor antes de negociar</strong>. Muestra beneficios, ROI o diferenciadores.`,
+    tipObjTiempo: `El cliente necesita tiempo: <strong>crea urgencia legítima</strong> (stock limitado, precio especial por tiempo limitado).`,
+    tipPocasSenales: `Pocas señales de compra detectadas. <strong>Genera interés</strong> mostrando testimonios, casos de éxito o una demostración.`,
+    tipSinContacto: `Han pasado {dias} días sin contacto. <strong>Envíale algo de valor hoy</strong>: un artículo, comparativa, o una foto del producto disponible.`,
+    tipTodoBien: `Todo va bien. <strong>Mantén el ritmo</strong>, confirma detalles finales y avanza hacia la firma.`,
+    toastGenerandoPDF: `⏳ Generando PDF...`,
+    toastInformeCopiado: `📋 Informe completo copiado`,
+    toastInformeOk: `✅ Informe generado correctamente`,
+    toastPDFDescargado: `📥 PDF descargado exitosamente`,
+    toastRecalculado: `↻ Análisis recalculado con nueva información`,
+    urg1: `1 — Sin urgencia`,
+    urg2: `2 — Baja`,
+    urg3: `3 — Media`,
+    urg4: `4 — Alta`,
+    urg5: `5 — Ahora mismo`,
+    urgAhora: `Necesita ahora`,
+    urgMedia: `Urgencia media`,
+    urgSinUrgencia: `Sin urgencia`,
+    urgLevels: ["Sin urgencia", "Baja urgencia", "Urgencia media", "Alta urgencia", "Necesita ahora"],
+  },
+  en: {
+    badgePrueba: `The test drive is one of the <strong style="color:var(--texto);">strongest buying indicators</strong> in automotive sales. A client who drives and asks about delivery details has a high probability of closing.`,
+    barTitle: `SCORE BREAKDOWN`,
+    btnAgregar: `+ Add`,
+    btnAnterior: `← Back`,
+    btnCancelar: `Cancel`,
+    btnCerrar: `Close`,
+    btnCopiar: `📋 Copy`,
+    btnCopiarTodo: `Copy all`,
+    btnCopiarTodoSub: `Full text`,
+    btnDescargarPDF: `Download PDF`,
+    btnDescargarPDFSub: `With metrics and charts`,
+    btnGenerarInforme: `Generate Report with AI`,
+    btnNueva: `New`,
+    btnRecalcular: `↻ Recalculate analysis`,
+    btnRecalcularNav: `✏️ Recalculate`,
+    btnRegenerar: `🔄 Regenerate Report`,
+    btnSiguiente: `Next →`,
+    btnVerAnalisis: `View Analysis →`,
+    btnVerInforme: `View Report →`,
+    chartCondiciones: `Conditions`,
+    chartEstado: `Status`,
+    chartExtUrg: `Ext./Urg.`,
+    chartExterno: `External`,
+    chartInteres: `Interest`,
+    chartMaximo: `Maximum`,
+    chartObtenido: `Obtained`,
+    chartScorePct: `Score %`,
+    chartSeguimiento: `Follow-up`,
+    chartSeniales: `Signals`,
+    chatFooterNote: `The AI uses all the data from this deal to respond to you.`,
+    chatPanelStatus: `● Online — uses this deal's data`,
+    chatPanelTitle: `VentaMinds AI Advisor`,
+    chatPanelWelcome: `Hi! I'm your AI sales advisor. I have access to all the data for this deal in real time.<br><br>I can help you with:<br>• How to handle objections<br>• What to tell the client now<br>• When and how to call<br>• Specific closing tactics<br><br>How can I help you?`,
+    chatWelcome: `Hi! I'm your AI sales advisor. I have access to all the data for this deal. You can ask me how to handle objections, what to tell the client, when to call, or any closing tactic. How can I help you?`,
+    confirmNuevaOp: `Start a new deal? Current data will be deleted.`,
+    emptyDesc: `Press the button above so the AI can generate a complete executive report with all the data for this deal.`,
+    emptyTitle: `No report generated`,
+    errNoApiKey: `No API Key configured. Go to the ⚙️ Settings tab.`,
+    errNoModel: `No provider responded`,
+    estadoCancelada: `Cancelled`,
+    estadoCerrada: `Closed`,
+    estadoEnProceso: `In progress`,
+    estadoFaltaFirma: `Signature pending`,
+    estadoInteresado: `Interested`,
+    estadoNegociando: `Negotiating`,
+    estadoNuevoProspecto: `New prospect`,
+    factCondiciones: `Conditions`,
+    factEstado: `Deal status`,
+    factExterno: `Ext. / Urgency`,
+    factInteres: `Interest/Response`,
+    factSeguimiento: `Follow-up`,
+    factSeniales: `Buying signals`,
+    gaugeLabel: `Closing score`,
+    generatingSub: `The AI is preparing your detailed report`,
+    generatingTitle: `Analyzing deal…`,
+    lblAcompanante: `Did they bring someone else? (companion)`,
+    lblCanalPreferido: `Client's preferred channel`,
+    lblComentarios: `Client's latest comments`,
+    lblComentariosPrueba: `Client comments during / after the test drive`,
+    lblCompetencia: `Is there competition involved?`,
+    lblCompromisos: `Pending commitments (salesperson)`,
+    lblContextoAdicional: `Additional context for the report`,
+    lblCorreos: `✉️ Emails`,
+    lblCorreosPlain: `Emails`,
+    lblCotizacion: `Quote sent`,
+    lblDocumentos: `Documentation submitted`,
+    lblEstadoActual: `Current deal status`,
+    lblEstadoCredito: `Credit status`,
+    lblEstadoOp: `Where are we at?`,
+    lblFechaContacto: `First contact<br>date`,
+    lblFechaUltima: `Last interaction<br>&nbsp;`,
+    lblHizoPrueba: `Did they take a test drive?`,
+    lblIAAnaliza: `← AI analyzes this`,
+    lblLlamadas: `📞 Calls`,
+    lblLlamadasPlain: `Calls`,
+    lblModalidadPago: `Payment method`,
+    lblNombre: `Full name`,
+    lblNotaVendedor: `How did you notice it as the salesperson?`,
+    lblNotasPersonales: `Client's personal notes`,
+    lblNuevasSeniales: `Did they show new buying signals?`,
+    lblObjecion: `Main objection`,
+    lblObjecionCambio: `Main objection (if changed)`,
+    lblPreguntasCliente: `Does the client ask questions?`,
+    lblProducto: `Product or service of interest`,
+    lblProximoContacto: `Scheduled next contact`,
+    lblPruebaCon: `Who joined the test drive?`,
+    lblReaccionPrueba: `How did they react during the test drive?`,
+    lblRespVelocidad: `Does the client respond?`,
+    lblSegundaPrueba: `Did they ask for another test drive or come back to ask?`,
+    lblTipoOp: `Deal type`,
+    lblUrgencia: `Client's urgency level`,
+    lblUrgenciaCliente: `Client's urgency`,
+    lblValorOp: `Estimated value (optional)`,
+    lblWhatsapp: `💬 WhatsApp`,
+    lblWhatsappPlain: `WhatsApp`,
+    metaContactosTotales: `Total Contacts`,
+    metaDiasOperacion: `Days in Deal`,
+    metaDiasSinContacto: `Days without Contact`,
+    metaEstadoOperacion: `Deal Status`,
+    metaProbCierre: `Closing Probability`,
+    metaSenialesCompra: `Buying Signals`,
+    metaTemperatura: `Temperature`,
+    metaUrgenciaCliente: `Client Urgency`,
+    metricContactosSub: `calls + msgs`,
+    metricContactosTotales: `Total contacts`,
+    metricDiasSinCerrar: `Days without closing`,
+    metricSenialesCompra: `Buying signals`,
+    metricSenialesSub: `detected`,
+    metricUrgencia: `Urgency`,
+    metricUrgenciaSub: `of the client`,
+    modalUiLangTitle: `Interface language`,
+    navLabel: `Step {n} of {total}`,
+    optAcompFamilia: `Yes, brought family / partner / associate`,
+    optAcompNoVisita: `Has not visited in person`,
+    optAcompSolo: `No, alone`,
+    optCanalEmail: `Email`,
+    optCanalLlamada: `Phone call`,
+    optCanalPresencial: `In-person visit`,
+    optCanalVideo: `Video call`,
+    optCanalWhatsapp: `WhatsApp`,
+    optCompNo: `Doesn't mention competition`,
+    optCompPosible: `Possibly`,
+    optCompReferido: `Comes referred, already trusts us`,
+    optCompSi: `Yes, looking at other options`,
+    optCotAceptadaPrincipio: `Reviewed and accepted in principle`,
+    optCotFirmada: `Signed / formally accepted`,
+    optCotNoEnviada: `Not sent`,
+    optCotPideCambios: `Reviewed, requests changes`,
+    optCotSinResp: `Sent, no response`,
+    optCredAprobado: `✅ Approved`,
+    optCredIniciando: `Starting process`,
+    optCredNoSol: `Not requested`,
+    optCredPreaprobado: `Pre-approved`,
+    optCredRechazado: `❌ Rejected`,
+    optCredRevision: `Under review`,
+    optDocCompleta: `Complete`,
+    optDocNinguna: `None`,
+    optDocParcial: `Partial`,
+    optEstado0: `❌ Lost / cancelled`,
+    optEstado1: `New prospect / first contact`,
+    optEstado2: `Interested, exploring options`,
+    optEstado3: `Negotiating conditions`,
+    optEstado4: `Only deposit / signature pending`,
+    optEstado5: `✅ Deal closed`,
+    optNota1: `Didn't seem convinced, didn't ask questions afterward`,
+    optNota2: `Seemed to hesitate or mentally compare with another vehicle`,
+    optNota3: `Was calm, without much visible reaction`,
+    optNota4: `Showed real interest, asked technical or usage questions`,
+    optNota5: `I saw them very connected with the vehicle, clearly pictured it as theirs`,
+    optNuevSen0: `No, no changes`,
+    optNuevSen1: `Yes, 1 new signal`,
+    optNuevSen2: `Yes, 2 new signals`,
+    optNuevSen3: `Yes, 3 or more new signals`,
+    optObjDuda: `Product doubt`,
+    optObjPrecio: `Price / budget`,
+    optObjSinAhora: `No objections now`,
+    optObjSinCambio: `— No change —`,
+    optObjSinObj: `No clear objections`,
+    optObjTercero: `Needs third-party approval`,
+    optObjTerceroR: `Needs approval`,
+    optObjTiempo: `Time / "thinking it over"`,
+    optObjTiempoR: `Time / thinking it over`,
+    optPagoContado: `Cash`,
+    optPagoCredito: `Credit / financing`,
+    optPagoNoDef: `Not defined`,
+    optPregMuchas: `Yes, many specific questions`,
+    optPregNo: `No interaction`,
+    optPregPocas: `Few general questions`,
+    optPregSolo: `Only responds, doesn't ask`,
+    optPruebaConFamilia: `With family (children, parents…)`,
+    optPruebaConPareja: `With partner / spouse`,
+    optPruebaConSocio: `With a trusted associate / friend`,
+    optPruebaConSolo: `Alone`,
+    optPruebaNo: `Hasn't taken a test drive`,
+    optPruebaOfrecio: `Was offered but declined`,
+    optPruebaPendiente: `Pending / scheduled`,
+    optPruebaSi: `Yes, took it`,
+    optReac1: `Disappointed or mentioned something negative`,
+    optReac2: `Not very convinced, made comparisons`,
+    optReac3: `Neutral, didn't show much emotion`,
+    optReac4: `Positive, smiled and asked for more details`,
+    optReac5: `Very enthusiastic, said they loved it`,
+    optRespEsporadico: `Responds sporadically`,
+    optRespNo: `Doesn't respond / ignored`,
+    optRespRapido: `Yes, responds fast (hours)`,
+    optRespTarda: `Responds but takes time (days)`,
+    optSeg0: `No, it was a one-time thing`,
+    optSeg2: `Asked if they could drive it again`,
+    optSeg4: `Yes, already took a second test drive`,
+    optSelecciona: `Select…`,
+    optTipoAuto: `🚗 Vehicle / Automotive`,
+    optTipoInmueble: `🏠 Real Estate / Property`,
+    optTipoOtro: `📦 Other product`,
+    optTipoServicio: `⚙️ Specialized service`,
+    palabrasObjecion: `Objection words:`,
+    palabrasPositivas: `Positive words:`,
+    pdfCliente: `CLIENT`,
+    pdfCompromisosPend: `Pending Commitments:`,
+    pdfConfidencial: `Confidential — Internal use only`,
+    pdfConfidencialShort: `Confidential`,
+    pdfDesgloseContactos: `Contact Breakdown`,
+    pdfDiasSuffix: ` days`,
+    pdfFactCondiciones: `Sale conditions`,
+    pdfFactEstado: `Deal status`,
+    pdfFactInteres: `Client interest`,
+    pdfFactSeguimiento: `Follow-up and contact`,
+    pdfFactSeniales: `Buying signals`,
+    pdfFactUrgencia: `Urgency/External`,
+    pdfFactoresScoring: `Scoring Factors`,
+    pdfFooterGenerado: `Report generated by VentaMinds PRO —`,
+    pdfFooterSistema: `VentaMinds PRO — Sales Analysis System`,
+    pdfGenerado: `Generated:`,
+    pdfHistorialOp: `Deal History:`,
+    pdfInfoAdicional: `📋 ADDITIONAL INFORMATION`,
+    pdfMetricasTitle: `📊 METRICS AND SCORING FACTORS`,
+    pdfNoEspecificado: `Not specified`,
+    pdfNotasPersonales: `Client Personal Notes:`,
+    pdfPortadaTitle1: `EXECUTIVE REPORT`,
+    pdfPortadaTitle2: `SALES DEAL`,
+    pdfProbCierre: `closing probability`,
+    pdfProductoServicio: `PRODUCT / SERVICE`,
+    pdfProximoContactoProg: `Scheduled Next Contact:`,
+    pdfScoreCierre: `CLOSING SCORE`,
+    pdfSecAnalisis: `🧠 DETAILED ANALYSIS`,
+    pdfSecDiagnostico: `🎯 DIAGNOSIS BY FACTOR`,
+    pdfSecEstrategia: `🤝 CLOSING STRATEGY`,
+    pdfSecMetricas: `📊 KEY METRICS`,
+    pdfSecPlan: `🚀 ACTION PLAN`,
+    pdfSecResumen: `⚡ EXECUTIVE SUMMARY`,
+    pdfSinNombre: `No name`,
+    pdfTipoOperacion: `DEAL TYPE`,
+    pdfUsoConfidencial: `Confidential and internal use`,
+    penalizacionesMsg: `Penalties applied: -{a} for time in deal, -{b} for days without contact`,
+    phChatInput: `E.g.: How do I handle the price objection?`,
+    phChatPanelInput: `Ask whatever you need…`,
+    phComentarios: `E.g.: 'I find it expensive', 'I really liked it, I'll think about it', 'My wife also wants to see it'…`,
+    phComentariosPrueba: `E.g.: 'It drives very smoothly', 'I like the engine sound', 'Yes, when we have it we'll take it to my brother-in-law's shop'…`,
+    phCompromisos: `E.g.: Send catalog on Monday, schedule test drive…`,
+    phNombre: `E.g.: Carlos Mendoza`,
+    phNotasPersonales: `E.g.: Has kids, likes golf, travels often, their birthday is in March…`,
+    phNotasRecalculo: `E.g.: The client called on their own initiative, mentioned they already talked to their partner and both agree...`,
+    phProducto: `E.g.: 2025 SUV, 3-bed apartment, enterprise CRM…`,
+    phTlInput: `What happened?`,
+    posventaTitle: `After-sales List`,
+    posventa_p1_sub: `Build trust and resolve initial doubts`,
+    posventa_p1_txt: `Call 24-48h after delivery to confirm satisfaction`,
+    posventa_p2_sub: `Adds value and keeps communication active`,
+    posventa_p2_txt: `Send a welcome WhatsApp message with usage tips`,
+    posventa_p3_sub: `Detect any pending issue or dissatisfaction`,
+    posventa_p3_txt: `7-day follow-up: check on their experience`,
+    posventa_p4_sub: `Ideal once the client already experiences the benefit`,
+    posventa_p4_txt: `Request a review or testimonial (7-15 days)`,
+    posventa_p5_sub: `Moment of highest emotional satisfaction`,
+    posventa_p5_txt: `Ask for referrals (between day 10-15)`,
+    posventa_p6_sub: `Detect upsell or cross-sell opportunities`,
+    posventa_p6_txt: `30-day follow-up contact`,
+    ptsSenial: `signal pts`,
+    radarTitle: `FACTOR RADAR`,
+    recalcDesc: `Adjust what changed and add extra context. The score and report will be fully regenerated.`,
+    recalcTitle: `✏️ Update and recalculate`,
+    recomendacionesEmptyInit: `Complete the information to receive personalized recommendations.`,
+    recomendacionesTitle: `Recommendations`,
+    referidosDesc: `The ideal time to ask for referrals is between <strong style="color:var(--texto);">7 and 15 days</strong> after delivery, when the client is already enjoying the product and is satisfied.`,
+    referidosQuote: `"I'm really glad you're happy with your purchase. If you know someone looking for something similar, I'd really appreciate a referral — it's the best way I can grow. Do you know anyone?"`,
+    referidosTitle: `Referral Strategy`,
+    repAnalisis: `Detailed AI Analysis`,
+    repDiagnostico: `Diagnosis by Factor`,
+    repEstrategia: `Closing Strategy`,
+    repMetricas: `Key Metrics`,
+    repPlan: `Immediate Action Plan`,
+    repResumen: `Executive Summary`,
+    s1Title: `Client Data`,
+    s2Title: `Contact Log`,
+    s2bTitle: `Test Drive`,
+    s3Title: `Deal Conditions`,
+    s4Desc: `Check all the signals you've observed in the client:`,
+    s4Title: `Buying Signals`,
+    s4bTitle: `Deal Status`,
+    s5Title: `Notes and Follow-up`,
+    s5bTitle: `Deal History`,
+    s6aTitle: `Closing Probability`,
+    s6bTitle: `Client Temperature`,
+    s7Sub: `AI + Metrics + PDF`,
+    s7Title: `Executive Report`,
+    senial_s1: `Asks about prices, discounts, or payment methods`,
+    senial_s2: `Asks about delivery timelines or availability`,
+    senial_s3: `Speaks in future tense: "when I have it", "when you deliver it to me"`,
+    senial_s4: `Brought someone else to see the product`,
+    senial_s5: `Asked to see or try the product again`,
+    senial_s6: `Negotiated some detail or condition`,
+    senial_s7: `Asked about warranties / after-sales service`,
+    sentConObjeciones: `With objections`,
+    sentDescMixto: `There are positive and negative signals. Work on the objections first.`,
+    sentDescNeutral: `No clear signals. Dig deeper into their needs.`,
+    sentDescObjeciones: `The client has doubts or barriers you need to resolve first.`,
+    sentDescPositivo: `The client shows enthusiasm and willingness to buy.`,
+    sentMixto: `Mixed`,
+    sentNegativo: `Negative`,
+    sentNeutral: `Neutral`,
+    sentNeutro: `Neutral`,
+    sentPositivo: `Positive`,
+    sentimientoEmptyInit: `Enter client comments in stage 2 to analyze sentiment.`,
+    sentimientoTitle: `AI Sentiment Analysis`,
+    settingsApiInside: ` (this chat): you don't need anything for Claude, the app uses your account automatically.`,
+    settingsApiInsideStrong: `Inside Claude.ai`,
+    settingsApiOutside: ` (local file, your server, GitHub Pages): enter your keys.`,
+    settingsApiOutsideStrong: `Outside Claude.ai`,
+    settingsApiPrivacy: `Keys are saved only on this device and never sent to any external server.`,
+    settingsApiWhen: `When do you need an API Key?`,
+    settingsDesc: `Configure one or several. The first available one is used, and if it fails it automatically falls back to the next.`,
+    settingsRespLang: `Response language (AI)`,
+    settingsTitle: `⚙️ Settings · AI APIs`,
+    settingsUiLang: `Interface language`,
+    tabChat: `AI Chat`,
+    tabFactores: `Factors`,
+    tabGraficos: `Charts`,
+    tabPosventa: `After-sales`,
+    tabSentimiento: `Sentiment`,
+    thermCaliente: `🔥 Hot`,
+    thermCalientePlain: `Hot`,
+    thermFrio: `❄️ Cold`,
+    thermFrioPlain: `Cold`,
+    thermMuyCaliente: `💥 Very Hot`,
+    thermMuyCalientePlain: `Very Hot`,
+    thermTibio: `🌤️ Warm`,
+    thermTibioPlain: `Warm`,
+    timelineEmpty: `No events yet. Add actions to keep the history.`,
+    timelineEmptyInit: `Add events to the timeline to keep a complete history.`,
+    tipCompetencia: `There is competition. <strong>Differentiate immediately</strong>: service, warranty, personal relationship, or an exclusive benefit.`,
+    tipCondiciones: `Conditions aren't defined yet. <strong>Send a formal quote</strong> as soon as possible to generate commitment.`,
+    tipMomentoClave: `Key moment! The client is ready. <strong>Propose the close directly</strong>: "Shall we proceed with the deposit or signature this week?"`,
+    tipNoResponde: `The client isn't responding well. Switch communication channel — try <strong>WhatsApp with a short, direct message</strong>.`,
+    tipObjPrecio: `Price objection: <strong>validate the value before negotiating</strong>. Show benefits, ROI, or differentiators.`,
+    tipObjTiempo: `The client needs time: <strong>create legitimate urgency</strong> (limited stock, special limited-time price).`,
+    tipPocasSenales: `Few buying signals detected. <strong>Generate interest</strong> with testimonials, success stories, or a demo.`,
+    tipSinContacto: `{dias} days have passed without contact. <strong>Send them something of value today</strong>: an article, a comparison, or a photo of the available product.`,
+    tipTodoBien: `Everything is going well. <strong>Keep the pace</strong>, confirm final details, and move toward the signature.`,
+    toastGenerandoPDF: `⏳ Generating PDF...`,
+    toastInformeCopiado: `📋 Full report copied`,
+    toastInformeOk: `✅ Report generated successfully`,
+    toastPDFDescargado: `📥 PDF downloaded successfully`,
+    toastRecalculado: `↻ Analysis recalculated with new information`,
+    urg1: `1 — No urgency`,
+    urg2: `2 — Low`,
+    urg3: `3 — Medium`,
+    urg4: `4 — High`,
+    urg5: `5 — Right now`,
+    urgAhora: `Needs it now`,
+    urgMedia: `Medium urgency`,
+    urgSinUrgencia: `No urgency`,
+    urgLevels: ["No urgency", "Low urgency", "Medium urgency", "High urgency", "Needs it now"],
+  },
+};
+
+const LANG_CODES = ["es", "en", "de", "fr", "it", "pt", "uk", "ru", "he", "zh", "ja", "ko", "hi", "sw"];
+const LANG_NAMES_DISPLAY = {"es": "Español", "en": "English", "de": "Deutsch", "fr": "Français", "it": "Italiano", "pt": "Português", "uk": "Українська", "ru": "Русский", "he": "עברית", "zh": "中文", "ja": "日本語", "ko": "한국어", "hi": "हिन्दी", "sw": "Kiswahili"};
+const LANG_FLAGS_SVG = {"es": "<svg class=\"flag-ico\" viewBox=\"0 0 20 14\" xmlns=\"http://www.w3.org/2000/svg\"><rect width=\"20\" height=\"14\" fill=\"#AA151B\"/><rect y=\"3.5\" width=\"20\" height=\"7\" fill=\"#F1BF00\"/></svg>", "en": "<svg class=\"flag-ico\" viewBox=\"0 0 20 14\" xmlns=\"http://www.w3.org/2000/svg\"><rect width=\"20\" height=\"14\" fill=\"#B22234\"/><g fill=\"#fff\"><rect y=\"1.08\" width=\"20\" height=\"1.08\"/><rect y=\"3.23\" width=\"20\" height=\"1.08\"/><rect y=\"5.38\" width=\"20\" height=\"1.08\"/><rect y=\"7.54\" width=\"20\" height=\"1.08\"/><rect y=\"9.69\" width=\"20\" height=\"1.08\"/><rect y=\"11.85\" width=\"20\" height=\"1.08\"/></g><rect width=\"8\" height=\"7.54\" fill=\"#3C3B6E\"/></svg>", "de": "<svg class=\"flag-ico\" viewBox=\"0 0 20 14\" xmlns=\"http://www.w3.org/2000/svg\"><rect width=\"20\" height=\"4.67\" fill=\"#000\"/><rect y=\"4.67\" width=\"20\" height=\"4.67\" fill=\"#DD0000\"/><rect y=\"9.33\" width=\"20\" height=\"4.67\" fill=\"#FFCE00\"/></svg>", "fr": "<svg class=\"flag-ico\" viewBox=\"0 0 20 14\" xmlns=\"http://www.w3.org/2000/svg\"><rect width=\"6.67\" height=\"14\" fill=\"#0055A4\"/><rect x=\"6.67\" width=\"6.67\" height=\"14\" fill=\"#fff\"/><rect x=\"13.33\" width=\"6.67\" height=\"14\" fill=\"#EF4135\"/></svg>", "it": "<svg class=\"flag-ico\" viewBox=\"0 0 20 14\" xmlns=\"http://www.w3.org/2000/svg\"><rect width=\"6.67\" height=\"14\" fill=\"#009246\"/><rect x=\"6.67\" width=\"6.67\" height=\"14\" fill=\"#fff\"/><rect x=\"13.33\" width=\"6.67\" height=\"14\" fill=\"#CE2B37\"/></svg>", "pt": "<svg class=\"flag-ico\" viewBox=\"0 0 20 14\" xmlns=\"http://www.w3.org/2000/svg\"><rect width=\"20\" height=\"14\" fill=\"#009739\"/><polygon points=\"10,2 18,7 10,12 2,7\" fill=\"#FEDD00\"/><circle cx=\"10\" cy=\"7\" r=\"3\" fill=\"#012169\"/></svg>", "uk": "<svg class=\"flag-ico\" viewBox=\"0 0 20 14\" xmlns=\"http://www.w3.org/2000/svg\"><rect width=\"20\" height=\"7\" fill=\"#005BBB\"/><rect y=\"7\" width=\"20\" height=\"7\" fill=\"#FFD500\"/></svg>", "ru": "<svg class=\"flag-ico\" viewBox=\"0 0 20 14\" xmlns=\"http://www.w3.org/2000/svg\"><rect width=\"20\" height=\"4.67\" fill=\"#fff\"/><rect y=\"4.67\" width=\"20\" height=\"4.67\" fill=\"#0039A6\"/><rect y=\"9.33\" width=\"20\" height=\"4.67\" fill=\"#D52B1E\"/></svg>", "he": "<svg class=\"flag-ico\" viewBox=\"0 0 20 14\" xmlns=\"http://www.w3.org/2000/svg\"><rect width=\"20\" height=\"14\" fill=\"#fff\"/><rect y=\"1.5\" width=\"20\" height=\"1.8\" fill=\"#0038B8\"/><rect y=\"10.7\" width=\"20\" height=\"1.8\" fill=\"#0038B8\"/><g fill=\"none\" stroke=\"#0038B8\" stroke-width=\"0.6\"><polygon points=\"10,4.5 12.3,8.5 7.7,8.5\"/><polygon points=\"10,9.5 7.7,5.5 12.3,5.5\"/></g></svg>", "zh": "<svg class=\"flag-ico\" viewBox=\"0 0 20 14\" xmlns=\"http://www.w3.org/2000/svg\"><rect width=\"20\" height=\"14\" fill=\"#DE2910\"/><polygon points=\"4,2 4.6,3.8 6.5,3.8 4.95,4.9 5.55,6.7 4,5.6 2.45,6.7 3.05,4.9 1.5,3.8 3.4,3.8\" fill=\"#FFDE00\"/></svg>", "ja": "<svg class=\"flag-ico\" viewBox=\"0 0 20 14\" xmlns=\"http://www.w3.org/2000/svg\"><rect width=\"20\" height=\"14\" fill=\"#fff\"/><circle cx=\"10\" cy=\"7\" r=\"4\" fill=\"#BC002D\"/></svg>", "ko": "<svg class=\"flag-ico\" viewBox=\"0 0 20 14\" xmlns=\"http://www.w3.org/2000/svg\"><rect width=\"20\" height=\"14\" fill=\"#fff\"/><path d=\"M10 3.5 A3.5 3.5 0 0 1 10 10.5 A1.75 1.75 0 0 1 10 7 A1.75 1.75 0 0 0 10 3.5 Z\" fill=\"#CD2E3A\"/><path d=\"M10 10.5 A3.5 3.5 0 0 1 10 3.5 A1.75 1.75 0 0 1 10 7 A1.75 1.75 0 0 0 10 10.5 Z\" fill=\"#0047A0\"/></svg>", "hi": "<svg class=\"flag-ico\" viewBox=\"0 0 20 14\" xmlns=\"http://www.w3.org/2000/svg\"><rect width=\"20\" height=\"4.67\" fill=\"#FF9933\"/><rect y=\"4.67\" width=\"20\" height=\"4.67\" fill=\"#fff\"/><rect y=\"9.33\" width=\"20\" height=\"4.67\" fill=\"#138808\"/><circle cx=\"10\" cy=\"7\" r=\"1.6\" fill=\"none\" stroke=\"#000080\" stroke-width=\"0.3\"/></svg>", "sw": "<svg class=\"flag-ico\" viewBox=\"0 0 20 14\" xmlns=\"http://www.w3.org/2000/svg\"><rect width=\"20\" height=\"14\" fill=\"#fff\"/><rect y=\"0.9\" width=\"20\" height=\"3.2\" fill=\"#000\"/><rect y=\"5.4\" width=\"20\" height=\"3.2\" fill=\"#BB0000\"/><rect y=\"9.9\" width=\"20\" height=\"3.2\" fill=\"#006600\"/></svg>"};
+
+let currentUiLang = localStorage.getItem('vmpro_uilang') || 'es';
+let currentRespLang = localStorage.getItem('vmpro_resplang') || 'auto';
+
+function tr(key) {
+  const d = I18N[currentUiLang] || I18N.es;
+  if (d && d[key] !== undefined) return d[key];
+  if (I18N.es[key] !== undefined) return I18N.es[key];
+  return key;
+}
+
+function applyUiLang(lang) {
+  if (!LANG_CODES.includes(lang)) lang = 'es';
+  currentUiLang = lang;
+  localStorage.setItem('vmpro_uilang', lang);
+  const lbl = document.getElementById('langBtnLabel');
+  if (lbl) lbl.textContent = lang.toUpperCase();
+
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const k = el.getAttribute('data-i18n');
+    el.textContent = tr(k);
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+    const k = el.getAttribute('data-i18n-ph');
+    el.placeholder = tr(k);
+  });
+  document.querySelectorAll('[data-i18n-html]').forEach(el => {
+    const k = el.getAttribute('data-i18n-html');
+    el.innerHTML = tr(k);
+  });
+
+  if (document.getElementById('senialesWrap') && typeof renderSeniales === 'function') renderSeniales();
+  if (document.getElementById('posventaList') && typeof renderPosventa === 'function') renderPosventa();
+  if (typeof updateNav === 'function') updateNav();
+  const urgSlider = document.getElementById('urgencia');
+  if (urgSlider && typeof updateSliderLabel === 'function') {
+    updateSliderLabel('urgencia', 'urgenciaLbl', (I18N[currentUiLang] || I18N.es).urgLevels);
+  }
+  if (timeline.length === 0 && typeof renderTimeline === 'function') renderTimeline();
+
+  document.querySelectorAll('#langSheetList .lang-opt').forEach(el => {
+    el.classList.toggle('selected', el.getAttribute('data-lang') === lang);
+  });
+  document.querySelectorAll('#uiLangChips .settings-chip').forEach(el => {
+    el.classList.toggle('active', el.getAttribute('data-lang') === lang);
+  });
+  fbScheduleSave();
+}
+
+function setRespLang(lang) {
+  currentRespLang = lang;
+  localStorage.setItem('vmpro_resplang', lang);
+  document.querySelectorAll('#respLangChips .settings-chip').forEach(el => {
+    el.classList.toggle('active', el.getAttribute('data-lang') === lang);
+  });
+  mostrarToast('🌐 ' + (lang === 'auto' ? 'Auto' : (LANG_NAMES_DISPLAY[lang] || lang.toUpperCase())));
+  fbScheduleSave();
+}
+
+
+function renderLangSheet() {
+  const list = document.getElementById('langSheetList');
+  if (!list) return;
+  let html = '';
+  LANG_CODES.forEach(code => {
+    const sel = code === currentUiLang ? ' selected' : '';
+    html += `<div class="lang-opt${sel}" data-lang="${code}" onclick="applyUiLang('${code}');closeLangSheet();">${LANG_FLAGS_SVG[code]} ${LANG_NAMES_DISPLAY[code]}</div>`;
+  });
+  list.innerHTML = html;
+}
+
+function openLangSheet() {
+  renderLangSheet();
+  document.getElementById('langSheetOverlay').classList.add('open');
+}
+function closeLangSheet() {
+  document.getElementById('langSheetOverlay').classList.remove('open');
+}
+
+function renderSettingsLangChips() {
+  const uiWrap = document.getElementById('uiLangChips');
+  const respWrap = document.getElementById('respLangChips');
+  if (uiWrap) {
+    uiWrap.innerHTML = LANG_CODES.map(code =>
+      `<button type="button" class="settings-chip${code===currentUiLang?' active':''}" data-lang="${code}" onclick="applyUiLang('${code}')">${LANG_FLAGS_SVG[code]} ${code.toUpperCase()}</button>`
+    ).join('');
+  }
+  if (respWrap) {
+    respWrap.innerHTML = `<button type="button" class="settings-chip${currentRespLang==='auto'?' active':''}" data-lang="auto" onclick="setRespLang('auto')">🪄 Auto</button>` +
+      LANG_CODES.map(code =>
+        `<button type="button" class="settings-chip${code===currentRespLang?' active':''}" data-lang="${code}" onclick="setRespLang('${code}')">${LANG_FLAGS_SVG[code]} ${code.toUpperCase()}</button>`
+      ).join('');
+  }
+}
 
 // ===================== STATE =====================
 let etapa = 1;
@@ -1916,42 +3054,37 @@ let timeline = [];
 let senialesSeleccionadas = new Set();
 let posventaChecked = new Set();
 
-const SENIALES = [
-  { id:'s1', texto:'Pregunta por precios, descuentos o formas de pago', peso:10 },
-  { id:'s2', texto:'Pregunta por plazos de entrega o disponibilidad', peso:10 },
-  { id:'s3', texto:'Habla en futuro: "cuando lo tenga", "cuando me lo entregues"', peso:12 },
-  { id:'s4', texto:'Trajo a alguien más a conocer el producto', peso:8 },
-  { id:'s5', texto:'Pidió ver o probar el producto de nuevo', peso:8 },
-  { id:'s6', texto:'Negoció algún detalle o condición', peso:10 },
-  { id:'s7', texto:'Preguntó por garantías / servicio posventa', peso:7 },
-];
+const SENIALES_IDS = ['s1','s2','s3','s4','s5','s6','s7'];
+const SENIALES_PESOS = {s1:10, s2:10, s3:12, s4:8, s5:8, s6:10, s7:7};
+function getSeniales() {
+  return SENIALES_IDS.map(id => ({ id, texto: tr('senial_'+id), peso: SENIALES_PESOS[id] }));
+}
 
-const POSVENTA_ITEMS = [
-  { id:'p1', txt:'Llamar 24-48h después de la entrega para confirmar satisfacción', sub:'Generar confianza y resolver dudas iniciales' },
-  { id:'p2', txt:'Enviar mensaje de WhatsApp de bienvenida con tips de uso', sub:'Agrega valor y mantiene comunicación activa' },
-  { id:'p3', txt:'Seguimiento a los 7 días: verificar experiencia', sub:'Detectar si hay algún pendiente o insatisfacción' },
-  { id:'p4', txt:'Solicitar reseña o testimonio (7-15 días)', sub:'Ideal cuando el cliente ya experimenta el beneficio' },
-  { id:'p5', txt:'Pedir referidos (entre día 10-15)', sub:'Momento de mayor satisfacción emocional' },
-  { id:'p6', txt:'Contacto de seguimiento a los 30 días', sub:'Detectar oportunidades de upsell o cross-sell' },
-];
+const POSVENTA_IDS = ['p1','p2','p3','p4','p5','p6'];
+function getPosventaItems() {
+  return POSVENTA_IDS.map(id => ({ id, txt: tr('posventa_'+id+'_txt'), sub: tr('posventa_'+id+'_sub') }));
+}
 
 // ===================== INIT =====================
 window.onload = () => {
   const hoy = new Date().toISOString().split('T')[0];
   document.getElementById('fechaContacto').value = hoy;
   document.getElementById('fechaUltima').value = hoy;
+  applyUiLang(currentUiLang);
   renderSeniales();
   renderPosventa();
   renderTimeline();
   updateNav();
+  initAccountSyncUI();
+  fbInit();
 };
 
 function renderSeniales() {
   const w = document.getElementById('senialesWrap');
-  w.innerHTML = SENIALES.map(s => `
+  w.innerHTML = getSeniales().map(s => `
     <div onclick="toggleSenial('${s.id}',this)" id="box-${s.id}" class="checklist-item ${senialesSeleccionadas.has(s.id)?'done-item':''}">
       <div class="chk-box">${senialesSeleccionadas.has(s.id)?'✓':''}</div>
-      <div><div class="chk-text-main">${s.texto}</div><div class="chk-text-sub">+${s.peso} pts de señal</div></div>
+      <div><div class="chk-text-main">${s.texto}</div><div class="chk-text-sub">+${s.peso} ${tr('ptsSenial')}</div></div>
     </div>
   `).join('');
 }
@@ -1966,7 +3099,7 @@ function toggleSenial(id, el) {
 function renderPosventa() {
   const w = document.getElementById('posventaList');
   if (!w) return;
-  w.innerHTML = POSVENTA_ITEMS.map(p => `
+  w.innerHTML = getPosventaItems().map(p => `
     <div onclick="togglePosventa('${p.id}',this)" id="pv-${p.id}" class="checklist-item ${posventaChecked.has(p.id)?'done-item':''}">
       <div class="chk-box">${posventaChecked.has(p.id)?'✓':''}</div>
       <div><div class="chk-text-main">${p.txt}</div><div class="chk-text-sub">${p.sub}</div></div>
@@ -1985,7 +3118,7 @@ function renderTimeline() {
   const w = document.getElementById('timelineWrap');
   if (!w) return;
   if (timeline.length === 0) {
-    w.innerHTML = '<div style="font-size:12px;color:var(--textodim);">Sin eventos aún. Agrega acciones para llevar el historial.</div>';
+    w.innerHTML = `<div style="font-size:12px;color:var(--textodim);">${tr('timelineEmpty')}</div>`;
     return;
   }
   const iconos = ['📞','💬','🤝','📝','🎯','✅','📋'];
@@ -2067,16 +3200,16 @@ function updateStepper() {
 
 function updateNav() {
   document.getElementById('btnAnt').classList.toggle('hidden', etapa === 1);
-  document.getElementById('navLabel').textContent = `Paso ${etapa} de ${totalEtapas}`;
+  document.getElementById('navLabel').textContent = tr('navLabel').replace('{n}', etapa).replace('{total}', totalEtapas);
   const sig = document.getElementById('btnSig');
-  if (etapa === 6) { sig.textContent = 'Ver Informe →'; sig.onclick = () => navigate(1); }
-  else if (etapa === 7) { sig.textContent = '✏️ Recalcular'; sig.onclick = abrirModalRecalcular; }
-  else if (etapa === 5) { sig.textContent = 'Ver Análisis →'; sig.onclick = () => navigate(1); }
-  else { sig.textContent = 'Siguiente →'; sig.onclick = () => navigate(1); }
+  if (etapa === 6) { sig.textContent = tr('btnVerInforme'); sig.onclick = () => navigate(1); }
+  else if (etapa === 7) { sig.textContent = tr('btnRecalcularNav'); sig.onclick = abrirModalRecalcular; }
+  else if (etapa === 5) { sig.textContent = tr('btnVerAnalisis'); sig.onclick = () => navigate(1); }
+  else { sig.textContent = tr('btnSiguiente'); sig.onclick = () => navigate(1); }
 }
 
 function resetApp() {
-  if (!confirm('¿Iniciar una nueva operación? Se borrarán los datos actuales.')) return;
+  if (!confirm(tr('confirmNuevaOp'))) return;
   timeline = []; senialesSeleccionadas.clear(); posventaChecked.clear();
   document.querySelectorAll('input,select,textarea').forEach(el => {
     if (el.type === 'number') el.value = el.min || 0;
@@ -2155,7 +3288,7 @@ async function confirmarRecalculo() {
   // Recalcular score y regenerar informe IA completo
   calcularYMostrar();
   await generarInformeCompleto();
-  mostrarToast('↻ Análisis recalculado con nueva información');
+  mostrarToast(tr('toastRecalculado'));
 }
 
 // Cerrar modal al hacer clic fuera
@@ -2407,12 +3540,12 @@ function mostrarAlerta(prob, dias, diasSilencio, comentarios) {
 // ===================== FACTORES BAR =====================
 function renderFactores(scores) {
   const factores = [
-    { name: 'Interés/Respuesta', val: scores.interes, max: 25, color: '#00F5C4' },
-    { name: 'Seguimiento', val: scores.contacto, max: 20, color: '#4F8EF7' },
-    { name: 'Condiciones', val: scores.condiciones, max: 20, color: '#A855F7' },
-    { name: 'Señales compra', val: scores.seniales, max: 15, color: '#F59E0B' },
-    { name: 'Estado operac.', val: scores.estado, max: 15, color: '#10B981' },
-    { name: 'Ext. / Urgencia', val: scores.externo, max: 10, color: '#F97316' },
+    { name: tr('factInteres'), val: scores.interes, max: 25, color: '#00F5C4' },
+    { name: tr('factSeguimiento'), val: scores.contacto, max: 20, color: '#4F8EF7' },
+    { name: tr('factCondiciones'), val: scores.condiciones, max: 20, color: '#A855F7' },
+    { name: tr('factSeniales'), val: scores.seniales, max: 15, color: '#F59E0B' },
+    { name: tr('factEstado'), val: scores.estado, max: 15, color: '#10B981' },
+    { name: tr('factExterno'), val: scores.externo, max: 10, color: '#F97316' },
   ];
   const w = document.getElementById('factoresWrap');
   w.innerHTML = factores.map((f, i) => {
@@ -2428,7 +3561,7 @@ function renderFactores(scores) {
     `;
   }).join('') + (scores.penTiempo + scores.penSilencio > 0 ? `
     <div style="margin-top:10px;padding:10px 12px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:10px;font-size:12px;color:#fca5a5;">
-      ⚠️ Penalizaciones aplicadas: -${scores.penTiempo} por tiempo en operación, -${scores.penSilencio} por días sin contacto
+      ⚠️ ${tr('penalizacionesMsg').replace('{a}', scores.penTiempo).replace('{b}', scores.penSilencio)}
     </div>
   ` : '');
 }
@@ -2450,9 +3583,9 @@ function renderGraficos(scores, datos) {
   radarChart = new Chart(radarCtx, {
     type: 'radar',
     data: {
-      labels: ['Interés','Seguimiento','Condiciones','Señales','Estado','Externo'],
+      labels: [tr('chartInteres'),tr('chartSeguimiento'),tr('chartCondiciones'),tr('chartSeniales'),tr('chartEstado'),tr('chartExterno')],
       datasets: [{
-        label: 'Score %',
+        label: tr('chartScorePct'),
         data: radarData,
         backgroundColor: 'rgba(0,245,196,0.15)',
         borderColor: '#00F5C4',
@@ -2471,10 +3604,10 @@ function renderGraficos(scores, datos) {
   barChart = new Chart(barCtx, {
     type: 'bar',
     data: {
-      labels: ['Interés','Seguimiento','Condiciones','Señales','Estado','Ext./Urg.'],
+      labels: [tr('chartInteres'),tr('chartSeguimiento'),tr('chartCondiciones'),tr('chartSeniales'),tr('chartEstado'),tr('chartExtUrg')],
       datasets: [
-        { label: 'Obtenido', data: [scores.interes, scores.contacto, scores.condiciones, scores.seniales, scores.estado, scores.externo], backgroundColor: ['#00F5C4','#4F8EF7','#A855F7','#F59E0B','#10B981','#F97316'], borderRadius: 6 },
-        { label: 'Máximo', data: [25,20,20,15,15,10], backgroundColor: 'rgba(42,51,69,0.6)', borderRadius: 6 }
+        { label: tr('chartObtenido'), data: [scores.interes, scores.contacto, scores.condiciones, scores.seniales, scores.estado, scores.externo], backgroundColor: ['#00F5C4','#4F8EF7','#A855F7','#F59E0B','#10B981','#F97316'], borderRadius: 6 },
+        { label: tr('chartMaximo'), data: [25,20,20,15,15,10], backgroundColor: 'rgba(42,51,69,0.6)', borderRadius: 6 }
       ]
     },
     options: {
@@ -2513,10 +3646,10 @@ async function analizarSentimientoIA(comentarios, datos, prob) {
   const pctNeu = 100 - pctPos - pctNeg;
 
   let emoji, etiqueta, colorEti, descripcion;
-  if (pctPos >= 50) { emoji='😊'; etiqueta='Positivo'; colorEti='var(--menta)'; descripcion='El cliente muestra entusiasmo y disposición hacia la compra.'; }
-  else if (pctNeg >= 40) { emoji='😐'; etiqueta='Con objeciones'; colorEti='var(--naranja)'; descripcion='El cliente tiene dudas o barreras que debes resolver primero.'; }
-  else if (scorePos === 0 && scoreNeg === 0) { emoji='🔍'; etiqueta='Neutral'; colorEti='var(--azul)'; descripcion='No hay señales claras. Profundiza en sus necesidades.'; }
-  else { emoji='⚠️'; etiqueta='Mixto'; colorEti='var(--advertencia)'; descripcion='Hay señales positivas y negativas. Trabaja primero las objeciones.'; }
+  if (pctPos >= 50) { emoji='😊'; etiqueta=tr('sentPositivo'); colorEti='var(--menta)'; descripcion=tr('sentDescPositivo'); }
+  else if (pctNeg >= 40) { emoji='😐'; etiqueta=tr('sentConObjeciones'); colorEti='var(--naranja)'; descripcion=tr('sentDescObjeciones'); }
+  else if (scorePos === 0 && scoreNeg === 0) { emoji='🔍'; etiqueta=tr('sentNeutral'); colorEti='var(--azul)'; descripcion=tr('sentDescNeutral'); }
+  else { emoji='⚠️'; etiqueta=tr('sentMixto'); colorEti='var(--advertencia)'; descripcion=tr('sentDescMixto'); }
 
   w.innerHTML = `
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
@@ -2526,15 +3659,15 @@ async function analizarSentimientoIA(comentarios, datos, prob) {
         <div style="font-size:12px;color:var(--textodim);">${descripcion}</div>
       </div>
     </div>
-    <div class="sentiment-labels"><span style="color:#fca5a5;">Negativo ${pctNeg}%</span><span style="color:#fdba74;">Neutro ${pctNeu}%</span><span style="color:var(--menta);">Positivo ${pctPos}%</span></div>
+    <div class="sentiment-labels"><span style="color:#fca5a5;">${tr('sentNegativo')} ${pctNeg}%</span><span style="color:#fdba74;">${tr('sentNeutro')} ${pctNeu}%</span><span style="color:var(--menta);">${tr('sentPositivo')} ${pctPos}%</span></div>
     <div class="sentiment-bar-wrap">
       <div class="sentiment-neg" style="flex:${pctNeg}"></div>
       <div class="sentiment-neu" style="flex:${pctNeu}"></div>
       <div class="sentiment-pos" style="flex:${pctPos}"></div>
     </div>
     <div style="margin-top:10px;font-size:12px;color:var(--textodim);">
-      ${scorePos > 0 ? `<span style="color:var(--menta);">✓ Palabras positivas:</span> ${positivos.filter(p=>texto.includes(p)).join(', ')}<br>` : ''}
-      ${scoreNeg > 0 ? `<span style="color:#fca5a5;">✗ Palabras de objeción:</span> ${negativos.filter(p=>texto.includes(p)).join(', ')}<br>` : ''}
+      ${scorePos > 0 ? `<span style="color:var(--menta);">✓ ${tr('palabrasPositivas')}</span> ${positivos.filter(p=>texto.includes(p)).join(', ')}<br>` : ''}
+      ${scoreNeg > 0 ? `<span style="color:#fca5a5;">✗ ${tr('palabrasObjecion')}</span> ${negativos.filter(p=>texto.includes(p)).join(', ')}<br>` : ''}
     </div>
   `;
 }
@@ -2544,14 +3677,14 @@ function generarRecomendaciones(datos, scores, prob) {
   const w = document.getElementById('recomendacionesWrap');
   const tips = [];
 
-  if (datos.diasSinContacto > 7) tips.push({ ico: '📲', txt: `Han pasado ${datos.diasSinContacto} días sin contacto. <strong>Envíale algo de valor hoy</strong>: un artículo, comparativa, o una foto del producto disponible.` });
-  if (datos.respuestaVelocidad <= 1) tips.push({ ico: '🔄', txt: 'El cliente no responde bien. Cambia el canal de comunicación — prueba <strong>WhatsApp con un mensaje breve y directo</strong>.' });
-  if (scores.condiciones < 10) tips.push({ ico: '📋', txt: 'Las condiciones aún no están definidas. <strong>Envía una cotización formal</strong> cuanto antes para generar compromiso.' });
-  if (senialesSeleccionadas.size < 3) tips.push({ ico: '🎯', txt: 'Pocas señales de compra detectadas. <strong>Genera interés</strong> mostrando testimonios, casos de éxito o una demostración.' });
-  if (datos.objecion <= 2) tips.push({ ico: '💬', txt: datos.objecion === 1 ? 'Objeción de precio: <strong>valida el valor antes de negociar</strong>. Muestra beneficios, ROI o diferenciadores.' : 'El cliente necesita tiempo: <strong>crea urgencia legítima</strong> (stock limitado, precio especial por tiempo limitado).' });
-  if (datos.competencia <= 2) tips.push({ ico: '🏆', txt: 'Hay competencia. <strong>Diferénciate inmediatamente</strong>: servicio, garantía, relación personal, o un beneficio exclusivo.' });
-  if (prob >= 70 && datos.estadoOp < 4) tips.push({ ico: '🤝', txt: '¡Momento clave! El cliente está listo. <strong>Propón el cierre directamente</strong>: "¿Procedemos con el anticipo o la firma esta semana?"' });
-  if (tips.length === 0) tips.push({ ico: '✅', txt: 'Todo va bien. <strong>Mantén el ritmo</strong>, confirma detalles finales y avanza hacia la firma.' });
+  if (datos.diasSinContacto > 7) tips.push({ ico: '📲', txt: tr('tipSinContacto').replace('{dias}', datos.diasSinContacto) });
+  if (datos.respuestaVelocidad <= 1) tips.push({ ico: '🔄', txt: tr('tipNoResponde') });
+  if (scores.condiciones < 10) tips.push({ ico: '📋', txt: tr('tipCondiciones') });
+  if (senialesSeleccionadas.size < 3) tips.push({ ico: '🎯', txt: tr('tipPocasSenales') });
+  if (datos.objecion <= 2) tips.push({ ico: '💬', txt: datos.objecion === 1 ? tr('tipObjPrecio') : tr('tipObjTiempo') });
+  if (datos.competencia <= 2) tips.push({ ico: '🏆', txt: tr('tipCompetencia') });
+  if (prob >= 70 && datos.estadoOp < 4) tips.push({ ico: '🤝', txt: tr('tipMomentoClave') });
+  if (tips.length === 0) tips.push({ ico: '✅', txt: tr('tipTodoBien') });
 
   w.innerHTML = tips.map(t => `
     <div style="display:flex;gap:10px;padding:10px;background:var(--card2);border-radius:10px;margin-bottom:8px;border:1px solid var(--borde);">
@@ -2729,7 +3862,7 @@ async function generarInformeCompleto() {
   document.getElementById('reportContent').classList.add('hidden');
   document.getElementById('reportGenerating').style.display = 'block';
 
-  const temp = prob < 30 ? 'Frío' : prob < 55 ? 'Tibio' : prob < 80 ? 'Caliente' : 'Muy Caliente';
+  const temp = prob < 30 ? tr('thermFrioPlain') : prob < 55 ? tr('thermTibioPlain') : prob < 80 ? tr('thermCalientePlain') : tr('thermMuyCalientePlain');
   const estadoTexto = ['Cancelada','Nuevo prospecto','Interesado','Negociando','Falta firma','Cerrada'][datos.estadoOp] || 'En proceso';
   const objecionTexto = ['','Precio/presupuesto','Tiempo/lo pienso','Necesita aprobación','Duda del producto','Sin objeciones'][datos.objecion] || 'No definida';
 
@@ -2859,7 +3992,7 @@ IMPORTANTE: Responde ÚNICAMENTE con las 6 secciones usando exactamente los marc
 
     document.getElementById('reportGenerating').style.display = 'none';
     document.getElementById('reportContent').classList.remove('hidden');
-    mostrarToast('✅ Informe generado correctamente');
+    mostrarToast(tr('toastInformeOk'));
 
   } catch(e) {
     document.getElementById('reportGenerating').style.display = 'none';
@@ -2935,7 +4068,7 @@ function copiarTodoElInforme() {
   });
 
   copiarAlPortapapeles(texto, () => {
-    mostrarToast('📋 Informe completo copiado');
+    mostrarToast(tr('toastInformeCopiado'));
   });
 }
 
@@ -2958,7 +4091,7 @@ async function descargarPDF() {
   // Mostrar barra de progreso
   const bar = document.getElementById('pdfProgress');
   bar.style.display = 'block';
-  mostrarToast('⏳ Generando PDF...');
+  mostrarToast(tr('toastGenerandoPDF'));
 
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
@@ -3007,8 +4140,8 @@ async function descargarPDF() {
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(20);
   setColor('#E2E8F0');
-  doc.text('INFORME EJECUTIVO', M, 62);
-  doc.text('DE OPERACIÓN COMERCIAL', M, 72);
+  doc.text(tr('pdfPortadaTitle1'), M, 62);
+  doc.text(tr('pdfPortadaTitle2'), M, 72);
 
   // Línea separadora
   setFill('#00F5C4');
@@ -3022,25 +4155,25 @@ async function descargarPDF() {
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(9);
   setColor('#8892A4');
-  doc.text('CLIENTE', M + 8, 100);
+  doc.text(tr('pdfCliente'), M + 8, 100);
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(14);
   setColor('#E2E8F0');
-  doc.text(datos.nombre || 'Sin nombre', M + 8, 110);
+  doc.text(datos.nombre || tr('pdfSinNombre'), M + 8, 110);
 
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(9);
   setColor('#8892A4');
-  doc.text('PRODUCTO / SERVICIO', M + 8, 122);
+  doc.text(tr('pdfProductoServicio'), M + 8, 122);
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(11);
   setColor('#E2E8F0');
-  doc.text(datos.producto || 'No especificado', M + 8, 130);
+  doc.text(datos.producto || tr('pdfNoEspecificado'), M + 8, 130);
 
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(9);
   setColor('#8892A4');
-  doc.text('TIPO DE OPERACIÓN', M + 8, 142);
+  doc.text(tr('pdfTipoOperacion'), M + 8, 142);
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(10);
   setColor('#E2E8F0');
@@ -3051,7 +4184,7 @@ async function descargarPDF() {
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(9);
   setColor('#8892A4');
-  doc.text('SCORE DE CIERRE', M + CW - 55, 100);
+  doc.text(tr('pdfScoreCierre'), M + CW - 55, 100);
   doc.setFontSize(36);
   const [sr,sg,sb] = hex(scoreColor);
   doc.setTextColor(sr,sg,sb);
@@ -3063,9 +4196,9 @@ async function descargarPDF() {
   // Fecha y tipo
   doc.setFontSize(10);
   setColor('#8892A4');
-  doc.text(`Generado: ${fecha}`, M, 170);
+  doc.text(`${tr('pdfGenerado')} ${fecha}`, M, 170);
   doc.setFontSize(9);
-  doc.text('Confidencial — Solo para uso interno', M, 178);
+  doc.text(tr('pdfConfidencial'), M, 178);
 
   // Gráfico de gauge (dibujado vectorialmente)
   const cx = W/2, cy = 230, r = 40;
@@ -3080,15 +4213,15 @@ async function descargarPDF() {
   doc.text(`${prob}%`, cx - 10, cy + 4);
   doc.setFontSize(9);
   setColor('#8892A4');
-  doc.text('probabilidad de cierre', cx - 24, cy + 14);
+  doc.text(tr('pdfProbCierre'), cx - 24, cy + 14);
 
   // Footer portada
   setFill('#2A3345');
   doc.rect(0, 285, W, 12, 'F');
   doc.setFontSize(8);
   setColor('#8892A4');
-  doc.text('VentaMinds PRO — Sistema de Análisis Comercial', M, 293);
-  doc.text('Confidencial', W - M - 18, 293);
+  doc.text(tr('pdfFooterSistema'), M, 293);
+  doc.text(tr('pdfConfidencialShort'), W - M - 18, 293);
 
   // ── PÁGINA 2: MÉTRICAS ────────────────────────────────────
   doc.addPage();
@@ -3102,7 +4235,7 @@ async function descargarPDF() {
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(16);
   setColor('#00F5C4');
-  doc.text('📊 MÉTRICAS Y FACTORES DE SCORING', M, y); y += 12;
+  doc.text(tr('pdfMetricasTitle'), M, y); y += 12;
 
   setFill('#2A3345');
   doc.rect(M, y, CW, 0.5, 'F');
@@ -3110,17 +4243,19 @@ async function descargarPDF() {
 
   // Cuadros de métricas 2x2
   const boxW = (CW - 8) / 2, boxH = 28;
-  const estadoTexto = ['Cancelada','Nuevo prospecto','Interesado','Negociando','Falta firma','Cerrada'][datos.estadoOp] || 'En proceso';
+  const estadosPdf = [tr('estadoCancelada'),tr('estadoNuevoProspecto'),tr('estadoInteresado'),tr('estadoNegociando'),tr('estadoFaltaFirma'),tr('estadoCerrada')];
+  const estadoTexto = estadosPdf[datos.estadoOp] || tr('estadoEnProceso');
+  const diasSuf = tr('pdfDiasSuffix');
 
   const metricBoxes = [
-    { label: 'Probabilidad de Cierre', value: `${prob}%`, color: scoreColor },
-    { label: 'Temperatura', value: temp, color: '#F97316' },
-    { label: 'Días en Operación', value: `${datos.diasSinCerrar} días`, color: '#4F8EF7' },
-    { label: 'Días sin Contacto', value: `${datos.diasSinContacto} días`, color: datos.diasSinContacto > 7 ? '#EF4444' : '#00F5C4' },
-    { label: 'Contactos Totales', value: `${datos.contactosTotales}`, color: '#A855F7' },
-    { label: 'Señales de Compra', value: `${senialesSeleccionadas.size}/7`, color: '#00F5C4' },
-    { label: 'Urgencia del Cliente', value: `${datos.urgencia}/5`, color: '#F97316' },
-    { label: 'Estado Operación', value: estadoTexto, color: '#4F8EF7' },
+    { label: tr('metaProbCierre'), value: `${prob}%`, color: scoreColor },
+    { label: tr('metaTemperatura'), value: temp, color: '#F97316' },
+    { label: tr('metaDiasOperacion'), value: `${datos.diasSinCerrar}${diasSuf}`, color: '#4F8EF7' },
+    { label: tr('metaDiasSinContacto'), value: `${datos.diasSinContacto}${diasSuf}`, color: datos.diasSinContacto > 7 ? '#EF4444' : '#00F5C4' },
+    { label: tr('metaContactosTotales'), value: `${datos.contactosTotales}`, color: '#A855F7' },
+    { label: tr('metaSenialesCompra'), value: `${senialesSeleccionadas.size}/7`, color: '#00F5C4' },
+    { label: tr('metaUrgenciaCliente'), value: `${datos.urgencia}/5`, color: '#F97316' },
+    { label: tr('metaEstadoOperacion'), value: estadoTexto, color: '#4F8EF7' },
   ];
 
   for (let i = 0; i < metricBoxes.length; i += 2) {
@@ -3152,12 +4287,12 @@ async function descargarPDF() {
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(12);
   setColor('#E2E8F0');
-  doc.text('Desglose de Contactos', M, y); y += 8;
+  doc.text(tr('pdfDesgloseContactos'), M, y); y += 8;
 
   const contactos = [
-    { label: '📞 Llamadas', value: datos.llamadas, max: Math.max(datos.llamadas, datos.whatsapp, datos.correos, 1) },
-    { label: '💬 WhatsApp', value: datos.whatsapp, max: Math.max(datos.llamadas, datos.whatsapp, datos.correos, 1) },
-    { label: '✉️ Correos', value: datos.correos, max: Math.max(datos.llamadas, datos.whatsapp, datos.correos, 1) },
+    { label: '📞 '+tr('lblLlamadasPlain'), value: datos.llamadas, max: Math.max(datos.llamadas, datos.whatsapp, datos.correos, 1) },
+    { label: '💬 '+tr('lblWhatsappPlain'), value: datos.whatsapp, max: Math.max(datos.llamadas, datos.whatsapp, datos.correos, 1) },
+    { label: '✉️ '+tr('lblCorreosPlain'), value: datos.correos, max: Math.max(datos.llamadas, datos.whatsapp, datos.correos, 1) },
   ];
   const barColors = ['#4F8EF7', '#00F5C4', '#A855F7'];
 
@@ -3189,15 +4324,15 @@ async function descargarPDF() {
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(12);
   setColor('#E2E8F0');
-  doc.text('Factores de Scoring', M, y); y += 8;
+  doc.text(tr('pdfFactoresScoring'), M, y); y += 8;
 
   const factores = [
-    { nombre: 'Interés del cliente', obtenido: scores.interes, maximo: 25, color: '#00F5C4' },
-    { nombre: 'Seguimiento y contacto', obtenido: scores.contacto, maximo: 20, color: '#4F8EF7' },
-    { nombre: 'Condiciones de venta', obtenido: scores.condiciones, maximo: 20, color: '#A855F7' },
-    { nombre: 'Señales de compra', obtenido: scores.seniales, maximo: 15, color: '#F59E0B' },
-    { nombre: 'Estado de operación', obtenido: scores.estado, maximo: 15, color: '#10B981' },
-    { nombre: 'Urgencia/Externos', obtenido: scores.externo, maximo: 10, color: '#F97316' },
+    { nombre: tr('pdfFactInteres'), obtenido: scores.interes, maximo: 25, color: '#00F5C4' },
+    { nombre: tr('pdfFactSeguimiento'), obtenido: scores.contacto, maximo: 20, color: '#4F8EF7' },
+    { nombre: tr('pdfFactCondiciones'), obtenido: scores.condiciones, maximo: 20, color: '#A855F7' },
+    { nombre: tr('pdfFactSeniales'), obtenido: scores.seniales, maximo: 15, color: '#F59E0B' },
+    { nombre: tr('pdfFactEstado'), obtenido: scores.estado, maximo: 15, color: '#10B981' },
+    { nombre: tr('pdfFactUrgencia'), obtenido: scores.externo, maximo: 10, color: '#F97316' },
   ];
 
   factores.forEach(f => {
@@ -3221,12 +4356,12 @@ async function descargarPDF() {
 
   // ── PÁGINAS SIGUIENTES: SECCIONES DEL INFORME ─────────────
   const secciones = [
-    { titulo: '⚡ RESUMEN EJECUTIVO', id: 'resumenText', color: '#00F5C4' },
-    { titulo: '📊 MÉTRICAS CLAVE', id: 'metricasText', color: '#4F8EF7' },
-    { titulo: '🧠 ANÁLISIS DETALLADO', id: 'analisisDetalladoText', color: '#A855F7' },
-    { titulo: '🎯 DIAGNÓSTICO POR FACTOR', id: 'diagnosticoText', color: '#F59E0B' },
-    { titulo: '🚀 PLAN DE ACCIÓN', id: 'planAccionText', color: '#10B981' },
-    { titulo: '🤝 ESTRATEGIA DE CIERRE', id: 'estrategiaText', color: '#F97316' },
+    { titulo: tr('pdfSecResumen'), id: 'resumenText', color: '#00F5C4' },
+    { titulo: tr('pdfSecMetricas'), id: 'metricasText', color: '#4F8EF7' },
+    { titulo: tr('pdfSecAnalisis'), id: 'analisisDetalladoText', color: '#A855F7' },
+    { titulo: tr('pdfSecDiagnostico'), id: 'diagnosticoText', color: '#F59E0B' },
+    { titulo: tr('pdfSecPlan'), id: 'planAccionText', color: '#10B981' },
+    { titulo: tr('pdfSecEstrategia'), id: 'estrategiaText', color: '#F97316' },
   ];
 
   secciones.forEach(s => {
@@ -3264,14 +4399,14 @@ async function descargarPDF() {
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(14);
   setColor('#4F8EF7');
-  doc.text('📋 INFORMACIÓN ADICIONAL', M, y); y += 10;
+  doc.text(tr('pdfInfoAdicional'), M, y); y += 10;
 
   // Compromisos
   if (datos.compromisos) {
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(10);
     setColor('#00F5C4');
-    doc.text('Compromisos Pendientes:', M, y); y += 6;
+    doc.text(tr('pdfCompromisosPend'), M, y); y += 6;
     doc.setFont('helvetica', 'normal');
     setColor('#CBD5E1');
     wrapText(datos.compromisos, M, y, CW, 5.5);
@@ -3284,7 +4419,7 @@ async function descargarPDF() {
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(10);
     setColor('#00F5C4');
-    doc.text('Notas Personales del Cliente:', M, y); y += 6;
+    doc.text(tr('pdfNotasPersonales'), M, y); y += 6;
     doc.setFont('helvetica', 'normal');
     setColor('#CBD5E1');
     wrapText(datos.notasPersonales, M, y, CW, 5.5);
@@ -3297,7 +4432,7 @@ async function descargarPDF() {
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(10);
     setColor('#00F5C4');
-    doc.text('Próximo Contacto Programado:', M, y); y += 6;
+    doc.text(tr('pdfProximoContactoProg'), M, y); y += 6;
     doc.setFont('helvetica', 'normal');
     setColor('#CBD5E1');
     doc.setFontSize(10);
@@ -3310,7 +4445,7 @@ async function descargarPDF() {
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(10);
     setColor('#00F5C4');
-    doc.text('Historial de la Operación:', M, y); y += 7;
+    doc.text(tr('pdfHistorialOp'), M, y); y += 7;
 
     timeline.forEach((ev, i) => {
       checkY(10);
@@ -3336,8 +4471,8 @@ async function descargarPDF() {
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(8);
   setColor('#8892A4');
-  doc.text(`Informe generado por VentaMinds PRO — ${fecha}`, M, y + 10);
-  doc.text('Uso confidencial e interno', M, y + 16);
+  doc.text(`${tr('pdfFooterGenerado')} ${fecha}`, M, y + 10);
+  doc.text(tr('pdfUsoConfidencial'), M, y + 16);
   doc.setFont('helvetica', 'bold');
   setColor('#00F5C4');
   doc.text('VentaMinds PRO', W - M - 28, y + 10);
@@ -3347,7 +4482,7 @@ async function descargarPDF() {
   doc.save(`VentaMinds_Informe_${nombre}_${new Date().toISOString().slice(0,10)}.pdf`);
 
   bar.style.display = 'none';
-  mostrarToast('📥 PDF descargado exitosamente');
+  mostrarToast(tr('toastPDFDescargado'));
 }
 </script>
 </body>
