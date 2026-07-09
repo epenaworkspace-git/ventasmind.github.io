@@ -1777,15 +1777,21 @@ function cfgSaveLocal(){ try{ localStorage.setItem(CFG_STORAGE_KEY, JSON.stringi
 // liviana; si Eddy quiere que también viajen entre dispositivos, es un
 // documento aparte (ej. usuarios/{uid}/deals/{dealId}), no este.
 // ═══════════════════════════════════════════════════════════════════════════
-const firebaseConfig = {
-  apiKey: "AIzaSyATTrYMqivDJGLhQYDDjEqLCyv-YEMSK2A",
-  authDomain: "nexus-pro-plus.firebaseapp.com",
-  projectId: "nexus-pro-plus",
-  storageBucket: "nexus-pro-plus.firebasestorage.app",
-  messagingSenderId: "5726048688",
-  appId: "1:5726048688:web:4e977b0657d192a0008675",
-  measurementId: "G-Z5FNXEQTFN"
-};
+const firebaseConfig = (function(){
+  var LS_KEY = 'fbcfg_ventaminds_pro';
+  var saved = null;
+  try { saved = JSON.parse(localStorage.getItem(LS_KEY) || 'null'); } catch(e) { saved = null; }
+  if (saved && saved.apiKey) return saved;
+  var pasted = window.prompt('Configuracion de Firebase para VentaMinds Pro (solo la primera vez en este dispositivo).\nPega aqui el JSON de configuracion:');
+  if (pasted) {
+    try {
+      var cfg = JSON.parse(pasted);
+      localStorage.setItem(LS_KEY, JSON.stringify(cfg));
+      return cfg;
+    } catch(e) { console.warn('Configuracion de Firebase invalida, la sincronizacion quedara desactivada.'); }
+  }
+  return { apiKey:'', authDomain:'', projectId:'', storageBucket:'', messagingSenderId:'', appId:'' };
+})();
 let fbApp=null, fbAuth=null, fbDb=null, fbUser=null, fbUnsub=null;
 let fbSaveTimer=null, fbReady=false, fbApplyingRemote=false;
 
