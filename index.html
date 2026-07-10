@@ -3092,15 +3092,19 @@ function getPosventaItems() {
 
 // ===================== INIT =====================
 window.onload = () => {
-  const hoy = new Date().toISOString().split('T')[0];
-  document.getElementById('fechaContacto').value = hoy;
-  document.getElementById('fechaUltima').value = hoy;
-  applyUiLang(currentUiLang);
-  renderSeniales();
-  renderPosventa();
-  renderTimeline();
-  updateNav();
-  initAccountSyncUI();
+  try{
+    const hoy = new Date().toISOString().split('T')[0];
+    document.getElementById('fechaContacto').value = hoy;
+    document.getElementById('fechaUltima').value = hoy;
+    applyUiLang(currentUiLang);
+    renderSeniales();
+    renderPosventa();
+    renderTimeline();
+    updateNav();
+    initAccountSyncUI();
+  }catch(e){
+    console.warn('Error preparando la interfaz (no afecta el login):', e);
+  }
   fbInit();
 };
 
