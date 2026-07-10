@@ -1782,14 +1782,22 @@ const firebaseConfig = (function(){
   var saved = null;
   try { saved = JSON.parse(localStorage.getItem(LS_KEY) || 'null'); } catch(e) { saved = null; }
   if (saved && saved.apiKey) return saved;
-  var pasted = window.prompt('Configuracion de Firebase para VentaMinds Pro (solo la primera vez en este dispositivo).\nPega aqui el JSON de configuracion:');
-  if (pasted) {
+  for (var intento = 0; intento < 3; intento++) {
+    var pasted = window.prompt('Configuracion de Firebase para VentaMinds Pro (solo la primera vez en este dispositivo).\nPega aqui el JSON de configuracion (debe empezar con { y las comillas en los nombres de los campos):');
+    if (!pasted) break;
     try {
       var cfg = JSON.parse(pasted);
+      if (!cfg.apiKey) {
+        window.alert('Ese texto es JSON valido pero le falta el campo "apiKey". Revisa que copiaste el bloque completo e intenta de nuevo.');
+        continue;
+      }
       localStorage.setItem(LS_KEY, JSON.stringify(cfg));
       return cfg;
-    } catch(e) { console.warn('Configuracion de Firebase invalida, la sincronizacion quedara desactivada.'); }
+    } catch(e) {
+      window.alert('El texto pegado no es un JSON valido. Debe verse asi (con comillas en TODOS los nombres de campo):\n{"apiKey":"...","authDomain":"...","projectId":"...","storageBucket":"...","messagingSenderId":"...","appId":"..."}\n\nIntenta de nuevo.');
+    }
   }
+  window.alert('No se configuro Firebase para VentaMinds Pro. La app seguira funcionando localmente, sin sincronizacion, hasta que recargues la pagina y lo captures correctamente.');
   return { apiKey:'', authDomain:'', projectId:'', storageBucket:'', messagingSenderId:'', appId:'' };
 })();
 let fbApp=null, fbAuth=null, fbDb=null, fbUser=null, fbUnsub=null;
@@ -1914,13 +1922,18 @@ async function fbInit(){
     fbUpdateAccountUI();
     return;
   }
+  if(!firebaseConfig || !firebaseConfig.apiKey){
+    showAuthGate();
+    gateMsg('Falta la configuración de Firebase. Recarga la página para volver a capturarla.', true);
+    return;
+  }
   try{
     fbApp=firebase.initializeApp(firebaseConfig);
     fbAuth=firebase.auth();
     fbDb=firebase.firestore();
     try{ await fbDb.enablePersistence({synchronizeTabs:true}); }catch(e){}
     initAuthGate();
-    await gateCompleteEmailLinkIfNeeded();
+    await gateCompleteEmailLinkIfNeeded().catch(()=>{});
     fbAuth.onAuthStateChanged(async (user)=>{
       if(user){
         hideAuthGate();
@@ -1933,11 +1946,17 @@ async function fbInit(){
         fbListenUser();
         fbUpdateAccountUI();
       } else {
-        // Ya no se crea sesión anónima automática: en navegador real se exige login (Google, email+contraseña o enlace por correo)
         showAuthGate();
       }
+    }, (err)=>{
+      showAuthGate();
+      gateMsg('Error de sesión: '+(err.message||err.code||err), true);
     });
-  }catch(e){ console.warn('Firebase: no disponible en este entorno',e); fbUpdateAccountUI(); }
+  }catch(e){
+    showAuthGate();
+    gateMsg('No se pudo inicializar Firebase: '+(e.message||e), true);
+    console.warn('Firebase: no disponible en este entorno',e); fbUpdateAccountUI();
+  }
 }
 
 // ── Cuenta y sincronización (UI en Configuración) ─────────────────────────────
